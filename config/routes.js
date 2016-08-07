@@ -32,9 +32,29 @@ module.exports.routes = {
   *                                                                          *
   ***************************************************************************/
 
-  '/': {
-    view: 'homepage'
-  }
+  'GET /': 'ViewController.board',
+
+  // '/board': 'ViewController.board',
+
+  'GET /region/:id': 'ViewController.region',
+
+  'GET /hex/:id': 'ViewController.hex',
+
+  'GET /hex/:id/resources': 'ViewController.resources',
+
+  'GET /player/:name': 'ViewController.player',
+
+  'GET /login': 'ViewController.login',
+
+  'GET /register': 'ViewController.register',
+
+  'POST /register': 'UserController.register',
+
+  'GET /admin': 'ViewController.admin',
+
+  'POST /login': 'SessionController.login',
+
+  'POST /logout': 'SessionController.logout'
 
   /***************************************************************************
   *                                                                          *

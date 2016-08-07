@@ -1,0 +1,64 @@
+doctype html
+
+head
+  title= title
+  meta(name="viewport" content="width=device-width, initial-scale=1.0")
+
+  script(src="http://code.jquery.com/jquery-2.0.0.min.js")
+  link(href="/styles/bootstrap.min.css" rel="stylesheet")
+  link(href="/styles/style.css" rel="stylesheet")
+  script(src="/js/bootstrap.min.js")
+  script(src="/js/main.js")
+
+body 
+  // header
+  div(class="navbar navbar-default")
+    div.container
+
+      div.navbar-header
+        button(type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse")
+          span.icon-bar
+          span.icon-bar
+          span.icon-bar
+        div.navbar-brand
+          | #[ #[a(href="/" class="link") Grand Challenge Design] | #{title} ]
+
+      div(class="navbar-collapse collapse")
+        ul(class="nav navbar-nav navbar-right")
+          if user 
+            - link = '/player/' + user
+            li #[a(href=link) #{user}] 
+            li #[a(href="javascript:logout()") Logout]
+
+          else
+            li #[a(href="/login") Log in]
+            li #[a(href="/register") Register]
+
+  div.container
+    div.row
+      div.col-xs-3 
+        a(href="/region/A")
+          div(style="width: 100%; border:1px solid #000000; padding-bottom: 67%") A
+      div.col-xs-3 
+        a(href="/region/B")
+          div(style="width: 100%; border:1px solid #000000; padding-bottom: 67%") B
+      div.col-xs-3 
+        a(href="/region/C")
+          div(style="width: 100%; border:1px solid #000000; padding-bottom: 67%") C
+      div.col-xs-3 
+        a(href="/region/D")
+          div(style="width: 100%; border:1px solid #000000; padding-bottom: 67%") D
+    br
+    div.row
+      div.col-xs-3 
+        a(href="/region/E")
+          div(style="width: 100%; border:1px solid #000000; padding-bottom: 67%") E
+      div.col-xs-3 
+        a(href="/region/F")
+          div(style="width: 100%; border:1px solid #000000; padding-bottom: 67%") F
+      div.col-xs-3 
+        a(href="/region/G")
+          div(style="width: 100%; border:1px solid #000000; padding-bottom: 67%") G
+      div.col-xs-3 
+        a(href="/region/H")
+          div(style="width: 100%; border:1px solid #000000; padding-bottom: 67%") H

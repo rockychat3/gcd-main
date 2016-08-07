@@ -1,0 +1,55 @@
+doctype html
+
+head
+  title= title
+  meta(name="viewport" content="width=device-width, initial-scale=1.0")
+
+  script(src="http://code.jquery.com/jquery-2.0.0.min.js")
+  link(href="/styles/bootstrap.min.css" rel="stylesheet")
+  link(href="/styles/style.css" rel="stylesheet")
+  script(src="/js/bootstrap.min.js")
+  script(src="/js/main.js")
+
+body 
+  // header
+  div(class="navbar navbar-default")
+    div.container
+
+      div.navbar-header
+        button(type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse")
+          span.icon-bar
+          span.icon-bar
+          span.icon-bar
+        div.navbar-brand
+          | #[ #[a(href="/" class="link") Grand Challenge Design] | #{title} ]
+
+      div(class="navbar-collapse collapse")
+        ul(class="nav navbar-nav navbar-right")
+          if user 
+            - link = '/player/' + user
+            li #[a(href=link) #{user}] 
+            li #[a(href="javascript:logout()") Logout]
+
+          else
+            li #[a(href="/login") Log in]
+            li #[a(href="/register") Register]
+
+  div.container
+    div.row
+      div.col-sm-3
+      div.col-sm-3
+        br
+        div.hexagon
+      // add media query here
+      div.col-md-6
+        ul(style="display:inline-block;")
+          li #[h3 ID: Aa1]
+          li #[h3 Owner: Evan ]
+          li #[h3 Power: 100 ]
+          li #[h3 Water: 0 ]
+          li #[h3 Population: 10,000,000 ]
+
+    div.row
+      div(class="col-sm-4 col-sm-offset-2" style="text-align:center;")
+        ul(style="display:inline-block;")
+          li Put stuff here 

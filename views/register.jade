@@ -1,0 +1,44 @@
+doctype html
+
+head
+  title= title
+  meta(name="viewport" content="width=device-width, initial-scale=1.0")
+
+  script(src="http://code.jquery.com/jquery-2.0.0.min.js")
+  link(href="/styles/bootstrap.min.css" rel="stylesheet")
+  link(href="/styles/style.css" rel="stylesheet")
+  script(src="/js/bootstrap.min.js")
+  script(src="/js/register.js")
+
+body 
+  // header
+  div(class="navbar navbar-default")
+    div.container
+
+      div.navbar-header
+        div.navbar-brand
+          | #[ #[a(href="/" class="link") Grand Challenge Design] | #{title} ]
+
+  div.container
+    div.row
+      div.col-sm-4
+      div.col-sm-4
+        div#err
+        form(action="javascript:register()")
+          div.form-group
+            label(for="email") Email
+            input(type="email" class="form-control" id="email" placeholder="example@me.com" autofocus)
+          div.form-group
+            label(for="fname") First Name
+            input(type="text" class="form-control" id="fname" placeholder="First name")
+          div.form-group
+            label(for="lname") Last Name
+            input(type="text" class="form-control" id="lname" placeholder="Last name")
+          div.form-group
+            label(for="password") Password
+            input(type="password" class="form-control" id="password" placeholder="password")
+          div.form-group
+            label(for="password2") Re-enter Password
+            input(type="password" class="form-control" id="password2" placeholder="password")
+          button(type="submit" class="btn") Register
+      div.col-sm-4

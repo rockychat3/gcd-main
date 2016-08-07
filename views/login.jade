@@ -1,0 +1,44 @@
+doctype html
+
+head
+  title= title
+  meta(name="viewport" content="width=device-width, initial-scale=1.0")
+
+  script(src="http://code.jquery.com/jquery-2.0.0.min.js")
+  link(href="/styles/bootstrap.min.css" rel="stylesheet")
+  link(href="/styles/bootstrap.min.css.map" rel="stylesheet")
+  link(href="/styles/style.css" rel="stylesheet")
+  script(src="/js/bootstrap.min.js")
+  script(src="/js/login.js")
+  
+
+body 
+  // header
+  div(class="navbar navbar-default")
+    div.container
+
+      div.navbar-header
+        div.navbar-brand
+          | #[ #[a(href="/" class="link") Grand Challenge Design] | #{title} ]
+
+  div.container
+    div.row
+      div.col-sm-4
+      div.col-sm-4
+
+        if !user
+          form(action="javascript:login()")
+            div.form-group
+              label(for="name") Name
+              input(type="text" class="form-control" id="name" placeholder="First Last" autofocus)
+            div.form-group
+              label(for="password") Password
+              input(type="password" class="form-control" id="password" placeholder="password")
+            button(type="submit" class="btn") Log In
+        else 
+          div(style="text-align: center;")
+            div(class="alert alert-info")
+              | Already logged in as #{user}
+            button(type="button" class="btn btn-default" onclick="javascript:logout()") Log out? 
+
+      div.col-sm-4
