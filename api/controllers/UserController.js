@@ -3,14 +3,6 @@ var pg = require('pg');
 module.exports = {
 
   register: function(req, res) {
-    // var config = {
-    //   user: admin,
-    //   password: pword,
-    //   host: openshift,
-    //   port: openshift port,
-    //   database: db;
-    // };
-    // var client = new pg.Client(config);
 
     // client.connect(function (err) {
 

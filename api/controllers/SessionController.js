@@ -3,26 +3,14 @@ var pg = require('pg');
 module.exports = {
 
   login: function (req, res) {
-    var config = {
-      user: req.param('name').replace(/\s+/g, '_'),
-      password: req.param('password'),
-      host: process.env.OPENSHIFT_POSTGRESQL_DB_HOST,
-      port: process.env.OPENSHIFT_POSTGRESQL_DB_PORT,
-      database: 'v1'
-    };
-    var client = new pg.Client(config);
 
-    client.connect(function (err) {
-      if (err) 
-        return res.send('Unable to log in');
+    Player.query('select * from game.players where name = ' + req.param('name'), function (err, results) {
+      if (!results.rows.length) return res.send('Unable to log in');
 
-      else {
-        req.session.name = req.param('name');
-        req.session.db_name = req.param('name').replace(/\s/g, '');
-        req.session.password = req.param('password');
+      req.session.name = req.param('name');
+      req.session.password = req.param('password');
 
-        res.send('Logged in');
-      }
+      return res.send('Logged in');
 
       // if (req.param('name') == 'admin' && req.param('password') == 'admin') {
       //   req.session.name = req.param('name');

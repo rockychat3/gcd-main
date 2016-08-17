@@ -3,9 +3,12 @@ module.exports = {
   attributes: {
 
     money: {
-      type: 'money'
+      type: 'int'
     },
     name: {
+      type: 'text'
+    },
+    password: {
       type: 'text'
     },
     id: {
