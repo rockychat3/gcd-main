@@ -74,14 +74,14 @@ module.exports.connections = {
   *                                                                          *
   *                                                                          *
   ***************************************************************************/
-  testDb: {
-    adapter: 'sails-postgresql',
-    host: 'localhost',
-    port: '5000',
-    user: 'postgres', // optional
-    password: 'admin', // optional
-    database: 'gcd' //optional
-  }
+  // testDb: {
+  //   adapter: 'sails-postgresql',
+  //   host: 'localhost',
+  //   port: '5000',
+  //   user: 'postgres', // optional
+  //   password: 'admin', // optional
+  //   database: 'gcd' //optional
+  // }
 
 
   /***************************************************************************

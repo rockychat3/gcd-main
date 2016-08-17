@@ -1,12 +1,11 @@
 doctype html
 
 head
-  title= title
+  title #{title} - Grand Challenge Design
   meta(name="viewport" content="width=device-width, initial-scale=1.0")
 
   script(src="http://code.jquery.com/jquery-2.0.0.min.js")
   link(href="/styles/bootstrap.min.css" rel="stylesheet")
-  link(href="/styles/bootstrap.min.css.map" rel="stylesheet")
   link(href="/styles/style.css" rel="stylesheet")
   script(src="/js/bootstrap.min.js")
   script(src="/js/login.js")
@@ -19,7 +18,7 @@ body
 
       div.navbar-header
         div.navbar-brand
-          | #[ #[a(href="/" class="link") Grand Challenge Design] | #{title} ]
+          | #[a.link(href="/") Grand Challenge Design] | #{title} 
 
   div.container
     div.row
@@ -29,16 +28,19 @@ body
         if !user
           form(action="javascript:login()")
             div.form-group
-              label(for="name") Name
-              input(type="text" class="form-control" id="name" placeholder="First Last" autofocus)
+              label(for="name") Nane * 
+              input.form-control(type="text" id="name" placeholder="John Doe" required="true" autofocus)
             div.form-group
-              label(for="password") Password
-              input(type="password" class="form-control" id="password" placeholder="password")
-            button(type="submit" class="btn") Log In
+              label(for="password") Password *
+              input.form-control(type="password" id="password" placeholder="password" required="true")
+            button.btn(type="submit") Log In
+          br
+          a(href='/register') Register Now
         else 
           div(style="text-align: center;")
-            div(class="alert alert-info")
+            div.alert.alert-info
+              span.glyphicon.glyphicon-exclamation-sign(aria-hidden="true")
               | Already logged in as #{user}
-            button(type="button" class="btn btn-default" onclick="javascript:logout()") Log out? 
+            button.btn(type="button" onclick="javascript:logout()") Log out? 
 
       div.col-sm-4

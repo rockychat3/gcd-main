@@ -1,7 +1,7 @@
 doctype html
 
 head
-  title= title
+  title #{title} - Grand Challenge Design
   meta(name="viewport" content="width=device-width, initial-scale=1.0")
 
   script(src="http://code.jquery.com/jquery-2.0.0.min.js")
@@ -10,18 +10,37 @@ head
   script(src="/js/bootstrap.min.js")
   script(src="/js/main.js")  
 
+  if top
+    case missing
+      when -1
+        link(href="/styles/top-left.css" rel="stylesheet")
+      when 0
+        link(href="/styles/top-middle.css" rel="stylesheet")
+      when 1
+        link(href="/styles/top-right.css" rel="stylesheet")
+  else
+    case missing
+      when -1
+        link(href="/styles/bottom-left.css" rel="stylesheet")
+      when 0
+        link(href="/styles/bottom-middle.css" rel="stylesheet")
+      when 1
+        link(href="/styles/bottom-right.css" rel="stylesheet")
+
+  script.
+    $(function(){$('.hexagon, .hexFarm, .hexTown, .hexCity').click(function(){window.location.href='/hex/'+this.id;})});
+
 body 
   // header
   div(class="navbar navbar-default")
     div.container
-
       div.navbar-header
         button(type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse")
           span.icon-bar
           span.icon-bar
           span.icon-bar
         div.navbar-brand
-          | #[ #[a(href="/" class="link") Grand Challenge Design] | #{title} ]
+          | #[a(href="/" class="link") Grand Challenge Design] | #{title} 
 
       div(class="navbar-collapse collapse")
         ul(class="nav navbar-nav navbar-right")
@@ -35,73 +54,16 @@ body
             li #[a(href="/register") Register]
 
   div.container
-    div(style="width: 100%; border:1px solid #000000;padding:20px")
-      each i in [1,2,3,4]
-        div.row
-          p
-          div.col-xs-6
-            div.row
-              div.col-xs-3 
-                a(href="/hex/1")
-                  div(style="width:86%;border:1px solid #000000;padding-bottom:57.8%") 1 
-              div.col-xs-3 
-                a(href="/hex/1")
-                  div(style="width:86%;border:1px solid #000000;padding-bottom:57.8%") 1                   
-              div.col-xs-3 
-                a(href="/hex/1")
-                  div(style="width:86%;border:1px solid #000000;padding-bottom:57.8%") 1 
-              div.col-xs-3 
-                a(href="/hex/1")
-                  div(style="width:86%;border:1px solid #000000;padding-bottom:57.8%") 1
-          div.col-xs-6
-            div.row 
-              div.col-xs-3 
-                a(href="/hex/1")
-                  div(style="width:86%;border:1px solid #000000;padding-bottom:57.8%") 1
-              div.col-xs-3 
-                a(href="/hex/1")
-                  div(style="width:86%;border:1px solid #000000;padding-bottom:57.8%") 1
-              div.col-xs-3 
-                a(href="/hex/1")
-                  div(style="width:86%;border:1px solid #000000;padding-bottom: 57.8%") 1
-              div.col-xs-3 
-                a(href="/hex/1")
-                  div(style="width:86%;border:1px solid #000000;padding-bottom:57.8%") 1
-        p
-        div.row
-          div.col-xs-4
-            div.row
-              div.col-xs-4 
-                a(href="/hex/1")
-                  div(style="width:100%;border:1px solid #000000;padding-bottom:67%") 1
-              div.col-xs-4 
-                a(href="/hex/1")
-                  div(style="width:100%;border:1px solid #000000;padding-bottom:67%") 1
-              div.col-xs-4 
-                a(href="/hex/1")
-                  div(style="width:100%;border:1px solid #000000;padding-bottom:67%") 1
-          div.col-xs-4
-            div.row
-              div.col-xs-4 
-                a(href="/hex/1")
-                  div(style="width:100%;border:1px solid #000000;padding-bottom:67%") 1
-              div.col-xs-4 
-                a(href="/hex/1")
-                  div(style="width:100%;border:1px solid #000000;padding-bottom:67%") 1
-              div.col-xs-4 
-                a(href="/hex/1")
-                  div(style="width:100%;border:1px solid #000000;padding-bottom:67%") 1
-          div.col-xs-4
-            div.row
-              div.col-xs-4 
-                a(href="/hex/1")
-                  div(style="width:100%;border:1px solid #000000;padding-bottom:67%") 1
-              div.col-xs-4 
-                a(href="/hex/1")
-                  div(style="width:100%;border:1px solid #000000;padding-bottom:67%") 1
-              div.col-xs-4 
-                a(href="/hex/1")
-                  div(style="width:100%;border:1px solid #000000;padding-bottom: 67%") 1
-      p
+    if missing == undefined && top == undefined
+      h3 Region not in range
 
-       
+    else
+      div(style="width: 100%;padding-bottom: 5%;border: 1px solid #000000;overflow:hidden;padding-top: 20px;")
+        - var length = missing == 0 ? 84 : 80
+        - for (var x=1; x <= length; x++)
+          span.hexagon(id=x)
+            div.tooltiptext Hex #{x}
+            div.hexTop
+            div.hexBottom
+
+    

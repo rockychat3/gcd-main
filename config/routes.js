@@ -22,19 +22,10 @@
 
 module.exports.routes = {
 
-  /***************************************************************************
-  *                                                                          *
-  * Make the view located at `views/homepage.ejs` (or `views/homepage.jade`, *
-  * etc. depending on your default view engine) your home page.              *
-  *                                                                          *
-  * (Alternatively, remove this and add an `index.html` file in your         *
-  * `assets` directory)                                                      *
-  *                                                                          *
-  ***************************************************************************/
-
+  // Web UI
   'GET /': 'ViewController.board',
 
-  // '/board': 'ViewController.board',
+  'GET /board': 'ViewController.board',
 
   'GET /region/:id': 'ViewController.region',
 
@@ -44,26 +35,81 @@ module.exports.routes = {
 
   'GET /player/:name': 'ViewController.player',
 
+  'POST /createToken': 'SessionController.createToken',
+
   'GET /login': 'ViewController.login',
 
   'GET /register': 'ViewController.register',
 
   'POST /register': 'UserController.register',
 
-  'GET /admin': 'ViewController.admin',
-
   'POST /login': 'SessionController.login',
 
-  'POST /logout': 'SessionController.logout'
+  'POST /logout': 'SessionController.logout',
 
-  /***************************************************************************
-  *                                                                          *
-  * Custom routes here...                                                    *
-  *                                                                          *
-  * If a request to a URL doesn't match any of the custom routes above, it   *
-  * is matched against Sails route blueprints. See `config/blueprints.js`    *
-  * for configuration options and examples.                                  *
-  *                                                                          *
-  ***************************************************************************/
+  'GET /admin': 'ViewController.admin',
+
+  'POST /admin/approve_student': 'AdminController.approve',
+
+  'POST /admin/reject_student': 'AdminController.reject',
+
+  'POST /end_round': 'AdminController.endRound',
+
+  'GET /stats/:name': 'UserController.data',
+
+  // Restful API
+  'POST /users/user_data': 'UserController.user',
+
+  'POST /users/authenticate': 'UserController.authenticate',
+
+  'POST /map/get_plot': 'MapController.plot',
+
+  'POST /map/set_growth': 'MapController.growth',
+
+  'POST /map/get_user_residents': 'MapController.residents',
+
+  'POST /map/migrate_population': 'MapController.migrate',
+
+  'POST /bank/check_balance': 'TransactionController.balance',
+
+  'POST /bank/view_transactions': 'TransactionController.transactions',
+
+  'POST /bank/send_money': 'TransactionController.send',
+
+  'POST /bank/request_money': 'TransactionController.request',
+
+  'POST /bank/view_requests': 'TransactionController.view',
+
+  'POST /bank/approve_request': 'TransactionController.approve',
+
+  'POST /resources/mine': 'ResourceController.mine',
+
+  'POST /resources/move': 'ResourceController.move',
+
+  'POST /resources/estimate_move': 'ResourceController.estimate',
+
+  'POST /resources/realify': 'ResourceController.realify',
+
+  'POST /resources/digify': 'ResourceController.digify',
+
+  'POST /resources/view': 'ResourceController.view',
+
+  'POST /resources/transfer_ownership': 'ResourceController.transfer',
+
+  'POST /market/get_price': 'MarketController.price',
+
+  'POST /market/ship_and_sell': 'MarketController.shipsell',
+
+  'POST /market/sell': 'MarketController.sell',
+
+  'POST /market/ship_and_buy': 'MarketController.shipbuy',
+
+  'POST /market/buy': 'MarketController.buy',
+
+  'POST /market/get_price': 'MarketController.price',
+
+  'POST /food/set_rates': 'FoodController.setRates',
+
+  'POST /food/view_available': 'FoodController.view'
 
 };

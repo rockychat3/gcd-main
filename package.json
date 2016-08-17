@@ -1,7 +1,6 @@
 {
   "name": "gcd",
-  "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "a Sails application",
   "keywords": [],
   "dependencies": {
@@ -20,10 +19,10 @@
     "grunt-sync": "0.2.4",
     "include-all": "~0.1.6",
     "jade": "^1.11.0",
+    "pg": "6.0.4",
     "rc": "1.0.1",
     "sails": "~0.12.3",
-    "sails-disk": "~0.10.9",
-    "sails-postgresql": "^0.11.4"
+    "sails-disk": "~0.10.9"
   },
   "scripts": {
     "debug": "node debug app.js",

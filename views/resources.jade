@@ -1,14 +1,16 @@
 doctype html
 
 head
-  title= title
+  title #{title} - Grand Challenge Design
   meta(name="viewport" content="width=device-width, initial-scale=1.0")
 
   script(src="http://code.jquery.com/jquery-2.0.0.min.js")
   link(href="/styles/bootstrap.min.css" rel="stylesheet")
+  link(href="/styles/select2.css" rel="stylesheet")
   link(href="/styles/style.css" rel="stylesheet")
   script(src="/js/bootstrap.min.js")
   script(src="/js/main.js")
+  script(src="/js/select2.js")
 
 body 
   // header
@@ -21,7 +23,7 @@ body
           span.icon-bar
           span.icon-bar
         div.navbar-brand
-          | #[ #[a(href="/" class="link") Grand Challenge Design] | #{title} ]
+          | #[a(href="/" class="link") Grand Challenge Design] | #{title} 
 
       div(class="navbar-collapse collapse")
         ul(class="nav navbar-nav navbar-right")
@@ -33,3 +35,30 @@ body
           else
             li #[a(href="/login") Log in]
             li #[a(href="/register") Register]
+
+  div.container
+    div.row
+      div.col-sm-4
+      div.col-sm-4(style="text-align:center;")
+        div(style="float:left;margin-right:10%") Resource: 
+        div(class="dropdown" style="float:left;")
+          button(class="btn btn-default dropdown-toggle" type="button" id="menu" data-toggle="dropdown" aria-haspopup="true") Select one...  
+            span.caret
+          ul(class="dropdown-menu" aria-labelledby="menu")
+            li #[a hello]
+            li #[a world]
+      div.col-sm-4
+    br
+    div.row
+      div.col-sm-4
+      div.col-sm-4
+        div(style="float:left;margin-right:8.75%") New Value: 
+        div.input-group
+          input.form-control(type="text" placeholder="value")
+      div.col-sm-4
+    br
+    div.row
+      div.col-sm-4
+      div.col-sm-4
+        button.btn Commit Changes
+      div.col-sm-4

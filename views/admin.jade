@@ -1,14 +1,19 @@
 doctype html
 
 head
-  title= title
+  title #{title} - Grand Challenge Design
   meta(name="viewport" content="width=device-width, initial-scale=1.0")
 
   script(src="http://code.jquery.com/jquery-2.0.0.min.js")
   link(href="/styles/bootstrap.min.css" rel="stylesheet")
+  link(href="/styles/select2.css" rel="stylesheet")
   link(href="/styles/style.css" rel="stylesheet")
   script(src="/js/bootstrap.min.js")
   script(src="/js/main.js")
+  script(src="/js/admin.js")
+  script(src="/js/select2.js")
+  script.
+    $(document).ready(function() {$(".js-example-basic-single").select2({placeholder:'Select one', allowClear: true});});
 
 body 
   // header
@@ -21,7 +26,7 @@ body
           span.icon-bar
           span.icon-bar
         div.navbar-brand
-          | #[ #[a(href="/" class="link") Grand Challenge Design] | #{title} ]
+          | #[a(href="/" class="link") Grand Challenge Design] | #{title} 
 
       div(class="navbar-collapse collapse")
         ul(class="nav navbar-nav navbar-right")
@@ -33,3 +38,53 @@ body
           else
             li #[a(href="/login") Log in]
             li #[a(href="/register") Register]
+
+  div.container
+    div.row
+      div.col-sm-6
+        //if players
+        h3 Player Requests:
+        ul
+          li #[ #[h4 Evan Richardson, ejrich44@gmail.com] #[button.btn.btn-default(type='button' onclick='javascript:approve("Evan Richardson", "ejrich44@gmail.com", "yo")') #[span.glyphicon.glyphicon-ok]] #[button.btn.btn-default(type='button' onclick='javascript:reject("Evan Richardson")') #[span.glyphicon.glyphicon-remove]]]
+          li #[ #[h4 Evan Richardson, ejrich44@gmail.com] #[button.btn.btn-default(type='button') #[span.glyphicon.glyphicon-ok]] #[button.btn.btn-default(type='button') #[span.glyphicon.glyphicon-remove]]]
+          li #[ #[h4 Evan Richardson, ejrich44@gmail.com] #[button.btn.btn-default(type='button') #[span.glyphicon.glyphicon-ok]] #[button.btn.btn-default(type='button') #[span.glyphicon.glyphicon-remove]]]
+          li #[ #[h4 Evan Richardson, ejrich44@gmail.com] #[button.btn.btn-default(type='button') #[span.glyphicon.glyphicon-ok]] #[button.btn.btn-default(type='button') #[span.glyphicon.glyphicon-remove]]]
+          li #[ #[h4 Evan Richardson, ejrich44@gmail.com] #[button.btn.btn-default(type='button') #[span.glyphicon.glyphicon-ok]] #[button.btn.btn-default(type='button') #[span.glyphicon.glyphicon-remove]]]
+
+      div.col-sm-6
+        br 
+        button.btn(type='button' onclick="javascript:endround()") End current round
+    hr
+    div.row
+      div.col-sm-6
+        h3 View Student Stats
+        ul
+          li #[h4 #[a(href='/stats/Evan Richardson' target='_blank') Evan Richardson] #[a(href='/stats/Evan Richardson' download) #[span.glyphicon.glyphicon-download-alt]]]
+
+      div.col-sm-6
+        h3 Edit Hex Data
+        label(for='hex' style='width: 100%') Hex ID: 
+          br
+          select.js-example-basic-single#hex(style='width: 50%') 
+            option
+            option(value='ER') Evan Richardson
+            option(value='ER') Evan Richardson
+            option(value='ER') Evan Richardson
+            option(value='ER') Evan Richardson
+            option(value='ER') Evan Richardson
+      
+        label(for='hex' style='width: 100%') Field: 
+          br
+          select.js-example-basic-single#field(style='width: 50%')
+            option
+            option(value='ER') Evan Richardson
+            option(value='ER') Evan Richardson
+            option(value='ER') Evan Richardson
+            option(value='ER') Evan Richardson
+
+
+        div.input-group#value #[strong Value:]
+          input.form-control(type="text" placeholder="New value")
+        br
+        button.btn(onclick="javascript:commit()") Commit Changes
+

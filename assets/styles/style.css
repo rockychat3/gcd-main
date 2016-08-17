@@ -3,7 +3,12 @@
   text-decoration: none;
 }
 
-.hexagon {
+.col-xs-3 {
+  padding-right: 0.2% !important;
+  padding-left: 0.2% !important;
+}
+
+.hex {
   position: relative;
   width: 180px; 
   height: 103.92px;
@@ -13,8 +18,8 @@
   border-right: solid 1px #333333;
 }
 
-.hexagon:before,
-.hexagon:after {
+.hex:before,
+.hex:after {
   content: "";
   position: absolute;
   z-index: 1;
@@ -27,14 +32,112 @@
   left: 25.3604px;
 }
 
-.hexagon:before {
+.hex:before {
   top: -63.6396px;
   border-top: solid 1.4142px #333333;
   border-right: solid 1.4142px #333333;
 }
 
-.hexagon:after {
+.hex:after {
   bottom: -63.6396px;
   border-bottom: solid 1.4142px #333333;
   border-left: solid 1.4142px #333333;
+}
+
+.hexfarm {
+  position: relative;
+  width: 180px; 
+  height: 103.92px;
+  margin: 51.96px 0;
+  background-image: url('/images/farm.jpg');
+  background-size: auto 205.5367px;
+  background-position: center;
+  border-left: solid 1px #333333;
+  border-right: solid 1px #333333;
+}
+
+.hextown {
+  position: relative;
+  width: 180px; 
+  height: 103.92px;
+  margin: 51.96px 0;
+  background-image: url('/images/town.jpg');
+  background-size: auto 205.5367px;
+  background-position: center;
+  border-left: solid 1px #333333;
+  border-right: solid 1px #333333;
+}
+
+.hexcity {
+  position: relative;
+  width: 180px; 
+  height: 103.92px;
+  margin: 51.96px 0;
+  background-image: url('/images/city.jpg');
+  background-size: auto 205.5367px;
+  background-position: center;
+  border-left: solid 1px #333333;
+  border-right: solid 1px #333333;
+}
+
+.hextop,
+.hexbottom {
+  position: absolute;
+  z-index: 1;
+  width: 127.28px;
+  height: 127.28px;
+  overflow: hidden;
+  -webkit-transform: scaleY(0.5774) rotate(-45deg);
+  -ms-transform: scaleY(0.5774) rotate(-45deg);
+  transform: scaleY(0.5774) rotate(-45deg);
+  background: inherit;
+  left: 25.36px;
+}
+
+.hextop:after,
+.hexbottom:after {
+  content: "";
+  position: absolute;
+  width: 178.0000px;
+  height: 102.7683479157534px;
+  -webkit-transform:  rotate(45deg) scaleY(1.7321) translateY(-51.3842px);
+  -ms-transform:      rotate(45deg) scaleY(1.7321) translateY(-51.3842px);
+  transform:          rotate(45deg) scaleY(1.7321) translateY(-51.3842px);
+  -webkit-transform-origin: 0 0;
+  -ms-transform-origin: 0 0;
+  transform-origin: 0 0;
+  background: inherit;
+}
+
+.hextop {
+  top: -63.6396px;
+  border-top: solid 1.4142px #333333;
+  border-right: solid 1.4142px #333333;
+}
+
+.hextop:after {
+  background-position: center top;
+}
+
+.hexbottom {
+  bottom: -63.6396px;
+  border-bottom: solid 1.4142px #333333;
+  border-left: solid 1.4142px #333333;
+}
+
+.hexbottom:after {
+  background-position: center bottom;
+}
+
+.hexfarm:after,
+.hextown:after,
+.hexcity:after {
+  content: "";
+  position: absolute;
+  top: 0.5774px;
+  left: 0;
+  width: 178.0000px;
+  height: 102.7683px;
+  z-index: 2;
+  background: inherit;
 }

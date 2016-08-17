@@ -1,7 +1,7 @@
 doctype html
 
 head
-  title= title
+  title #{title} - Grand Challenge Design
   meta(name="viewport" content="width=device-width, initial-scale=1.0")
 
   script(src="http://code.jquery.com/jquery-2.0.0.min.js")
@@ -21,7 +21,7 @@ body
           span.icon-bar
           span.icon-bar
         div.navbar-brand
-          | #[ #[a(href="/" class="link") Grand Challenge Design] | #{title} ]
+           #[a(href="/" class="link") Grand Challenge Design] | #{title} 
 
       div(class="navbar-collapse collapse")
         ul(class="nav navbar-nav navbar-right")
@@ -39,8 +39,9 @@ body
       div.col-sm-3
       div.col-sm-3
         br
-        div.hexagon
-      // add media query here
+        div.hex
+          div.hexTop
+          div.hexBottom
       div.col-md-6
         ul(style="display:inline-block;")
           li #[h3 ID: Aa1]
