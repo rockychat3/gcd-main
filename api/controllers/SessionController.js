@@ -8,7 +8,7 @@ module.exports = {
       password: req.param('password'),
       host: $OPENSHIFT_POSTGRESQL_DB_HOST,
       port: $OPENSHIFT_POSTGRESQL_DB_PORT,
-      database: 'v1';
+      database: 'v2'
     };
     var client = new pg.Client(config);
 
@@ -32,7 +32,7 @@ module.exports = {
       // }
       // else
       //   return res.send('Unable to log in');
-    };
+    });
   },
 
   logout: function (req, res) {
