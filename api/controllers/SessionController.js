@@ -6,7 +6,7 @@ module.exports = {
     var config = {
       user: req.param('name').replace(/\s+/g, '_'),
       password: req.param('password'),
-      host: $OPENSHIFT_POSTGRESQL_DB_HOST:,
+      host: $OPENSHIFT_POSTGRESQL_DB_HOST,
       port: $OPENSHIFT_POSTGRESQL_DB_PORT,
       database: 'v1';
     };
