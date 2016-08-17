@@ -1,5 +1,3 @@
-var pg = require('pg');
-
 module.exports = {
 
   balance: function (req, res) {
@@ -23,7 +21,7 @@ module.exports = {
   },
 
   approve: function (req, res) {
-    
+
   }
 
 }

@@ -1,5 +1,3 @@
-var pg = require('pg');
-
 module.exports = {
 
   register: function(req, res) {

@@ -1,5 +1,3 @@
-var pg = require('pg');
-
 module.exports = {
 
   approve: function (req, res) {

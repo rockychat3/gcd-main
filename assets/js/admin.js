@@ -17,8 +17,3 @@ function endround() {
 
   });
 }
-
-function getField() {
-  if ($('#hex').val())
-    alert('hello');
-}
