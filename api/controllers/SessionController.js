@@ -6,8 +6,8 @@ module.exports = {
     var config = {
       user: req.param('name').replace(/\s+/g, '_'),
       password: req.param('password'),
-      host: '$OPENSHIFT_POSTGRESQL_DB_HOST',
-      port: '$OPENSHIFT_POSTGRESQL_DB_PORT',
+      host: process.env.OPENSHIFT_POSTGRESQL_DB_HOST,
+      port: process.env.OPENSHIFT_POSTGRESQL_DB_PORT,
       database: 'v2'
     };
     var client = new pg.Client(config);
