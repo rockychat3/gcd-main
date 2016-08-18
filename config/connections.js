@@ -76,11 +76,11 @@ module.exports.connections = {
   ***************************************************************************/
   testDb: {
     adapter: 'sails-postgresql',
-    host: process.env.OPENSHIFT_POSTGRESQL_DB_HOST,
-    port: process.env.OPENSHIFT_POSTGRESQL_DB_PORT,
-    user: 'admineumq666', // optional
-    password: 'mWPTgXTS77pH', // optional
-    database: 'v1' //optional
+    host: process.env.OPENSHIFT_POSTGRESQL_DB_HOST || 'localhost',
+    port: process.env.OPENSHIFT_POSTGRESQL_DB_PORT || 5000,
+    user: 'postgres' /*'admineumq666'*/, 
+    password: 'admin' /*'mWPTgXTS77pH'*/, 
+    database: 'gcd' // 'v1'
   }
 
 

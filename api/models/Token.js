@@ -1,25 +1,23 @@
 module.exports = {
-
+  
+  autoCreatedAt: false,
+  autoUpdatedAt: false,
   attributes: {
 
     id: {
       type: 'integer',
       primaryKey: true
     },
-    name: {
+    string: {
       type: 'text'
     },
-    password: {
-      type: 'text'
+    player: {
+      model: 'player',
+      unique: true
     },
-    email: {
+    type: {
       type: 'text'
-    },
-    money: {
-      type: 'int'
     }
 
-
   }
-  
 };

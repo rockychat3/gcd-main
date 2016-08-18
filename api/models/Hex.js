@@ -3,7 +3,8 @@ module.exports = {
   attributes: {
 
     id: {
-      type: 'integer'
+      type: 'integer',
+      primaryKey: true
     },
 
     row: {
@@ -15,7 +16,8 @@ module.exports = {
     },
 
     player: {
-      type: 'integer'
+      model: 'player',
+      unique: true
     },
 
     power: {

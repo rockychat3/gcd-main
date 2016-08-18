@@ -2,22 +2,15 @@ module.exports = {
 
   login: function (req, res) {
 
-    Player.query('select * from game.players where name = ' + req.param('name'), function (err, results) {
+    Player.query(`SELECT * FROM game.player WHERE name =  '${req.param('name')}' AND password = '${req.param('password')}'`, function (err, results) {
       if (!results.rows.length) return res.send('Unable to log in');
 
       req.session.name = req.param('name');
+      req.session.key = results.rows[0].id;
       req.session.password = req.param('password');
 
       return res.send('Logged in');
 
-      // if (req.param('name') == 'admin' && req.param('password') == 'admin') {
-      //   req.session.name = req.param('name');
-      //   req.session.db_name = req.param('name').replace(/\s+/g, '_');
-      //   req.session.password = req.param('password');
-      //   return res.send('Logged in');
-      // }
-      // else
-      //   return res.send('Unable to log in');
     });
   },
 
@@ -28,37 +21,23 @@ module.exports = {
   },
 
   createToken: function (req, res) {
-    if (!req.session.db_name) {
+    if (!req.session.name) {
       res.send('No current session available, log in to receive a token!');
     }
     else {
-      // var config = {
-      //   user: req.session.db_name,
-      //   password: req.session.password,
-      //   host: openshift,
-      //   port: openshift port,
-      //   database: db;
-      // };
-      // var client = new pg.Client(config);
 
-      // client.connect(function (err) {
-      //   if (err) res.send('Unable to access database, try again');
+      token = Date.now().toString();
+      for(var i=0;i<30;i++) {
+        start = Math.random() < 0.5 ? 65 : 97;
+        token += String.fromCharCode(start+Math.floor(Math.random()*26));
+      }
+      
+      Token.query(`insert into game.token (string, player, type) values ('${token}', ${req.session.key}, '${req.param('type')}')`, function (err, result) {
+        console.log(err, result);
+      });
 
-        multiplier = Math.ceil(Math.random()*6);
-        now = Date.now();
-
-        token = (now*multiplier).toString();
-        for(var i=0;i<30;i++) {
-          start = Math.random() < 0.5 ? 65 : 97;
-          token += String.fromCharCode(start+Math.floor(Math.random()*26));
-        }
-
-        // client.query('update game.player set token=' + token + ', multiplier=' + multiplier + ' where name = ' + req.session.name, function (err, result) {
-        //   if (err) throw err;
-        // });
-
-        res.send(token);
-      // });
+      res.send(token);
+    
     }
   }
 
