@@ -1,5 +1,5 @@
 module.exports = {
-
+  
   autoCreatedAt: false,
   autoUpdatedAt: false,
   attributes: {
@@ -8,26 +8,21 @@ module.exports = {
       type: 'integer',
       primaryKey: true
     },
-    name: {
-      type: 'text'
+    owner: {
+      model: 'player',
+      unique: true
     },
-    email: {
-      type: 'text'
-    },
-    password: {
-      type: 'text'
-    },
-    money: {
-      type: 'int'
-    },
-    growing: {
+    hex: {
       model: 'hex',
       unique: true
     },
-    admin: {
-      type: 'bool'
+    amount: {
+      type: 'int'
+    },
+    type: {
+      model: 'resourcetype',
+      unique: true
     }
 
   }
-  
 };

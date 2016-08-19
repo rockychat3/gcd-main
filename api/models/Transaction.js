@@ -1,5 +1,5 @@
 module.exports = {
-
+  
   autoCreatedAt: false,
   autoUpdatedAt: false,
   attributes: {
@@ -8,24 +8,26 @@ module.exports = {
       type: 'integer',
       primaryKey: true
     },
-    label: {
-      type: 'text'
-    },
-    owner: {
+    sending: {
       model: 'player',
       unique: true
     },
-    river: {
-      type: 'bool'
+    receiving: {
+      model: 'player',
+      unique: true
     },
-    tier: {
+    amount: {
+      type: 'int'
+    },
+    date: {
+      type: 'date'
+    },
+    reason: {
       type: 'text'
     },
-    power: {
-      type: 'integer'
-    },
-    power: {
-      type: 'integer'
-    }    
+    sending: {
+      complete: 'bool'
+    }
+
   }
 };

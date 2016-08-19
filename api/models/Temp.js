@@ -16,18 +16,7 @@ module.exports = {
     },
     password: {
       type: 'text'
-    },
-    money: {
-      type: 'int'
-    },
-    growing: {
-      model: 'hex',
-      unique: true
-    },
-    admin: {
-      type: 'bool'
     }
 
   }
-  
 };

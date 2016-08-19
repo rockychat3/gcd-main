@@ -8,18 +8,11 @@ module.exports = {
       type: 'integer',
       primaryKey: true
     },
-    string: {
-      type: 'text'
-    },
     type: {
       type: 'text'
     },
-    player: {
-      model: 'player',
-      unique: true
-    },
-    expired: {
-      type: 'bool'
+    price: {
+      type: 'int'
     }
 
   }
