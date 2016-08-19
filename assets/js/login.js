@@ -1,7 +1,7 @@
 function login() {
-  name = $('#name').val();
+  email = $('#email').val().replace(/\s+/, '');
   password = $('#password').val();
-  $.post('/login', { name: name, password, password }, function (success) {
+  $.post('/login', { email: email, password, password }, function (success) {
     if (success == 'Logged in') {
       if (document.referrer && document.referrer != window.location.href && document.referrer.split('//')[1].split('/')[0] == window.location.host )
         window.location.href = document.referrer;
@@ -9,7 +9,8 @@ function login() {
         window.location.href = '/';
     }
     else {
-      window.location.reload();
+      $('#password').val('');
+      $('#err').html('<div class="alert alert-danger"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>Unable to find email/password combination</div>');
     }
   });
 }

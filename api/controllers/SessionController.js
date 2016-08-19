@@ -2,15 +2,14 @@ module.exports = {
 
   login: function (req, res) {
 
-    Player.query(`SELECT id FROM player WHERE name =  '${req.param('name')}' AND password = '${req.param('password')}'`, function (err, results) {
+    Player.query(`SELECT id FROM player WHERE email = '${req.param('email')}' AND password = '${req.param('password')}'`, function (err, results) {
       if (!results.rows.length) return res.send('Unable to log in');
 
-      req.session.name = req.param('name');
+      req.session.name = results.rows[0].name;
       req.session.key = results.rows[0].id;
       req.session.password = req.param('password');
 
       return res.send('Logged in');
-
     });
   },
 
@@ -32,9 +31,7 @@ module.exports = {
         token += String.fromCharCode(start+Math.floor(Math.random()*26));
       }
       
-      Token.query(`insert into token (string, player, type) values ('${token}', ${req.session.key}, '${req.param('type')}')`, function (err, result) {
-        console.log(err, result);
-      });
+      Token.query(`insert into token (string, player, type) values ('${token}', ${req.session.key}, '${req.param('type')}')`);
 
       res.send(token);
     

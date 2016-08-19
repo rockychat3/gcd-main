@@ -10,7 +10,6 @@ head
   script(src="/js/bootstrap.min.js")
   script(src="/js/login.js")
   
-
 body 
   // header
   div(class="navbar navbar-default")
@@ -22,14 +21,14 @@ body
 
   div.container
     div.row
-      div.col-sm-4
-      div.col-sm-4
-
+      div.col-sm-4.col-xs-1
+      div.col-sm-4.col-xs-10
         if !user
+          div#err
           form(action="javascript:login()")
             div.form-group
-              label(for="name") Nane * 
-              input.form-control(type="text" id="name" placeholder="John Doe" required="true" autofocus)
+              label(for="email") Email * 
+              input.form-control(type="text" id="email" placeholder="me@example.com" required="true" autofocus)
             div.form-group
               label(for="password") Password *
               input.form-control(type="password" id="password" placeholder="password" required="true")
@@ -43,4 +42,4 @@ body
               | Already logged in as #{user}
             button.btn(type="button" onclick="javascript:logout()") Log out? 
 
-      div.col-sm-4
+      div.col-sm-4.col-xs-1
