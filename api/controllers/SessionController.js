@@ -2,7 +2,7 @@ module.exports = {
 
   login: function (req, res) {
 
-    Player.query(`SELECT id FROM game player WHERE name =  '${req.param('name')}' AND password = '${req.param('password')}'`, function (err, results) {
+    Player.query(`SELECT id FROM player WHERE name =  '${req.param('name')}' AND password = '${req.param('password')}'`, function (err, results) {
       if (!results.rows.length) return res.send('Unable to log in');
 
       req.session.name = req.param('name');
