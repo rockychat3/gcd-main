@@ -1,3 +1,8 @@
+img {
+  width: 100%;
+  height: auto;
+}
+
 .link {
   color: #5e5e5e;
   text-decoration: none;
@@ -49,7 +54,7 @@
   width: 180px; 
   height: 103.92px;
   margin: 51.96px 0;
-  background-image: url('/images/farm.jpg');
+  background-image: url('/images/tier/farm.jpg');
   background-size: auto 205.5367px;
   background-position: center;
   border-left: solid 1px #333333;
@@ -61,7 +66,7 @@
   width: 180px; 
   height: 103.92px;
   margin: 51.96px 0;
-  background-image: url('/images/town.jpg');
+  background-image: url('/images/tier/town.jpg');
   background-size: auto 205.5367px;
   background-position: center;
   border-left: solid 1px #333333;
@@ -73,7 +78,7 @@
   width: 180px; 
   height: 103.92px;
   margin: 51.96px 0;
-  background-image: url('/images/city.jpg');
+  background-image: url('/images/tier/city.jpg');
   background-size: auto 205.5367px;
   background-position: center;
   border-left: solid 1px #333333;
