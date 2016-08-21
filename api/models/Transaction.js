@@ -9,12 +9,10 @@ module.exports = {
       primaryKey: true
     },
     sending: {
-      model: 'player',
-      unique: true
+      model: 'player'
     },
     receiving: {
-      model: 'player',
-      unique: true
+      model: 'player'
     },
     amount: {
       type: 'int'
@@ -26,7 +24,7 @@ module.exports = {
       type: 'text'
     },
     sending: {
-      complete: 'bool'
+      complete: 'boolean'
     }
 
   }

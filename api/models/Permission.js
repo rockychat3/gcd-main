@@ -1,5 +1,5 @@
 module.exports = {
-  
+
   autoCreatedAt: false,
   autoUpdatedAt: false,
   attributes: {
@@ -8,18 +8,8 @@ module.exports = {
       type: 'integer',
       primaryKey: true
     },
-    string: {
+    permission: {
       type: 'text'
-    },
-    type: {
-      type: 'text'
-    },
-    player: {
-      model: 'player'
-    },
-    expired: {
-      type: 'boolean'
     }
-
   }
 };

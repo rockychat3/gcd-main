@@ -18,7 +18,7 @@ function register() {
       else {
         $('#password').val('');
         $('#repassword').val('');
-        $('#err').html('<div class="alert alert-danger"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>User already registered, try again</div>');
+        $('#err').html('<div class="alert alert-danger"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> User already registered, try again</div>');
       }
     });
   }

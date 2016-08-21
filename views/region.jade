@@ -58,12 +58,42 @@ body
       h3 Region not in range
 
     else
-      div(style="width:100%;padding-bottom:74%;padding-top:2%;border:1px solid black;overflow:visible;")
-        - var length = missing == 0 ? 84 : 80
-        - for (var x=1; x <= length; x++)
-          span.hexagon(id=x)
-            div.tooltiptext Hex #{x}
-            div.hexTop
-            div.hexBottom
+      div(style="width:100%;padding-bottom:4.5%;padding-top:2%;border:1px solid black;overflow:hidden;")
+        if hexes
+          each hex in hexes
+          
+            if hex.tier == 'farm'
+              span.hexFarm(id=hex.label)
+                if hex.owner
+                  div.tooltiptext Hex #{hex.label}: #{hex.owner}
+                else 
+                  div.tooltiptext Hex #{hex.label}
+                div.hexTop
+                div.hexBottom
+
+            else if hex.tier == 'town'
+              span.hexTown(id=hex.label)
+                if hex.owner
+                  div.tooltiptext Hex #{hex.label}: #{hex.owner}
+                else 
+                  div.tooltiptext Hex #{hex.label}
+                div.hexTop
+                div.hexBottom
+
+            else if hex.tier == 'city'
+              span.hexCity(id=hex.label)
+                if hex.owner
+                  div.tooltiptext Hex #{hex.label}: #{hex.owner}
+                else 
+                  div.tooltiptext Hex #{hex.label}
+                div.hexTop
+                div.hexBottom
+
+            else
+              span.hexagon(id=hex.label)
+                if hex.owner
+                  div.tooltiptext Hex #{hex.label}: #{hex.owner}
+                else 
+                  div.tooltiptext Hex #{hex.label}
 
     

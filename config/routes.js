@@ -31,7 +31,7 @@ module.exports.routes = {
 
   'GET /hex/:id': 'ViewController.hex',
 
-  'GET /hex/:id/resources': 'ViewController.resources',
+  //'GET /hex/:id/resources': 'ViewController.resources',
 
   'GET /player/:name': 'ViewController.player',
 

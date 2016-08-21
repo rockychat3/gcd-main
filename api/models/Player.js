@@ -25,7 +25,7 @@ module.exports = {
       unique: true
     },
     admin: {
-      type: 'bool'
+      type: 'boolean'
     }
 
   }

@@ -12,11 +12,10 @@ module.exports = {
       type: 'text'
     },
     owner: {
-      model: 'player',
-      unique: true
+      model: 'player'
     },
     river: {
-      type: 'bool'
+      type: 'boolean'
     },
     tier: {
       type: 'text'
@@ -24,7 +23,10 @@ module.exports = {
     power: {
       type: 'integer'
     },
-    power: {
+    water: {
+      type: 'integer'
+    },
+    population: {
       type: 'integer'
     }    
   }

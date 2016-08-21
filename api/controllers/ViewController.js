@@ -14,28 +14,16 @@ module.exports = {
         return res.view('region', {title: 'Region ' + req.param('id'), missing: undefined, top: undefined, hexes: undefined, user: req.session.name});
 
       else {
+        query = 'SELECT label, owner, tier FROM hex WHERE ';
+        for (var i in region[req.param('id')].hexes) {
+          query += `id BETWEEN ${i} AND ${region[req.param('id')].hexes[i]} OR `;
+        }
+        query = query.substring(0, query.length - 3);
+        query += ' ORDER BY id ASC';
 
-        // var config = {
-        //   user: req.session.db_name,
-        //   password: req.session.password,
-        //   host: openshift,
-        //   port: openshift port,
-        //   database: db;
-        // };
-        // var client = new pg.Client(config);
-
-        // client.connect(function (err) {
-          
-          // query = 'select id, owner from game.hex where ';
-          // for (var i in region[req.param('id')].hexes) {
-          //   query += 'key between ' + parseInt(i) + ' and ' + parseInt(region[req.param('id')].hexes[i] + ' AND '
-          // }
-          // query = query.substring(0, query.length - 4);
-
-          // client.query(query, function (err, result) {  
-            return res.view('region', {title: 'Region ' + req.param('id'), missing: region[req.param('id')].missing, top: region[req.param('id')].top, hexes: undefined, user: req.session.name});
-          // });
-        // }
+        Hex.query(query, function (err, result) {  
+          return res.view('region', {title: 'Region ' + req.param('id'), missing: region[req.param('id')].missing, top: region[req.param('id')].top, hexes: result.rows, user: req.session.name});
+        });
       }
     }
     else 
@@ -43,76 +31,53 @@ module.exports = {
   },
 
   hex: function (req, res) {
-    if (req.session.name) {
-      // var config = {
-      //   user: req.session.db_name,
-      //   password: req.session.password,
-      //   host: openshift,
-      //   port: openshift port,
-      //   database: db;
-      // };
-      // var client = new pg.Client(config);
-
-      // client.connect(function (err) {
-          
-        // client.query('select * from game.hex where id = ' + req.param('id'), function (err, result) {
-        //   if (!result)
-        //     return res.view('hex', {title: 'Hex ' + req.param('id'), hex: undefined, user: req.session.name});
-
+    if (req.session.name) {   
+      Hex.query(`SELECT hex.label, hex.tier, hex.power, hex.water, hex.population, player.name, resource.amount, resourcetype.type FROM hex LEFT OUTER JOIN player ON hex.owner=player.id LEFT OUTER JOIN resource ON resource.hex=hex.id LEFT OUTER JOIN resourcetype ON resource.type=resourcetype.id WHERE hex.label = '${req.param('id')}'`, function (err, result) {
+        if (!result.rows.length)
           return res.view('hex', {title: 'Hex ' + req.param('id'), hex: undefined, user: req.session.name});
-        // });
+
+        return res.view('hex', {title: 'Hex ' + req.param('id'), hex: result.rows, user: req.session.name});
+      });
     }
     else 
       return res.redirect('/login');
   },
 
-  resources: function (req, res) {
-    if (req.session.name) {
-      // var config = {
-      //   user: req.session.db_name,
-      //   password: req.session.password,
-      //   host: openshift,
-      //   port: openshift port,
-      //   database: db;
-      // };
-      // var client = new pg.Client(config);
+  // resources: function (req, res) {
+  //   if (req.session.name) {
+  //     // var config = {
+  //     //   user: req.session.db_name,
+  //     //   password: req.session.password,
+  //     //   host: openshift,
+  //     //   port: openshift port,
+  //     //   database: db;
+  //     // };
+  //     // var client = new pg.Client(config);
 
-      // client.connect(function (err) {
+  //     // client.connect(function (err) {
 
-        // client.query('select hex.owner, player.name from hex inner join player on hex.player=player.id where hex.id = ' + req.param('id'), function (err, result) {
-        //   if (result.name != req.session.name)
-        //     return res.redirect('/hex/' + req.param('id'));
+  //       // client.query('select hex.owner, player.name from hex inner join player on hex.player=player.id where hex.id = ' + req.param('id'), function (err, result) {
+  //       //   if (result.name != req.session.name)
+  //       //     return res.redirect('/hex/' + req.param('id'));
 
-          return res.view('resources', {title: 'Resources for Hex ' + req.param('id'), user: req.session.name});
-        // });
-      // });
-    }
-    else 
-      return res.redirect('/login');
-  },
+  //         return res.view('resources', {title: 'Resources for Hex ' + req.param('id'), user: req.session.name});
+  //       // });
+  //     // });
+  //   }
+  //   else 
+  //     return res.redirect('/login');
+  // },
 
   player: function (req, res) {
     if (req.session.name) {
-      // var config = {
-      //   user: req.session.db_name,
-      //   password: req.session.password,
-      //   host: openshift,
-      //   port: openshift port,
-      //   database: db;
-      // };
-      // var client = new pg.Client(config);
+      Player.query(`SELECT player.id, player.name, player.money, hex.label FROM player LEFT OUTER JOIN hex ON hex.owner=player.id where player.name = '${req.param('name')}' ORDER BY hex.id ASC`, function (err, result) {
+        if (!result.rows.length)
+          return res.view('player', {title: 'Player ' + req.param('name'), player: undefined, user: req.session.name, curr: false});
+        else if (result.rows[0].name == req.session.name)
+          return res.view('player', {title: 'Player ' + req.param('name'), player: result.rows, user: req.session.name, curr: true});
 
-      // client.connect(function (err) {
-
-        // client.query('select player.name, player.money, hex.id from player inner join hex on hex.player=player.id where player.name = ' + req.param('name'), function (err, result) {
-        //   if (!result)
-        //     return res.view('player', {title: 'Player ' + req.param('name'), player: undefined, user: req.session.name, curr: false});
-        //   else if (result[0].name == req.session.name)
-        //     return res.view('player', {title: 'Player ' + req.param('name'), player: result, user: req.session.name, curr: true});
-
-          return res.view('player', {title: 'Player ' + req.param('name'), player: /*result*/undefined, user: req.session.name, curr: false});
-        // });
-      // });
+        return res.view('player', {title: 'Player ' + req.param('name'), player: result.rows, user: req.session.name, curr: false});
+      });
     }
     else 
       return res.redirect('/login');
@@ -128,25 +93,14 @@ module.exports = {
 
   admin: function (req, res) {
     if (req.session.name) {
-      // var config = {
-      //   user: req.session.db_name,
-      //   password: req.session.password,
-      //   host: openshift,
-      //   port: openshift port,
-      //   database: db;
-      // };
-      // var client = new pg.Client(config);
+      Player.query(`SELECT name FROM player WHERE name = '${req.session.name}' AND admin = true`, function (err, result) {
+        if (!result.rows.length)
+          return res.redirect('/');
 
-      // client.connect(function (err) {
-      //   client.query('show is_superuser', function (err, result) {
-      //     if (result.is_superuser != 'on')
-      //       return res.redirect('/');
-
-      //     client.query('select name, email, password from game.temp', function (errs, results) {
-            return res.view('admin', {title: 'Admin Control', players: /*results.rows*/undefined, user: req.session.name});
-          // });
-        // });
-      // });
+        client.query('SELECT name, email, password FROM temp', function (errs, results) {
+          return res.view('admin', {title: 'Admin Control', signups: /*result.rows*/undefined, user: req.session.name});
+        });
+      });
     }
     else 
       return res.redirect('/login');

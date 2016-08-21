@@ -4,10 +4,12 @@ module.exports = {
   autoUpdatedAt: false,
   attributes: {
 
-    week: {
-      type: 'integer'
+    id: {
+      type: 'integer',
+      primaryKey: true
+    },
+    type: {
+      type: 'text'
     }
-
   }
-
 };

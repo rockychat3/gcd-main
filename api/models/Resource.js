@@ -9,19 +9,16 @@ module.exports = {
       primaryKey: true
     },
     owner: {
-      model: 'player',
-      unique: true
+      model: 'player'
     },
     hex: {
-      model: 'hex',
-      unique: true
+      model: 'hex'
     },
     amount: {
       type: 'int'
     },
     type: {
-      model: 'resourcetype',
-      unique: true
+      model: 'resourcetype'
     }
 
   }

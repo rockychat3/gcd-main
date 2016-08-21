@@ -35,22 +35,51 @@ body
             li #[a(href="/register") Register]
 
   div.container
-    div.row
-      div.col-sm-3
-      div.col-sm-3
-        br
-        div.hex
-          div.hexTop
-          div.hexBottom
-      div.col-md-6
-        ul(style="display:inline-block;")
-          li #[h3 ID: Aa1]
-          li #[h3 Owner: Evan ]
-          li #[h3 Power: 100 ]
-          li #[h3 Water: 0 ]
-          li #[h3 Population: 10,000,000 ]
+    if hex
+      div.row
+        div.col-sm-3
+        div.col-sm-3
+          br
 
-    div.row
-      div(class="col-sm-4 col-sm-offset-2" style="text-align:center;")
-        ul(style="display:inline-block;")
-          li Put stuff here 
+          if hex[0].tier == 'farm'   
+            div.hexfarm
+              div.hextop
+              div.hexbottom
+
+          else if hex[0].tier == 'town'   
+            div.hextown
+              div.hextop
+              div.hexbottom
+
+          else if hex[0].tier == 'city'   
+            div.hexcity
+              div.hextop
+              div.hexbottom
+
+          else
+            div.hex
+
+        div.col-md-6
+          ul(style="display:inline-block;")
+            li #[h3 ID: #{hex[0].label}]
+            if hex[0].name
+              li #[h3 Owner: #[a(href="/player/"+hex[0].name) #{hex[0].name}]]
+            li #[h3 Power: #{hex[0].power} ]
+            li #[h3 Water: #{hex[0].water} ]
+            li #[h3 Population: #{hex[0].population} ]
+    else
+      h2 #{title} not found
+
+    if hex && hex[0].amount  
+      div.row
+        div.col-sm-3
+        div.col-sm-6
+          h3 Resources in this hex: 
+          ul
+            each resource in hex
+              li #[h4 #{resource.type}: #{resource.amount} units]
+
+    
+
+
+
