@@ -1,60 +1,57 @@
 module.exports = {
 
   approve: function (req, res) {
-    // var config = {
-    //   user: req.session.db_name,
-    //   password: req.session.password,
-    //   host: openshift,
-    //   port: openshift port,
-    //   database: db;
-    // };
-    // var client = new pg.Client(config);
+    if (req.session.name) {
+      // Confirm the user is an admin
+      Player.query(`SELECT name FROM player WHERE name = '${req.session.name}' AND admin = true`, function (e, admin) {
+        if (!admin.rows.length) {
+          res.status(401);
+          return res.send('Not an admin');
+        }
 
-    // client.connect(function (err) {
-    //   if (err) throw err;
+        Player.query(`INSERT INTO player (name, email, password, money, admin) values ('req.param('name')', 'req.param('email')', 'req.param('password')', 0, false)`, function (err, player) {
+          if (err) {
+            res.status(500);
+            res.send('Unable to add user');
+          }
 
-      // client.query('show is_superuser', function (errs, success) {
-      //   if (success.rows[0].is_superuser != 'on')
-        //   return res.send('Nice try non superuser!');
-
-        // client.query('insert into game.player (name, email, money, token, multiplier) values (' + result.param('name') + ', ' + result.param('email') + ', 0, null, null)');
-
-        // // Create a new user on the database
-        // client.query('create user ' + req.param('name').replace(/\s+/g, '_') + ' with password ' + req.param('password'));
-        // // Assign the new user's permissions
-        // client.query('grant select on game.players, game.hex to ' + req.param('name').replace(/\s+/g, '_'));
-        // client.query('grant update on game.hex to ' + req.param('name').replace(/\s+/g, '_'));
-
-        // client.query('delete from game.temp where name = ' + req.param('name'));
-
-        // return res.send(req.param('name'));
-      // });
-    // }
+          Temp.query(`DELETE FROM temp WHERE name = 'req.param('name')' AND email = 'req.param('email')'`, function (error, temp) {
+            res.send('Success');
+          });
+        });
+      });
+    }
+    else { 
+      res.status(401);
+      res.send('Not logged in');
+    }
   },
 
   reject: function (req, res) {
-    // var config = {
-    //   user: req.session.db_name,
-    //   password: req.session.password,
-    //   host: openshift,
-    //   port: openshift port,
-    //   database: db;
-    // };
-    // var client = new pg.Client(config);
+    Player.query(`SELECT name FROM player WHERE name = '${req.session.name}' AND admin = true`, function (e, admin) {
+      if (!admin.rows.length) {
+        res.status(401);
+        return res.send('Not an admin');
+      }
 
-    // client.connect(function (err) {
-    //   client.query('show is_superuser', function (errs, success) {
-    //     if (success.rows[0].is_superuser != 'on')
-    //       return res.send('Something with wrong deleting user ' + req.param('name'));
-
-    //     client.query('delete from game.temp where name = ' + req.param('name'));
-    //     return res.send(req.param('name'));
-    //   });
-    // });
+      Temp.query(`DELETE FROM temp WHERE name = 'req.param('name')'`, function (error, temp) {
+        res.send('Success');
+      });
+    });
   },
 
-  endRound: function (req, res) {
+  startGame: function (req, res) {
+    Player.query(`SELECT name FROM player WHERE name = '${req.session.name}' AND admin = true`, function (e, admin) {
+      if (!admin.rows.length) {
+        res.status(401);
+        res.send('Not an admin');
+      }
 
+      start = (new Date()).toLocaleString();
+      World.query(`INSERT INTO world VALUES ('${start}', true)`, function (err, result) {
+        res.send('Started game on ' + start);
+      });
+    });
   }
 
 }

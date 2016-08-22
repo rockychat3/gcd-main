@@ -41,25 +41,37 @@ body
 
   div.container
     div.row
-      div.col-sm-6
-        //if players
-        h3 Player Requests:
-        ul
-          li #[ #[h4 Evan Richardson, ejrich44@gmail.com] #[button.btn.btn-default(type='button' onclick='javascript:approve("Evan Richardson", "ejrich44@gmail.com", "yo")') #[span.glyphicon.glyphicon-ok]] #[button.btn.btn-default(type='button' onclick='javascript:reject("Evan Richardson")') #[span.glyphicon.glyphicon-remove]]]
-          li #[ #[h4 Evan Richardson, ejrich44@gmail.com] #[button.btn.btn-default(type='button') #[span.glyphicon.glyphicon-ok]] #[button.btn.btn-default(type='button') #[span.glyphicon.glyphicon-remove]]]
-          li #[ #[h4 Evan Richardson, ejrich44@gmail.com] #[button.btn.btn-default(type='button') #[span.glyphicon.glyphicon-ok]] #[button.btn.btn-default(type='button') #[span.glyphicon.glyphicon-remove]]]
-          li #[ #[h4 Evan Richardson, ejrich44@gmail.com] #[button.btn.btn-default(type='button') #[span.glyphicon.glyphicon-ok]] #[button.btn.btn-default(type='button') #[span.glyphicon.glyphicon-remove]]]
-          li #[ #[h4 Evan Richardson, ejrich44@gmail.com] #[button.btn.btn-default(type='button') #[span.glyphicon.glyphicon-ok]] #[button.btn.btn-default(type='button') #[span.glyphicon.glyphicon-remove]]]
+      if !started
+        div.col-sm-6
+          if temp.length
+            h3 Player Requests:
+            ul
+              each player in temp
+                li #[ #[h4 #{player.name}, #{player.email}] #[button.btn.btn-default(type="button" onclick="javascript:approve('#{player.name}', '#{player.email}', '#{player.password}')") #[span.glyphicon.glyphicon-ok]] #[button.btn.btn-default(type="button" onclick="javascript:reject('#{player.name}')") #[span.glyphicon.glyphicon-remove]]]
+              //li #[ #[h4 Evan Richardson, ejrich44@gmail.com] #[button.btn.btn-default(type='button' onclick='javascript:approve("Evan Richardson", "ejrich44@gmail.com", "yo")') #[span.glyphicon.glyphicon-ok]] #[button.btn.btn-default(type='button' onclick='javascript:reject("Evan Richardson")') #[span.glyphicon.glyphicon-remove]]]
 
-      div.col-sm-6
-        br 
-        button.btn(type='button' onclick="javascript:endround()") End current round
+        div.col-sm-6
+          br 
+          button.btn(type='button' onclick="javascript:endround()") Start Game
+
+      else 
+        if temp.length
+          h3 Player Requests:
+          ul
+            each in 
+            li #[ #[h4 Evan Richardson, ejrich44@gmail.com] #[button.btn.btn-default(type='button' onclick='javascript:approve("Evan Richardson", "ejrich44@gmail.com", "yo")') #[span.glyphicon.glyphicon-ok]] #[button.btn.btn-default(type='button' onclick='javascript:reject("Evan Richardson")') #[span.glyphicon.glyphicon-remove]]]
+
+
+
     hr
     div.row
       div.col-sm-6
         h3 View Student Stats
         ul
-          li #[h4 #[a(href='/stats/Evan Richardson' target='_blank') Evan Richardson] #[a(href='/stats/Evan Richardson' download) #[span.glyphicon.glyphicon-download-alt]]]
+          each player in players
+            - link = "/stats/" + player.name
+            li #[h4 #[a(href=link target="_blank") #{player.name}] #[a(href=link download) #[span.glyphicon.glyphicon-download-alt]]]
+          //li #[h4 #[a(href='/stats/Evan Richardson' target='_blank') Evan Richardson] #[a(href='/stats/Evan Richardson' download) #[span.glyphicon.glyphicon-download-alt]]]
 
       div.col-sm-6
         h3 Edit Hex Data
@@ -67,21 +79,19 @@ body
           br
           select.js-example-basic-single#hex(style='width: 50%') 
             option
-            option(value='ER') Evan Richardson
-            option(value='ER') Evan Richardson
-            option(value='ER') Evan Richardson
-            option(value='ER') Evan Richardson
-            option(value='ER') Evan Richardson
+            each hex in hexes
+              option(value=hex.label) #{hex.label} 
       
-        label(for='hex' style='width: 100%') Field: 
+        label(for='field' style='width: 100%') Field: 
           br
           select.js-example-basic-single#field(style='width: 50%')
             option
-            option(value='ER') Evan Richardson
-            option(value='ER') Evan Richardson
-            option(value='ER') Evan Richardson
-            option(value='ER') Evan Richardson
-
+            option(value="owner") Owner
+            option(value="power") Power
+            option(value="water") Water
+            option(value="population") Population
+            each resource in resources
+              option(value=resource.type) #{resource.type}          
 
         div.input-group#value #[strong Value:]
           input.form-control(type="text" placeholder="New value")

@@ -31,8 +31,6 @@ module.exports.routes = {
 
   'GET /hex/:id': 'ViewController.hex',
 
-  //'GET /hex/:id/resources': 'ViewController.resources',
-
   'GET /player/:name': 'ViewController.player',
 
   'POST /createToken': 'SessionController.createToken',
@@ -53,7 +51,7 @@ module.exports.routes = {
 
   'POST /admin/reject_student': 'AdminController.reject',
 
-  'POST /end_round': 'AdminController.endRound',
+  'POST /admin/start': 'AdminController.startGame',
 
   'GET /stats/:name': 'UserController.data',
 

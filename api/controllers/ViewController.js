@@ -32,51 +32,26 @@ module.exports = {
 
   hex: function (req, res) {
     if (req.session.name) {   
-      Hex.query(`SELECT hex.label, hex.tier, hex.power, hex.water, hex.population, player.name, resource.amount, resourcetype.type FROM hex LEFT OUTER JOIN player ON hex.owner=player.id LEFT OUTER JOIN resource ON resource.hex=hex.id LEFT OUTER JOIN resourcetype ON resource.type=resourcetype.id WHERE hex.label = '${req.param('id')}'`, function (err, result) {
+      Hex.query(`SELECT hex.label, hex.tier, hex.power, hex.water, hex.population, player.name, resource.amount, resourcetype.type FROM hex LEFT OUTER JOIN player ON hex.owner=player.id LEFT OUTER JOIN resource ON resource.hex=hex.id LEFT OUTER JOIN resourcetype ON resource.type=resourcetype.id WHERE hex.label = '${req.param('id')}'`, function (err, hex) {
         if (!result.rows.length)
           return res.view('hex', {title: 'Hex ' + req.param('id'), hex: undefined, user: req.session.name});
 
-        return res.view('hex', {title: 'Hex ' + req.param('id'), hex: result.rows, user: req.session.name});
+        return res.view('hex', {title: 'Hex ' + req.param('id'), hex: hex.rows, user: req.session.name});
       });
     }
     else 
       return res.redirect('/login');
   },
 
-  // resources: function (req, res) {
-  //   if (req.session.name) {
-  //     // var config = {
-  //     //   user: req.session.db_name,
-  //     //   password: req.session.password,
-  //     //   host: openshift,
-  //     //   port: openshift port,
-  //     //   database: db;
-  //     // };
-  //     // var client = new pg.Client(config);
-
-  //     // client.connect(function (err) {
-
-  //       // client.query('select hex.owner, player.name from hex inner join player on hex.player=player.id where hex.id = ' + req.param('id'), function (err, result) {
-  //       //   if (result.name != req.session.name)
-  //       //     return res.redirect('/hex/' + req.param('id'));
-
-  //         return res.view('resources', {title: 'Resources for Hex ' + req.param('id'), user: req.session.name});
-  //       // });
-  //     // });
-  //   }
-  //   else 
-  //     return res.redirect('/login');
-  // },
-
   player: function (req, res) {
     if (req.session.name) {
-      Player.query(`SELECT player.id, player.name, player.money, hex.label FROM player LEFT OUTER JOIN hex ON hex.owner=player.id where player.name = '${req.param('name')}' ORDER BY hex.id ASC`, function (err, result) {
-        if (!result.rows.length)
+      Player.query(`SELECT player.id, player.name, player.money, hex.label FROM player LEFT OUTER JOIN hex ON hex.owner=player.id WHERE player.name = '${req.param('name')}' ORDER BY hex.id ASC`, function (err, player) {
+        if (!player.rows.length)
           return res.view('player', {title: 'Player ' + req.param('name'), player: undefined, user: req.session.name, curr: false});
-        else if (result.rows[0].name == req.session.name)
-          return res.view('player', {title: 'Player ' + req.param('name'), player: result.rows, user: req.session.name, curr: true});
+        else if (player.rows[0].name == req.session.name)
+          return res.view('player', {title: 'Player ' + req.param('name'), player: player.rows, user: req.session.name, curr: true});
 
-        return res.view('player', {title: 'Player ' + req.param('name'), player: result.rows, user: req.session.name, curr: false});
+        return res.view('player', {title: 'Player ' + req.param('name'), player: player.rows, user: req.session.name, curr: false});
       });
     }
     else 
@@ -93,12 +68,58 @@ module.exports = {
 
   admin: function (req, res) {
     if (req.session.name) {
-      Player.query(`SELECT name FROM player WHERE name = '${req.session.name}' AND admin = true`, function (err, result) {
-        if (!result.rows.length)
-          return res.redirect('/');
+      var async = require('async');
 
-        client.query('SELECT name, email, password FROM temp', function (errs, results) {
-          return res.view('admin', {title: 'Admin Control', signups: /*result.rows*/undefined, user: req.session.name});
+      // Confirm the user is an admin
+      Player.query(`SELECT name FROM player WHERE name = '${req.session.name}' AND admin = true`, function (e, admin) {
+        if (!admin.rows.length) {
+          res.status(401);
+          return res.redirect('/');
+        }
+
+        async.series({
+          temp: function (callback) {
+            Temp.query(`SELECT name, email, password FROM temp`, function (err, temps) {
+              if (err)
+                callback(err, null);
+
+              callback(null, temps.rows);
+            });
+          },
+          player: function (callback) {
+            Player.query(`SELECT name FROM player WHERE admin = false`, function (err, players) {
+              if (err)
+                callback(err, null);
+
+              callback(null, players.rows);
+            });
+          },
+          hex: function (callback) {
+            Hex.query(`SELECT label FROM hex ORDER BY id ASC`, function (err, hexes) {
+              if (err)
+                callback(err, null);
+
+              callback(null, hexes.rows);
+            });
+          },
+          type: function (callback) {
+            Resourcetype.query(`SELECT type FROM resourcetype`, function (err, type) {
+              if (err)
+                callback(err, null);
+
+              callback(null, type.rows);
+            });
+          },
+          started: function (callback) {
+            World.query(`SELECT start FROM world`, function (err, start) {
+              if (err)
+                callback(err, null);
+
+              callback(null, start.rows.length >= 1);
+            });
+          }
+        }, function (err, data) { 
+          return res.view('admin', {title: 'Admin Control', temp: data.temp, players: data.player, hexes: data.hex, resources: data.type, started: data.started, user: req.session.name })
         });
       });
     }
