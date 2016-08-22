@@ -19,7 +19,7 @@ module.exports = {
           query += `hex.id BETWEEN ${i} AND ${region[req.param('id')].hexes[i]} OR `;
         }
         query = query.substring(0, query.length - 3);
-        query += 'ORDER BY id ASC';
+        query += 'ORDER BY hex.id ASC';
 
         Hex.query(query, function (err, result) {  
           return res.view('region', {title: 'Region ' + req.param('id'), missing: region[req.param('id')].missing, top: region[req.param('id')].top, hexes: result.rows, user: req.session.name});
