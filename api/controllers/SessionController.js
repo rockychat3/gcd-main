@@ -39,7 +39,7 @@ module.exports = {
           }
 
           // Expire any still active tokens of the same type and player
-          Token.query(`UPDATE token SET expired = true WHERE permission = ${req.param('type')} AND player = ${req.session.key} AND token != '${token}'`, function (error, result) {
+          Token.query(`UPDATE token SET expired = true WHERE permission = ${req.param('type')} AND player = ${req.session.key} AND string != '${token}'`, function (error, result) {
             return res.send(token);
           });
 
