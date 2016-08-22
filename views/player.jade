@@ -1,71 +1,72 @@
 doctype html
 
-head
-  title #{title} - Grand Challenge Design
-  meta(name="viewport" content="width=device-width, initial-scale=1.0")
+html
+  head
+    title #{title} - Grand Challenge Design
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
 
-  script(src="http://code.jquery.com/jquery-2.0.0.min.js")
-  link(href="/styles/bootstrap.min.css" rel="stylesheet")
-  link(href="/styles/style.css" rel="stylesheet")
-  script(src="/js/bootstrap.min.js")
-  script(src="/js/main.js")
-  script(src="/js/token.js")
+    script(src="http://code.jquery.com/jquery-2.0.0.min.js")
+    link(href="/styles/bootstrap.min.css" rel="stylesheet")
+    link(href="/styles/style.css" rel="stylesheet")
+    script(src="/js/bootstrap.min.js")
+    script(src="/js/main.js")
+    script(src="/js/token.js")
 
-body 
-  // header
-  div(class="navbar navbar-default")
+  body 
+    // header
+    div(class="navbar navbar-default")
+      div.container
+
+        div.navbar-header
+          button(type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse")
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+          div.navbar-brand
+            | #[a(href="/" class="link") Grand Challenge Design] | #{title} 
+
+        div(class="navbar-collapse collapse")
+          ul(class="nav navbar-nav navbar-right")
+            if user 
+              - link = '/player/' + user
+              li #[a(href=link) #{user}] 
+              li #[a(href="javascript:logout()") Logout]
+
+            else
+              li #[a(href="/login") Log in]
+              li #[a(href="/register") Register]
+
     div.container
+      if player
+        div.row
+          div.col-sm-3
+          div.col-sm-6 
+            ul(style="list-style-type:none")
+              li #[h3 User ID: #{player[0].id}]
+              li #[h3 Name: #{player[0].name} ]
+              li #[h3 Money: $#{player[0].money}]
+              if player[0].label
+                li #[h3 Hexes owned:]
+                  ul
+                    each hex in player
+                      li #[h4 #[a(href="/hex/"+hex.label) #{hex.label}]]
 
-      div.navbar-header
-        button(type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse")
-          span.icon-bar
-          span.icon-bar
-          span.icon-bar
-        div.navbar-brand
-          | #[a(href="/" class="link") Grand Challenge Design] | #{title} 
+              if curr
+                li #[h3 Token gen: #[a.toggle(href="javascript:void(0)" onClick="$('#hidden').toggle();") show]]
+                div#hidden(style="display:none")
+                  li #[h3 #[button.btn#user(onclick="javascript:token(1)") Generate user token]]
+                  
+                  li #[h3 #[button.btn#user(onclick="javascript:token(2)") Generate map token]]
+                  
+                  li #[h3 #[button.btn#user(onclick="javascript:token(3)") Generate bank token]]
+                  
+                  li #[h3 #[button.btn#user(onclick="javascript:token(4)") Generate resource token]]
+                  
+                  li #[h3 #[button.btn#user(onclick="javascript:token(5)") Generate market token]]
+                  
+                  li #[h3 #[button.btn#user(onclick="javascript:token(6)") Generate food token]]
 
-      div(class="navbar-collapse collapse")
-        ul(class="nav navbar-nav navbar-right")
-          if user 
-            - link = '/player/' + user
-            li #[a(href=link) #{user}] 
-            li #[a(href="javascript:logout()") Logout]
+          div.col-sm-3
 
-          else
-            li #[a(href="/login") Log in]
-            li #[a(href="/register") Register]
-
-  div.container
-    if player
-      div.row
-        div.col-sm-3
-        div.col-sm-6 
-          ul(style="list-style-type:none")
-            li #[h3 User ID: #{player[0].id}]
-            li #[h3 Name: #{player[0].name} ]
-            li #[h3 Money: $#{player[0].money}]
-            if player[0].label
-              li #[h3 Hexes owned:]
-                ul
-                  each hex in player
-                    li #[h4 #[a(href="/hex/"+hex.label) #{hex.label}]]
-
-            if curr
-              li #[h3 Token gen: #[a.toggle(href="javascript:void(0)" onClick="$('#hidden').toggle();") show]]
-              div#hidden(style="display:none")
-                li #[h3 #[button.btn#user(onclick="javascript:token(1)") Generate user token]]
-                
-                li #[h3 #[button.btn#user(onclick="javascript:token(2)") Generate map token]]
-                
-                li #[h3 #[button.btn#user(onclick="javascript:token(3)") Generate bank token]]
-                
-                li #[h3 #[button.btn#user(onclick="javascript:token(4)") Generate resource token]]
-                
-                li #[h3 #[button.btn#user(onclick="javascript:token(5)") Generate market token]]
-                
-                li #[h3 #[button.btn#user(onclick="javascript:token(6)") Generate food token]]
-
-        div.col-sm-3
-
-    else
-      h2 User not found
+      else
+        h2 User not found

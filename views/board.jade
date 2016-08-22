@@ -1,64 +1,65 @@
 doctype html
 
-head
-  title #{title} - Grand Challenge Design
-  meta(name="viewport" content="width=device-width, initial-scale=1.0")
+html
+  head
+    title #{title} - Grand Challenge Design
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
 
-  script(src="http://code.jquery.com/jquery-2.0.0.min.js")
-  link(href="/styles/bootstrap.min.css" rel="stylesheet")
-  link(href="/styles/style.css" rel="stylesheet")
-  script(src="/js/bootstrap.min.js")
-  script(src="/js/main.js")
+    script(src="http://code.jquery.com/jquery-2.0.0.min.js")
+    link(href="/styles/bootstrap.min.css" rel="stylesheet")
+    link(href="/styles/style.css" rel="stylesheet")
+    script(src="/js/bootstrap.min.js")
+    script(src="/js/main.js")
 
-body 
-  // header
-  div(class="navbar navbar-default")
+  body 
+    // header
+    div(class="navbar navbar-default")
+      div.container
+
+        div.navbar-header
+          button(type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse")
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+          div.navbar-brand
+            | #[a(href="/" class="link") Grand Challenge Design] | #{title} 
+
+        div(class="navbar-collapse collapse")
+          ul(class="nav navbar-nav navbar-right")
+            if user 
+              - link = '/player/' + user
+              li #[a(href=link) #{user}] 
+              li #[a(href="javascript:logout()") Logout]
+
+            else
+              li #[a(href="/login") Log in]
+              li #[a(href="/register") Register]
+
     div.container
-
-      div.navbar-header
-        button(type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse")
-          span.icon-bar
-          span.icon-bar
-          span.icon-bar
-        div.navbar-brand
-          | #[a(href="/" class="link") Grand Challenge Design] | #{title} 
-
-      div(class="navbar-collapse collapse")
-        ul(class="nav navbar-nav navbar-right")
-          if user 
-            - link = '/player/' + user
-            li #[a(href=link) #{user}] 
-            li #[a(href="javascript:logout()") Logout]
-
-          else
-            li #[a(href="/login") Log in]
-            li #[a(href="/register") Register]
-
-  div.container
-    div.row
-      div.col-xs-3 
-        a(href="/region/A")
-          img(src="/images/region/top_left.PNG")
-      div.col-xs-3 
-        a(href="/region/B")
-          img(src="/images/region/top_middle.PNG")
-      div.col-xs-3 
-        a(href="/region/C")
-          img(src="/images/region/top_middle.PNG")
-      div.col-xs-3 
-        a(href="/region/D")
-          img(src="/images/region/top_right.PNG")
-    br
-    div.row
-      div.col-xs-3 
-        a(href="/region/E")
-          img(src="/images/region/bottom_left.PNG")
-      div.col-xs-3 
-        a(href="/region/F")
-          img(src="/images/region/bottom_middle.PNG")
-      div.col-xs-3 
-        a(href="/region/G")
-          img(src="/images/region/bottom_middle.PNG")
-      div.col-xs-3 
-        a(href="/region/H")
-          img(src="/images/region/bottom_right.PNG")
+      div.row
+        div.col-xs-3 
+          a(href="/region/A")
+            img(src="/images/region/top_left.PNG")
+        div.col-xs-3 
+          a(href="/region/B")
+            img(src="/images/region/top_middle.PNG")
+        div.col-xs-3 
+          a(href="/region/C")
+            img(src="/images/region/top_middle.PNG")
+        div.col-xs-3 
+          a(href="/region/D")
+            img(src="/images/region/top_right.PNG")
+      br
+      div.row
+        div.col-xs-3 
+          a(href="/region/E")
+            img(src="/images/region/bottom_left.PNG")
+        div.col-xs-3 
+          a(href="/region/F")
+            img(src="/images/region/bottom_middle.PNG")
+        div.col-xs-3 
+          a(href="/region/G")
+            img(src="/images/region/bottom_middle.PNG")
+        div.col-xs-3 
+          a(href="/region/H")
+            img(src="/images/region/bottom_right.PNG")

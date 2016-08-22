@@ -1,80 +1,81 @@
 doctype html
 
-head
-  title #{title} - Grand Challenge Design
-  meta(name="viewport" content="width=device-width, initial-scale=1.0")
+html
+  head
+    title #{title} - Grand Challenge Design
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
 
-  script(src="http://code.jquery.com/jquery-2.0.0.min.js")
-  link(href="/styles/bootstrap.min.css" rel="stylesheet")
-  link(href="/styles/style.css" rel="stylesheet")
-  script(src="/js/bootstrap.min.js")
-  script(src="/js/main.js")
+    script(src="http://code.jquery.com/jquery-2.0.0.min.js")
+    link(href="/styles/bootstrap.min.css" rel="stylesheet")
+    link(href="/styles/style.css" rel="stylesheet")
+    script(src="/js/bootstrap.min.js")
+    script(src="/js/main.js")
 
-body 
-  // header
-  div(class="navbar navbar-default")
+  body 
+    // header
+    div(class="navbar navbar-default")
+      div.container
+
+        div.navbar-header
+          button(type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse")
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+          div.navbar-brand
+            | #[a(href="/" class="link") Grand Challenge Design] | #{title} 
+
+        div(class="navbar-collapse collapse")
+          ul(class="nav navbar-nav navbar-right")
+            if user 
+              - link = '/player/' + user
+              li #[a(href=link) #{user}] 
+              li #[a(href="javascript:logout()") Logout]
+
+            else
+              li #[a(href="/login") Log in]
+              li #[a(href="/register") Register]
+
     div.container
+      if hex
+        div.row
+          div.col-sm-3
+          div.col-sm-3
+            br
 
-      div.navbar-header
-        button(type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse")
-          span.icon-bar
-          span.icon-bar
-          span.icon-bar
-        div.navbar-brand
-          | #[a(href="/" class="link") Grand Challenge Design] | #{title} 
+            if hex[0].tier == 'farm'   
+              div.hexfarm
+                div.hextop
+                div.hexbottom
 
-      div(class="navbar-collapse collapse")
-        ul(class="nav navbar-nav navbar-right")
-          if user 
-            - link = '/player/' + user
-            li #[a(href=link) #{user}] 
-            li #[a(href="javascript:logout()") Logout]
+            else if hex[0].tier == 'fown'   
+              div.hextown
+                div.hextop
+                div.hexbottom
 
-          else
-            li #[a(href="/login") Log in]
-            li #[a(href="/register") Register]
+            else if hex[0].tier == 'city'   
+              div.hexcity
+                div.hextop
+                div.hexbottom
 
-  div.container
-    if hex
-      div.row
-        div.col-sm-3
-        div.col-sm-3
-          br
+            else
+              div.hex
 
-          if hex[0].tier == 'farm'   
-            div.hexfarm
-              div.hextop
-              div.hexbottom
+          div.col-md-6
+            ul(style="display:inline-block;")
+              li #[h3 ID: #{hex[0].label}]
+              if hex[0].name
+                li #[h3 Owner: #[a(href="/player/"+hex[0].name) #{hex[0].name}]]
+              li #[h3 Power: #{hex[0].power} ]
+              li #[h3 Water: #{hex[0].water} ]
+              li #[h3 Population: #{hex[0].population} ]
+      else
+        h2 #{title} not found
 
-          else if hex[0].tier == 'fown'   
-            div.hextown
-              div.hextop
-              div.hexbottom
-
-          else if hex[0].tier == 'city'   
-            div.hexcity
-              div.hextop
-              div.hexbottom
-
-          else
-            div.hex
-
-        div.col-md-6
-          ul(style="display:inline-block;")
-            li #[h3 ID: #{hex[0].label}]
-            if hex[0].name
-              li #[h3 Owner: #[a(href="/player/"+hex[0].name) #{hex[0].name}]]
-            li #[h3 Power: #{hex[0].power} ]
-            li #[h3 Water: #{hex[0].water} ]
-            li #[h3 Population: #{hex[0].population} ]
-    else
-      h2 #{title} not found
-
-    if hex && hex[0].amount  
-      div.row
-        div.col-sm-3
-        div.col-sm-6
-          h3 Resources in this hex: 
-          ul
-            each resource in hex
-              li #[h4 #{resource.type}: #{resource.amount} units]
+      if hex && hex[0].amount  
+        div.row
+          div.col-sm-3
+          div.col-sm-6
+            h3 Resources in this hex: 
+            ul
+              each resource in hex
+                li #[h4 #{resource.type}: #{resource.amount} units]

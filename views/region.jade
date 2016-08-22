@@ -1,99 +1,100 @@
 doctype html
 
-head
-  title #{title} - Grand Challenge Design
-  meta(name="viewport" content="width=device-width, initial-scale=1.0")
+html
+  head
+    title #{title} - Grand Challenge Design
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
 
-  script(src="http://code.jquery.com/jquery-2.0.0.min.js")
-  link(href="/styles/bootstrap.min.css" rel="stylesheet")
-  link(href="/styles/style.css" rel="stylesheet")
-  script(src="/js/bootstrap.min.js")
-  script(src="/js/main.js")  
+    script(src="http://code.jquery.com/jquery-2.0.0.min.js")
+    link(href="/styles/bootstrap.min.css" rel="stylesheet")
+    link(href="/styles/style.css" rel="stylesheet")
+    script(src="/js/bootstrap.min.js")
+    script(src="/js/main.js")  
 
-  if top
-    case missing
-      when -1
-        link(href="/styles/top-left.css" rel="stylesheet")
-      when 0
-        link(href="/styles/top-middle.css" rel="stylesheet")
-      when 1
-        link(href="/styles/top-right.css" rel="stylesheet")
-  else
-    case missing
-      when -1
-        link(href="/styles/bottom-left.css" rel="stylesheet")
-      when 0
-        link(href="/styles/bottom-middle.css" rel="stylesheet")
-      when 1
-        link(href="/styles/bottom-right.css" rel="stylesheet")
-
-  script.
-    $(function(){$('.hexagon, .hexFarm, .hexTown, .hexCity').click(function(){window.location.href='/hex/'+this.id;})});
-
-body 
-  // header
-  div(class="navbar navbar-default")
-    div.container
-      div.navbar-header
-        button(type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse")
-          span.icon-bar
-          span.icon-bar
-          span.icon-bar
-        div.navbar-brand
-          | #[a(href="/" class="link") Grand Challenge Design] | #{title} 
-
-      div(class="navbar-collapse collapse")
-        ul(class="nav navbar-nav navbar-right")
-          if user 
-            - link = '/player/' + user
-            li #[a(href=link) #{user}] 
-            li #[a(href="javascript:logout()") Logout]
-
-          else
-            li #[a(href="/login") Log in]
-            li #[a(href="/register") Register]
-
-  div.container
-    if missing == undefined && top == undefined
-      h3 Region not in range
-
+    if top
+      case missing
+        when -1
+          link(href="/styles/top-left.css" rel="stylesheet")
+        when 0
+          link(href="/styles/top-middle.css" rel="stylesheet")
+        when 1
+          link(href="/styles/top-right.css" rel="stylesheet")
     else
-      div(style="width:100%;padding-bottom:4.5%;padding-top:2%;border:1px solid black;overflow:hidden;")
-        if hexes
-          each hex in hexes
-          
-            if hex.tier == 'farm'
-              span.hexFarm(id=hex.label)
-                if hex.owner
-                  div.tooltiptext Hex #{hex.label}: #{hex.owner}
-                else 
-                  div.tooltiptext Hex #{hex.label}
-                div.hexTop
-                div.hexBottom
+      case missing
+        when -1
+          link(href="/styles/bottom-left.css" rel="stylesheet")
+        when 0
+          link(href="/styles/bottom-middle.css" rel="stylesheet")
+        when 1
+          link(href="/styles/bottom-right.css" rel="stylesheet")
 
-            else if hex.tier == 'town'
-              span.hexTown(id=hex.label)
-                if hex.owner
-                  div.tooltiptext Hex #{hex.label}: #{hex.owner}
-                else 
-                  div.tooltiptext Hex #{hex.label}
-                div.hexTop
-                div.hexBottom
+    script.
+      $(function(){$('.hexagon, .hexFarm, .hexTown, .hexCity').click(function(){window.location.href='/hex/'+this.id;})});
 
-            else if hex.tier == 'city'
-              span.hexCity(id=hex.label)
-                if hex.owner
-                  div.tooltiptext Hex #{hex.label}: #{hex.owner}
-                else 
-                  div.tooltiptext Hex #{hex.label}
-                div.hexTop
-                div.hexBottom
+  body 
+    // header
+    div(class="navbar navbar-default")
+      div.container
+        div.navbar-header
+          button(type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse")
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+          div.navbar-brand
+            | #[a(href="/" class="link") Grand Challenge Design] | #{title} 
+
+        div(class="navbar-collapse collapse")
+          ul(class="nav navbar-nav navbar-right")
+            if user 
+              - link = '/player/' + user
+              li #[a(href=link) #{user}] 
+              li #[a(href="javascript:logout()") Logout]
 
             else
-              span.hexagon(id=hex.label)
-                if hex.owner
-                  div.tooltiptext Hex #{hex.label}: #{hex.owner}
-                else 
-                  div.tooltiptext Hex #{hex.label}
+              li #[a(href="/login") Log in]
+              li #[a(href="/register") Register]
 
-    
+    div.container
+      if missing == undefined && top == undefined
+        h3 Region not in range
+
+      else
+        div(style="width:100%;padding-bottom:4.5%;padding-top:2%;border:1px solid black;overflow:hidden;")
+          if hexes
+            each hex in hexes
+            
+              if hex.tier == 'farm'
+                span.hexFarm(id=hex.label)
+                  if hex.owner
+                    div.tooltiptext Hex #{hex.label}: #{hex.owner}
+                  else 
+                    div.tooltiptext Hex #{hex.label}
+                  div.hexTop
+                  div.hexBottom
+
+              else if hex.tier == 'town'
+                span.hexTown(id=hex.label)
+                  if hex.owner
+                    div.tooltiptext Hex #{hex.label}: #{hex.owner}
+                  else 
+                    div.tooltiptext Hex #{hex.label}
+                  div.hexTop
+                  div.hexBottom
+
+              else if hex.tier == 'city'
+                span.hexCity(id=hex.label)
+                  if hex.owner
+                    div.tooltiptext Hex #{hex.label}: #{hex.owner}
+                  else 
+                    div.tooltiptext Hex #{hex.label}
+                  div.hexTop
+                  div.hexBottom
+
+              else
+                span.hexagon(id=hex.label)
+                  if hex.owner
+                    div.tooltiptext Hex #{hex.label}: #{hex.owner}
+                  else 
+                    div.tooltiptext Hex #{hex.label}
+
+      
