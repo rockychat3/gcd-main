@@ -14,12 +14,12 @@ module.exports = {
         return res.view('region', {title: 'Region ' + req.param('id'), missing: undefined, top: undefined, hexes: undefined, user: req.session.name});
 
       else {
-        query = 'SELECT label, owner, tier FROM hex WHERE ';
+        query = 'SELECT hex.label, hex.owner, tier.tier FROM hex INNER JOIN tier ON hex.tier=tier.id WHERE ';
         for (var i in region[req.param('id')].hexes) {
           query += `id BETWEEN ${i} AND ${region[req.param('id')].hexes[i]} OR `;
         }
         query = query.substring(0, query.length - 3);
-        query += ' ORDER BY id ASC';
+        query += 'ORDER BY id ASC';
 
         Hex.query(query, function (err, result) {  
           return res.view('region', {title: 'Region ' + req.param('id'), missing: region[req.param('id')].missing, top: region[req.param('id')].top, hexes: result.rows, user: req.session.name});
