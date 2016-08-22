@@ -33,7 +33,7 @@ module.exports = {
   hex: function (req, res) {
     if (req.session.name) {   
       Hex.query(`SELECT hex.label, hex.power, hex.water, hex.population, player.name, tier.tier, resource.amount, resourcetype.type FROM hex LEFT OUTER JOIN player ON hex.owner=player.id INNER JOIN tier ON hex.tier=tier.id LEFT OUTER JOIN resource ON resource.hex=hex.id LEFT OUTER JOIN resourcetype ON resource.type=resourcetype.id WHERE hex.label = '${req.param('id')}'`, function (err, hex) {
-        if (!result.rows.length)
+        if (!hex.rows.length)
           return res.view('hex', {title: 'Hex ' + req.param('id'), hex: undefined, user: req.session.name});
 
         return res.view('hex', {title: 'Hex ' + req.param('id'), hex: hex.rows, user: req.session.name});
