@@ -32,7 +32,7 @@ module.exports = {
           token += String.fromCharCode(start+Math.floor(Math.random()*26));
         }
         
-        Token.query(`INSERT INTO token (string, player, type) VALUES ('${token}', ${req.session.key}, ${req.param('type')})`, function (err, results) {
+        Token.query(`INSERT INTO token (string, player, permission) VALUES ('${token}', ${req.session.key}, ${req.param('type')})`, function (err, results) {
           if (err) {
             res.status(500);
             return res.send('Could not add token to table');
