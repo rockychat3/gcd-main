@@ -16,7 +16,7 @@ module.exports = {
       else {
         query = 'SELECT hex.label, hex.owner, tier.tier FROM hex INNER JOIN tier ON hex.tier=tier.id WHERE ';
         for (var i in region[req.param('id')].hexes) {
-          query += `id BETWEEN ${i} AND ${region[req.param('id')].hexes[i]} OR `;
+          query += `hex.id BETWEEN ${i} AND ${region[req.param('id')].hexes[i]} OR `;
         }
         query = query.substring(0, query.length - 3);
         query += 'ORDER BY id ASC';
