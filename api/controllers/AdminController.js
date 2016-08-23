@@ -34,7 +34,7 @@ module.exports = {
         return res.send('Not an admin');
       }
 
-      Temp.query(`DELETE FROM temp WHERE name = 'req.param('name')'`, function (error, temp) {
+      Temp.query(`DELETE FROM temp WHERE name = 'req.param('name')'`, function (err, temp) {
         res.send('Success');
       });
     });
