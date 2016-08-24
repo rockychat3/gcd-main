@@ -102,7 +102,6 @@ module.exports = {
           res.status(401);
           return res.json({ status: 'Error: token not valid'});
         }
-        else 
 
         Hex.query(`SELECT label, owner, population FROM hex WHERE label = '${req.param('origin_plot_id')}' OR label = '${req.param('destination_plot_id')}' ORDER BY id ASC`, function (error, hexes) {
           if (hexes.rows.length != 2) {
@@ -135,7 +134,7 @@ module.exports = {
           }
           else {
             res.status(403);
-            return res.json({ status: 'Error: You don\'t own this hex' });
+            return res.json({ status: 'Error: You don\'t own both hexes' });
           }
         });
       });

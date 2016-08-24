@@ -24,7 +24,7 @@ module.exports = {
       res.send('No current session available, log in to receive a token!');
     }
     else {
-      if (req.param('type') <= 6 || req.param('type') >= 1) {
+      if (req.param('type') <= 5 || req.param('type') >= 1) {
 
         token = Date.now().toString();
         for(var i=0;i<30;i++) {

@@ -23,8 +23,8 @@ module.exports = {
     reason: {
       type: 'text'
     },
-    sending: {
-      complete: 'boolean'
+    complete: {
+      type: 'boolean'
     }
 
   }
