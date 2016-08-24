@@ -23,6 +23,15 @@ module.exports = {
 
   growth: function (req, res) {
     if (req.param('user_id') && req.param('token') && req.param('plot_id')) {
+
+      // Automatically expire the token if it is now exprired
+      if (parseInt(req.param('token').substr(0,13)) + time < Date.now()) {
+        Token.query(`UPDATE token SET expired = true WHERE string = '${req.param('token')}'`, function (e, result) {
+          res.status(403);
+          return res.json({ status: 'Error: Token has expired, please generate a new one' });
+        });
+      }
+
       Token.query(`SELECT id FROM token WHERE string = '${req.param('token')}' AND player = ${req.param('user_id')} AND expired = false AND permission = 1`, function (err, token) {
         if (!token.rows.length) {
           res.status(401);
