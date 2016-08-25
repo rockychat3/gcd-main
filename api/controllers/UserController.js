@@ -1,3 +1,5 @@
+var time = 48 * 60 * 60 * 1000;
+
 module.exports = {
 
   register: function(req, res) {
@@ -37,8 +39,6 @@ module.exports = {
   },
 
   authenticate: function (req, res) {
-    var time = 48 * 60 * 60 * 1000;
-
     if (req.param('user_id') && req.param('token') && req.param('purpose')) {
 
       // Automatically expire the token if it is now expired
