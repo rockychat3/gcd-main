@@ -16,6 +16,8 @@ module.exports = {
           res.status(401);
           return res.send('Error: token not valid');
         }
+
+        Hex.query(`SELECT resourcetype.type, hex.amount FROM hex WHERE hex.label = '${req.param('plot_id')}'`, function (er, hex));
       });
     }
     else {
