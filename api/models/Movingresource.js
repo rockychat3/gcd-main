@@ -9,6 +9,9 @@ module.exports = {
     }
     completion: {
       type: 'date'
+    },
+    selling: {
+      type: 'boolean'
     }
   }  
 };

@@ -72,7 +72,7 @@ module.exports = {
           return res.send('Error: token not valid');
         }
 
-        Resource.query(`SELECT hex FROM resource WHERE id = ${req.param('resource_id')}`, function (err, resource) {
+        Resource.query(`SELECT hex, type FROM resource WHERE id = ${req.param('resource_id')}`, function (err, resource) {
           
           if (!resource.rows.length) {
             res.status(404);
@@ -89,12 +89,12 @@ module.exports = {
 
             // I'm not implementing a complex travelling salesman, suck my nuts 
             var distance = Math.abs((hexes[start].label.split(''))[0].toUpperCase().charCodeAt(0) - (req.param('destination_plot').split(''))[0].toUpperCase().charCodeAt(0));
-            distance += Math.abs((req.param('starting_plot').split(''))[1] - (req.param('destination_plot').split(''))[1]);
+            distance += Math.abs((hexes[start].label.split(''))[1]  - (req.param('destination_plot').split(''))[1]);
 
             var date = new Date();
             date.setDate(date.getDate() + distance);
 
-            Movingresource.query(`INSERT INTO movingresource SELECT ${req.param('resource_id')}, '${date.toDateString()}', false WHERE NOT EXISTS (SELECT resource FROM movingresource WHERE resource = ${req.param('resource_id')})`, function (er, m) {
+            Movingresource.query(`INSERT INTO movingresource SELECT ${resource.rows[0].type}, '${req.param('destination_plot')}', '${date.toDateString()}', false WHERE NOT EXISTS (SELECT resource FROM movingresource WHERE resource = ${req.param('resource_id')})`, function (er, m) {
               Resource.query(`UPDATE resource SET hex = null WHERE id = ${req.param('resource_id')}`, function (e, r) {
                 return res.json({ completion_date: date.toDateString() });
               });
