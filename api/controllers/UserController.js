@@ -6,7 +6,7 @@ module.exports = {
     if (req.param('name') && req.param('email') && req.param('password')) {
       Temp.query(`INSERT INTO temp (name, email, password) VALUES ('${req.param('name')}', '${req.param('email')}', '${req.param('password')}')`, function (err, temp) {
         return res.send('Success');
-      }  
+      });  
     }
     else {
       res.status(400);

@@ -15,7 +15,7 @@ module.exports = {
       model: 'player'
     },
     amount: {
-      type: 'int'
+      type: 'integer'
     },
     date: {
       type: 'date'

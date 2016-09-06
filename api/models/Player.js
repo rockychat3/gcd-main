@@ -18,7 +18,7 @@ module.exports = {
       type: 'text'
     },
     money: {
-      type: 'int'
+      type: 'integer'
     },
     growing: {
       model: 'hex',
@@ -27,7 +27,5 @@ module.exports = {
     admin: {
       type: 'boolean'
     }
-
   }
-  
 };

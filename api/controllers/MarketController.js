@@ -37,7 +37,7 @@ module.exports = {
           return res.send('Error: token not valid');
         }
 
-        Resource.query(`SELECT resource.hex, resource.amount, resourcetype.price FROM resource INNER JOIN resourcetype ON resource.type=resourcetype.id WHERE resource.id = ${req.param('resource_id')}`, function (err, resource) {
+        Resource.query(`SELECT resource.hex, resource.amount, resourcetype.price FROM resource INNER JOIN resourcetype ON resource.type=resourcetype.id WHERE resource.id = ${req.param('resource_id')} AND resource.owner = ${req.param('user_id')}`, function (err, resource) {
           
           if (!resource.rows.length) {
             res.status(404);
@@ -54,10 +54,18 @@ module.exports = {
             return res.send('Error: couldn\'t parse amount');
           }
 
-          Hex.query(`SELECT id, label FROM hex WHERE id = ${resource.rows[0].hex}`, function (e, hex) {
+          Hex.query(`SELECT id, amount, label FROM hex WHERE id = ${resource.rows[0].hex}`, function (e, hex) {
             if (!hex.rows.length) {
               res.status(404);
               return res.send('Error: hex(es) not found');
+            }
+
+            var amount;
+            if (req.param('amount') > hex.rows[0].amount) {
+              amount = hexes.rows[start].amount;
+            }
+            else {
+              amount = req.param('amount');
             }
 
             // I'm not implementing a complex travelling salesman, suck my nuts 
@@ -65,11 +73,11 @@ module.exports = {
             distance += Math.abs((req.param('starting_plot').split(''))[1] - 41);
 
             var date = new Date();
-            date.setDate(date.getDate() + distance);
+            date.setHours(date.getHours() + 12 * distance);
 
-            Movingresource.query(`INSERT INTO movingresource SELECT ${req.param('resource_id')}, 1000, '${date.toDateString()}', ${Math.abs(parseInt(req.param('amount')))}, true WHERE NOT EXISTS (SELECT resource FROM movingresource WHERE resource = ${req.param('resource_id')})`, function (er, m) {
-              Resource.query(`UPDATE resource SET amount = amount - ${Math.abs(parseInt(req.param('amount')))} WHERE id = ${req.param('resource_id')}`, function (e, r) {
-                return res.json({ date_sold: date.toDateString(), amount: resource.rows[0].price * 0.85 * Math.abs(parseInt(req.param('amount'))) });
+            Movingresource.query(`INSERT INTO movingresource SELECT ${req.param('resource_id')}, 1000, ${amount}, '${date.toLocaleString()}', ${Math.abs(parseInt(req.param('amount')))}, true WHERE NOT EXISTS (SELECT resource FROM movingresource WHERE resource = ${req.param('resource_id')})`, function (er, m) {
+              Resource.query(`UPDATE resource SET amount = amount - ${amount} WHERE id = ${req.param('resource_id')}`, function (e, r) {
+                return res.json({ date_sold: date.toLocaleString(), amount: resource.rows[0].price * 0.85 * Math.abs(parseInt(req.param('amount'))) });
               });
             });
           });
@@ -114,10 +122,10 @@ module.exports = {
 
             // I'm not implementing a complex travelling salesman, suck my nuts 
             var distance = Math.abs((req.param('destination_plot').split(''))[0].toUpperCase().charCodeAt(0) - 'H'.charCodeAt(0));
-            distance += Math.abs((req.param('destination_plot').split(''))[1] - 41;
+            distance += Math.abs((req.param('destination_plot').split(''))[1] - 41);
 
             var date = new Date();
-            date.setDate(date.getDate() + distance);
+            date.setHours(date.getHours() + 12 * distance);
 
             Player.query(`SELECT money FROM player WHERE id = ${req.param('user_id')}`, function (e, player) {
               if (player.rows[0].money < type.rows[0].price * 1.15 * Math.abs(parseInt(req.param('amount')))) {
@@ -125,27 +133,23 @@ module.exports = {
                 return res.send('Error: not enough money to buy order');
               }
 
-              Movingresource.query(`INSERT INTO movingresource SELECT ${type.rows[0].id}, ${req.param('destination_plot')}, ${hex.rows[0].id}, '${date.toDateString()}', ${Math.abs(parseInt(req.param('amount')))}, false WHERE NOT EXISTS (SELECT resource FROM movingresource WHERE resource = ${req.param('resource_id')})`, function (er, m) {
+              Movingresource.query(`INSERT INTO movingresource SELECT ${type.rows[0].id}, ${hex.rows[0].id}, ${req.param('amount')}, '${date.toLocaleString()}', ${Math.abs(parseInt(req.param('amount')))}, false WHERE NOT EXISTS (SELECT resource FROM movingresource WHERE resource = ${req.param('resource_id')})`, function (er, m) {
                 Hex.query(`SELECT resource.id FROM hex INNER JOIN resource ON resource.hex=hex.id WHERE hex.label = '${req.param('destination_plot')}'`, function (e, re) {
                   if (!re.rows[0].length) {
-                    Resource.query(`INSERT INTO resource (owner, hex, amount, type) VALUES (${req.param('user_id')}, ${hex.rows[0].id}, ${Math.abs(parseInt(req.param('amount')))}, ${type.rows[0].id})`, function (e, r) {
+                    Resource.query(`INSERT INTO resource (owner, hex, amount, type) VALUES (${req.param('user_id')}, ${hex.rows[0].id}, 0, ${type.rows[0].id})`, function (e, r) {
 
                       Player.query(`UPDATE player SET money = money - ${type.rows[0].price * 1.15 * Math.abs(parseInt(req.param('amount')))} WHERE id = ${req.param('user_id')}`, function (e, p) {
                         Resource.query(`SELECT id FROM resource ORDER BY id DESC LIMIT 1`, function (e, r) {
-                          return res.json({ resource_id: r.rows[0].id, completion_date: date.toDateString(), amount: type.rows[0].price * 1.15 * Math.abs(parseInt(req.param('amount'))) });
+                          return res.json({ resource_id: r.rows[0].id, completion_date: date.toLocaleString(), amount: type.rows[0].price * 1.15 * Math.abs(parseInt(req.param('amount'))) });
                         });
                       });               
 
                     });
                   }
                   else {
-                    Resource.query(`UPDATE resource SET amount = amount + ${Math.abs(parseInt(req.param('amount')))} WHERE id = ${re.rows[0].id}`, function (e, r) {
-
-                      Player.query(`UPDATE player SET money = money - ${type.rows[0].price * 1.15 * Math.abs(parseInt(req.param('amount')))} WHERE id = ${req.param('user_id')}`, function (e, p) {
-                        return res.json({ resource_id: re.rows[0].id, completion_date: date.toDateString(), amount: type.rows[0].price * 1.15 * Math.abs(parseInt(req.param('amount'))) });
-                      });               
-
-                    });
+                    Player.query(`UPDATE player SET money = money - ${type.rows[0].price * 1.15 * Math.abs(parseInt(req.param('amount')))} WHERE id = ${req.param('user_id')}`, function (e, p) {
+                      return res.json({ resource_id: re.rows[0].id, completion_date: date.toLocaleString(), amount: type.rows[0].price * 1.15 * Math.abs(parseInt(req.param('amount'))) });
+                    });               
                   }
                 });
               });

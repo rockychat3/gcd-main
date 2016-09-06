@@ -290,7 +290,7 @@ module.exports = {
       Token.query(`SELECT id FROM token WHERE string = '${req.param('token')}' AND player = ${req.param('user_id')} AND expired = false AND permission = 2`, function (err, token) {
         if (!token.rows.length) {
           res.status(401);
-          return res.json({ status: 'Error: token not valid');
+          return res.json({ status: 'Error: token not valid' });
         }
       
         Transaction.query(`SELECT id FROM transaction WHERE id = ${req.param('request_id')}`, function (error, request) {

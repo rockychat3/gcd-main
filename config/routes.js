@@ -53,6 +53,8 @@ module.exports.routes = {
 
   'POST /admin/start': 'AdminController.startGame',
 
+  'POST /admin/edit': 'AdminController.edit',
+
   'GET /stats/:name': 'UserController.data',
 
   // Restful API

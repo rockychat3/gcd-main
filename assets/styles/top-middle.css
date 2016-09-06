@@ -24,19 +24,44 @@
   border-right: solid 1px #333333;
 }
 
-.hexCity {
+.hexUtility {
   position: relative;
   float: left;
   width: 9.47%; 
   padding-bottom: 5.47%;
   margin: 2.74% 0;
-  background-image: url('/images/tier/city.jpg');
+  background-image: url('/images/tier/utility.jpg');
   background-size: auto 200%;
   background-position: center;
   border-left: solid 1px #333333;
   border-right: solid 1px #333333;
 }
 
+.hexMine {
+  position: relative;
+  float: left;
+  width: 9.47%; 
+  padding-bottom: 5.47%;
+  margin: 2.74% 0;
+  background-image: url('/images/tier/mine.jpg');
+  background-size: auto 200%;
+  background-position: center;
+  border-left: solid 1px #333333;
+  border-right: solid 1px #333333;
+}
+
+.hexIndustrial {
+  position: relative;
+  float: left;
+  width: 9.47%; 
+  padding-bottom: 5.47%;
+  margin: 2.74% 0;
+  background-image: url('/images/tier/industry.jpg');
+  background-size: auto 200%;
+  background-position: center;
+  border-left: solid 1px #333333;
+  border-right: solid 1px #333333;
+}
 
 .hexTop,
 .hexBottom {

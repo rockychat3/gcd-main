@@ -32,7 +32,7 @@ module.exports = {
 
   hex: function (req, res) {
     if (req.session.name) {   
-      Hex.query(`SELECT hex.label, hex.power, hex.water, hex.population, player.name, tier.tier, hex.amount, resourcetype.type FROM hex LEFT OUTER JOIN player ON hex.owner=player.id INNER JOIN tier ON hex.tier=tier.id LEFT OUTER JOIN resourcetype ON hex.resource=resourcetype.id WHERE hex.label = '${req.param('id')}'`, function (err, hex) {
+      Hex.query(`SELECT hex.label, hex.population, player.name, tier.tier, hex.amount, resourcetype.type FROM hex LEFT OUTER JOIN player ON hex.owner=player.id INNER JOIN tier ON hex.tier=tier.id LEFT OUTER JOIN resourcetype ON hex.resource=resourcetype.id WHERE hex.label = '${req.param('id')}'`, function (err, hex) {
         if (!hex.rows.length)
           return res.view('hex', {title: 'Hex ' + req.param('id'), hex: undefined, user: req.session.name});
 
@@ -45,7 +45,7 @@ module.exports = {
 
   player: function (req, res) {
     if (req.session.name) {
-      Player.query(`SELECT player.id, player.name, player.money, hex.label FROM player LEFT OUTER JOIN hex ON hex.owner=player.id WHERE player.name = '${req.param('name')}' ORDER BY hex.id ASC`, function (err, player) {
+      Player.query(`SELECT player.id, player.name, player.money, hex.label FROM player LEFT OUTER JOIN hex ON hex.owner=player.id WHERE player.name = '${req.param('name')}' AND admin = false ORDER BY hex.id ASC`, function (err, player) {
         if (!player.rows.length)
           return res.view('player', {title: 'Player ' + req.param('name'), player: undefined, user: req.session.name, curr: false});
         else if (player.rows[0].name == req.session.name)
@@ -95,19 +95,11 @@ module.exports = {
             });
           },
           hex: function (callback) {
-            Hex.query(`SELECT label FROM hex ORDER BY id ASC`, function (err, hexes) {
+            Hex.query(`SELECT id, label FROM hex ORDER BY id ASC`, function (err, hexes) {
               if (err)
                 callback(err, null);
 
               callback(null, hexes.rows);
-            });
-          },
-          type: function (callback) {
-            Resourcetype.query(`SELECT type FROM resourcetype`, function (err, type) {
-              if (err)
-                callback(err, null);
-
-              callback(null, type.rows);
             });
           },
           started: function (callback) {

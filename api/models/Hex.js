@@ -18,12 +18,12 @@ module.exports = {
       type: 'boolean'
     },
     tier: {
-      type: 'text'
+      model: 'tier'
     },
-    power: {
-      type: 'integer'
+    resource: {
+      model: 'resourcetype'
     },
-    water: {
+    amount: {
       type: 'integer'
     },
     population: {

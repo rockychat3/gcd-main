@@ -5,7 +5,7 @@ module.exports = {
   attributes: {
 
     start: {
-      type: 'text'
+      type: 'date'
     },
     started: {
       type: 'boolean'

@@ -79,18 +79,17 @@ html
             select.js-example-basic-single#hex(style='width: 50%') 
               option
               each hex in hexes
-                option(value=hex.label) #{hex.label} 
+                option(value=hex.id) #{hex.label} 
         
           label(for='field' style='width: 100%') Field: 
             br
             select.js-example-basic-single#field(style='width: 50%')
               option
               option(value="owner") Owner
-              option(value="power") Power
-              option(value="water") Water
-              option(value="population") Population
-              each resource in resources
-                option(value=resource.type) #{resource.type}          
+              option(value="tier") Tier
+              option(value="resource") Resource type
+              option(value="amount") Resource amount
+              option(value="population") Population          
 
           div.input-group#value #[strong Value:]
             input.form-control(type="text" placeholder="New value")

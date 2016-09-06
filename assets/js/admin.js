@@ -16,6 +16,15 @@ function reject(name) {
   });
 }
 
+function commit() {
+  $.post('/admin/edit', { hex: $('#hex').val(), key: $('#field').val(), value: $('#value').val() }, function (success) {
+    if (success == 'Success')
+      window.location.reload();
+    else
+      alert(success); 
+  });
+}
+
 function startGame() {
   $.post('/admin/start', function (res) {
     alert(res);

@@ -66,35 +66,53 @@ html
               if hex.tier == 'farm'
                 span.hexFarm(id=hex.label)
                   if hex.owner
-                    div.tooltiptext Hex #{hex.label}: #{hex.owner}
+                    div.tooltiptext #{hex.label}: #{hex.owner}
                   else 
-                    div.tooltiptext Hex #{hex.label}
+                    div.tooltiptext #{hex.label}
                   div.hexTop
                   div.hexBottom
 
               else if hex.tier == 'town'
                 span.hexTown(id=hex.label)
                   if hex.owner
-                    div.tooltiptext Hex #{hex.label}: #{hex.owner}
+                    div.tooltiptext #{hex.label}: #{hex.owner}
                   else 
-                    div.tooltiptext Hex #{hex.label}
+                    div.tooltiptext #{hex.label}
                   div.hexTop
                   div.hexBottom
 
-              else if hex.tier == 'city'
-                span.hexCity(id=hex.label)
+              else if hex.tier == 'utility'
+                span.hexUtility(id=hex.label)
                   if hex.owner
-                    div.tooltiptext Hex #{hex.label}: #{hex.owner}
+                    div.tooltiptext #{hex.label}: #{hex.owner}
                   else 
-                    div.tooltiptext Hex #{hex.label}
+                    div.tooltiptext #{hex.label}
+                  div.hexTop
+                  div.hexBottom
+
+              else if hex.tier == 'mine'
+                span.hexMine(id=hex.label)
+                  if hex.owner
+                    div.tooltiptext #{hex.label}: #{hex.owner}
+                  else 
+                    div.tooltiptext #{hex.label}
+                  div.hexTop
+                  div.hexBottom
+
+              else if hex.tier == 'industrial'
+                span.hexIndustrial(id=hex.label)
+                  if hex.owner
+                    div.tooltiptext #{hex.label}: #{hex.owner}
+                  else 
+                    div.tooltiptext #{hex.label}
                   div.hexTop
                   div.hexBottom
 
               else
                 span.hexagon(id=hex.label)
                   if hex.owner
-                    div.tooltiptext Hex #{hex.label}: #{hex.owner}
+                    div.tooltiptext #{hex.label}: #{hex.owner}
                   else 
-                    div.tooltiptext Hex #{hex.label}
+                    div.tooltiptext #{hex.label}
 
       

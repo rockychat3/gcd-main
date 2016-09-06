@@ -1,19 +1,17 @@
 module.exports = {
-  
+
   autoCreatedAt: false,
   autoUpdatedAt: false,
   attributes: {
 
-    id: {
-      type: 'integer',
-      primaryKey: true
+    resource: {
+      model: 'resource'
     },
     type: {
-      type: 'text'
+      model: 'resourcetype'
     },
-    price: {
+    rate: {
       type: 'integer'
     }
-
   }
 };

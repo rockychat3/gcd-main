@@ -15,7 +15,7 @@ module.exports = {
       model: 'hex'
     },
     amount: {
-      type: 'int'
+      type: 'integer'
     },
     type: {
       model: 'resourcetype'

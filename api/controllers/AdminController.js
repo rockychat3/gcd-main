@@ -40,6 +40,24 @@ module.exports = {
     });
   },
 
+  edit: function (req, res) {
+    Player.query(`SELECT name FROM player WHERE name = '${req.session.name}' AND admin = true`, function (e, admin) {
+      if (!admin.rows.length) {
+        res.status(401);
+        return res.send('Not an admin');
+      }
+
+      Hex.query(`UPDATE hex SET ${req.param('key')} = ${req.param('value')} WHERE id = ${req.param('hex')}`, function (err, temp) {
+        if (err) {
+          res.status(400);
+          res.send('Unable to edit hex');
+        }
+
+        res.send('Success');
+      });
+    });
+  },
+
   startGame: function (req, res) {
     Player.query(`SELECT name FROM player WHERE name = '${req.session.name}' AND admin = true`, function (e, admin) {
       if (!admin.rows.length) {

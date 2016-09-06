@@ -4,9 +4,18 @@ module.exports = {
   autoUpdatedAt: false,
   attributes: {
 
-    resource: {
-      model: 'resource'
-    }
+    type: {
+      model: 'resourcetype'
+    },
+    target: {
+      model: 'hex'
+    },
+    amount: {
+      type: 'integer'
+    },
+    player: {
+      model: 'player'
+    },
     completion: {
       type: 'date'
     },
