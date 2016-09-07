@@ -10,6 +10,9 @@ module.exports = {
     },
     type: {
       type: 'text'
+    },
+    capacity: {
+      type: 'integer'
     }
   }
 };

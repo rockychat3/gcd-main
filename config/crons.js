@@ -2,9 +2,9 @@ module.exports.crons = {
 
   cron: function () {
     var times = [];
-    times.push({ interval: '15 * * * *', method: 'move' });
-    times.push({ interval: '* 1 * * *', method: 'food' });
-    times.push({ interval: '* 1 * * *', method: 'populate' });
+    times.push({ interval: '* 15 * * * *', method: 'move' });
+    times.push({ interval: '* * 1 * * *', method: 'food' });
+    times.push({ interval: '* * 1 * * *', method: 'populate' });
 
     return times;
   },

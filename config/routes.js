@@ -100,11 +100,7 @@ module.exports.routes = {
 
   'POST /market/ship_and_sell': 'MarketController.shipsell',
 
-  'POST /market/sell': 'MarketController.sell',
-
   'POST /market/ship_and_buy': 'MarketController.shipbuy',
-
-  'POST /market/buy': 'MarketController.buy',
 
   'POST /market/get_price': 'MarketController.price',
 

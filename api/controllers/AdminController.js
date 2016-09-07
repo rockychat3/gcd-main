@@ -9,13 +9,13 @@ module.exports = {
           return res.send('Not an admin');
         }
 
-        Player.query(`INSERT INTO player (name, email, password, money, admin) values ('req.param('name')', 'req.param('email')', 'req.param('password')', 0, false)`, function (err, player) {
+        Player.query(`INSERT INTO player (id, name, email, password) VALUES (6, '${req.param('name')}', '${req.param('email')}', '${req.param('password')}')`, function (err, player) {
           if (err) {
             res.status(500);
-            res.send('Unable to add user');
+            return res.send(err);
           }
 
-          Temp.query(`DELETE FROM temp WHERE name = 'req.param('name')' AND email = 'req.param('email')'`, function (error, temp) {
+          Temp.query(`DELETE FROM temp WHERE name = '${req.param('name')}' AND email = '${req.param('email')}'`, function (error, temp) {
             res.send('Success');
           });
         });
@@ -34,7 +34,7 @@ module.exports = {
         return res.send('Not an admin');
       }
 
-      Temp.query(`DELETE FROM temp WHERE name = 'req.param('name')'`, function (err, temp) {
+      Temp.query(`DELETE FROM temp WHERE name = '${req.param('name')}'`, function (err, temp) {
         res.send('Success');
       });
     });
@@ -50,7 +50,7 @@ module.exports = {
       Hex.query(`UPDATE hex SET ${req.param('key')} = ${req.param('value')} WHERE id = ${req.param('hex')}`, function (err, temp) {
         if (err) {
           res.status(400);
-          res.send('Unable to edit hex');
+          return res.send('Unable to edit hex');
         }
 
         res.send('Success');

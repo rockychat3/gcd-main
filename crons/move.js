@@ -2,7 +2,7 @@ module.exports = {
 
   run: function () {
     Movingresource.query(`SELECT target, type, completion, amount, selling, player FROM movingresource`, function (e, moving) {
-      if (moving.rows.length) {
+      if (moving && moving.rows.length) {
         for (var i in moving.rows) {
           if (new Date() >= new Date(moving.rows[i].completion)) {
 

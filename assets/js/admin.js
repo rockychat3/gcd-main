@@ -3,7 +3,7 @@ function approve(name, email, password) {
     if (success == 'Success') 
       window.location.reload();
     else
-        alert(success);
+      console.log(success);
   });
 }
 
@@ -17,7 +17,7 @@ function reject(name) {
 }
 
 function commit() {
-  $.post('/admin/edit', { hex: $('#hex').val(), key: $('#field').val(), value: $('#value').val() }, function (success) {
+  $.post('/admin/edit', { hex: $('#hex').val(), key: $('#field').val(), value: $('input').val() }, function (success) {
     if (success == 'Success')
       window.location.reload();
     else
