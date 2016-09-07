@@ -3,7 +3,7 @@ function approve(name, email, password) {
     if (success == 'Success') 
       window.location.reload();
     else
-      console.log(success);
+      alert(success);
   });
 }
 
