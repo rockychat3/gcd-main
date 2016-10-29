@@ -68,7 +68,7 @@ module.exports = {
               amount = req.param('amount');
             }
 
-            // I'm not implementing a complex travelling salesman, suck my nuts 
+            // I'm not implementing a complex travelling salesman
             var distance = Math.abs((req.param('starting_plot').split(''))[0].toUpperCase().charCodeAt(0) - 'H'.charCodeAt(0));
             distance += Math.abs((req.param('starting_plot').split(''))[1] - 41);
 
@@ -120,7 +120,7 @@ module.exports = {
               return res.send('Error: hex not found');
             }
 
-            // I'm not implementing a complex travelling salesman, suck my nuts 
+            // I'm not implementing a complex travelling salesman
             var distance = Math.abs((req.param('destination_plot').split(''))[0].toUpperCase().charCodeAt(0) - 'H'.charCodeAt(0));
             distance += Math.abs((req.param('destination_plot').split(''))[1] - 41);
 
