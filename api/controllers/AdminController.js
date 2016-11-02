@@ -9,7 +9,7 @@ module.exports = {
           return res.send('Not an admin');
         }
 
-        Player.query(`INSERT INTO player (id, name, email, password) VALUES (6, '${req.param('name')}', '${req.param('email')}', '${req.param('password')}')`, function (err, player) {
+        Player.query(`INSERT INTO player (name, email, password) VALUES ('${req.param('name')}', '${req.param('email')}', '${req.param('password')}')`, function (err, player) {
           if (err) {
             res.status(500);
             return res.send(err);
@@ -21,7 +21,7 @@ module.exports = {
         });
       });
     }
-    else { 
+    else {
       res.status(401);
       res.send('Not logged in');
     }
