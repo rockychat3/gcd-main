@@ -16,7 +16,7 @@ html
     script.
       $(document).ready(function() {$(".js-example-basic-single").select2({placeholder:'Select one', allowClear: true});});
 
-  body 
+  body
     // header
     div(class="navbar navbar-default")
       div.container
@@ -27,13 +27,13 @@ html
             span.icon-bar
             span.icon-bar
           div.navbar-brand
-            | #[a(href="/" class="link") Grand Challenge Design] | #{title} 
+            | #[a(href="/" class="link") Grand Challenge Design] | #{title}
 
         div(class="navbar-collapse collapse")
           ul(class="nav navbar-nav navbar-right")
-            if user 
+            if user
               - link = '/player/' + user
-              li #[a(href=link) #{user}] 
+              li #[a(href=link) #{user}]
               li #[a(href="javascript:logout()") Logout]
 
             else
@@ -51,15 +51,11 @@ html
                   li #[ #[h4 #{player.name}, #{player.email}] #[button.btn.btn-default(type="button" onclick="javascript:approve('#{player.name}', '#{player.email}', '#{player.password}')") #[span.glyphicon.glyphicon-ok]] #[button.btn.btn-default(type="button" onclick="javascript:reject('#{player.name}')") #[span.glyphicon.glyphicon-remove]]]
 
           div.col-sm-6
-            br 
+            br
             button.btn(type='button' onclick="javascript:startGame()") Start Game
 
-        else 
-          if temp.length
-            h3 Player Requests:
-            ul
-              each in 
-              li #[ #[h4 Evan Richardson, ejrich44@gmail.com] #[button.btn.btn-default(type='button' onclick='javascript:approve("Evan Richardson", "ejrich44@gmail.com", "yo")') #[span.glyphicon.glyphicon-ok]] #[button.btn.btn-default(type='button' onclick='javascript:reject("Evan Richardson")') #[span.glyphicon.glyphicon-remove]]]
+        else
+          h3 Since The Game Is Started You Can't Add People
 
 
 
@@ -74,14 +70,14 @@ html
 
         div.col-sm-6
           h3 Edit Hex Data
-          label(for='hex' style='width: 100%') Hex ID: 
+          label(for='hex' style='width: 100%') Hex ID:
             br
-            select.js-example-basic-single#hex(style='width: 50%') 
+            select.js-example-basic-single#hex(style='width: 50%')
               option
               each hex in hexes
-                option(value=hex.id) #{hex.label} 
-        
-          label(for='field' style='width: 100%') Field: 
+                option(value=hex.id) #{hex.label}
+
+          label(for='field' style='width: 100%') Field:
             br
             select.js-example-basic-single#field(style='width: 50%')
               option
@@ -89,7 +85,7 @@ html
               option(value="tier") Tier
               option(value="resource") Resource type
               option(value="amount") Resource amount
-              option(value="population") Population          
+              option(value="population") Population
 
           div.input-group#value #[strong Value:]
             input.form-control(type="text" placeholder="New value")
