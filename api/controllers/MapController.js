@@ -4,7 +4,7 @@ module.exports = {
 
   plot: function (req, res) {
     if (req.param('plot_id')) {
-      Hex.query(`SELECT hex.population, player.id, player.name, tier.capacity FROM hex LEFT OUTER JOIN player ON hex.owner=player.id INNER JOIN tier ON hex.tier=tier.tier WHERE hex.label = '${req.param('plot_id')}'`, function (err, hex) {
+      Hex.query(`SELECT hex.population, player.id, player.name, tier.capacity FROM hex LEFT OUTER JOIN player ON hex.owner=player.id INNER JOIN tier ON hex.tier=tier.id WHERE hex.label = '${req.param('plot_id')}'`, function (err, hex) {
         if (!hex.rows.length) {
           res.status(404);
           return res.json({population: undefined, capacity: undefined, owner: undefined});
@@ -15,7 +15,7 @@ module.exports = {
         else {
           return res.json({ population: hex.rows[0].population, capacity: hex.rows[0].capacity, owner: undefined });
         }
-      }); 
+      });
     }
     else {
       res.status(400);
@@ -39,7 +39,7 @@ module.exports = {
           res.status(401);
           return res.json({ status: 'Error: token not valid'});
         }
-      
+
         Hex.query(`SELECT id, owner FROM hex WHERE label = '${req.param('plot_id')}'`, function (error, hex) {
           if (!hex.rows.length) {
             res.status(404);
@@ -90,7 +90,7 @@ module.exports = {
 
   migrate: function (req, res) {
     if (req.param('user_id') && req.param('token') && req.param('origin_plot_id') && req.param('destination_plot_id') && req.param('quantity')) {
-      
+
       // Automatically expire the token if it is now exprired
       if (parseInt(req.param('token').substr(0,13)) + time < Date.now()) {
         Token.query(`UPDATE token SET expired = true WHERE string = '${req.param('token')}'`, function (e, result) {
@@ -121,7 +121,7 @@ module.exports = {
             }
             else if (req.param('quantity') == -1) {
               origin_new = 0;
-              dest_new = hexes.rows[dest].population + hexes.rows[origin].population;
+              dest_new =(hexes.rows[dest].population) + hexes.rows[origin].population;
             }
             else {
               origin_new = hexes.rows[origin].population > req.param('quantity') ? hexes.rows[origin].population - req.param('quantity') : 0;
@@ -146,5 +146,5 @@ module.exports = {
       return res.json({ status: 'Error: not enough/incorrect parameters entered' })
     }
   }
-    
+
 }
