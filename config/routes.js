@@ -64,11 +64,11 @@ module.exports.routes = {
 
   'POST /map/get_plot': 'MapController.plot',
 
-  'POST /map/set_growth': 'MapController.growth',
+  //'POST /map/set_growth': 'MapController.growth',
 
   'POST /map/get_user_residents': 'MapController.residents',
 
-  'POST /map/migrate_population': 'MapController.migrate',
+  //'POST /map/migrate_population': 'MapController.migrate',
 
   'POST /bank/check_balance': 'TransactionController.balance',
 

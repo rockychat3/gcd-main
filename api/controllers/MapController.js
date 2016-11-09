@@ -23,7 +23,7 @@ module.exports = {
     }
   },
 
-  growth: function (req, res) {
+ /* growth: function (req, res) {
     if (req.param('user_id') && req.param('token') && req.param('plot_id')) {
 
       // Automatically expire the token if it is now exprired
@@ -61,7 +61,7 @@ module.exports = {
       res.status(400);
       return res.json({ status: 'Error: not enough/incorrect parameters entered' })
     }
-  },
+  },*/
 
   residents: function (req, res) {
     if (req.param('user_id')) {
@@ -86,9 +86,9 @@ module.exports = {
       res.status(400);
       return res.json(undefined);
     }
-  },
+  }
 
-  migrate: function (req, res) {
+  /*migrate: function (req, res) {
     if (req.param('user_id') && req.param('token') && req.param('origin_plot_id') && req.param('destination_plot_id') && req.param('quantity')) {
 
       // Automatically expire the token if it is now exprired
@@ -145,6 +145,6 @@ module.exports = {
       res.status(400);
       return res.json({ status: 'Error: not enough/incorrect parameters entered' })
     }
-  }
+  }*/
 
 }
