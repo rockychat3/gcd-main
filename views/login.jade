@@ -5,7 +5,7 @@ html
     title #{title} - Grand Challenge Design
     meta(name="viewport" content="width=device-width, initial-scale=1.0")
 
-    script(src="http://code.jquery.com/jquery-2.0.0.min.js")
+    script(src="https://code.jquery.com/jquery-2.0.0.min.js")
     link(href="/styles/bootstrap.min.css" rel="stylesheet")
     link(href="/styles/style.css" rel="stylesheet")
     script(src="/js/bootstrap.min.js")
@@ -34,8 +34,6 @@ html
                 label(for="password") Password *
                 input.form-control(type="password" id="password" placeholder="password" required="true")
               button.btn(type="submit") Log In
-            br
-            a(href='/register') Register Now
           else 
             div(style="text-align: center;")
               div.alert.alert-info

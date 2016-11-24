@@ -23,13 +23,14 @@
 module.exports.routes = {
 
   // Web UI
-  'GET /': 'ViewController.board',
+  // 'GET /': 'ViewController.board',
+  'GET /': 'ViewController.admin',
 
-  'GET /board': 'ViewController.board',
+  // 'GET /board': 'ViewController.board',
 
-  'GET /region/:id': 'ViewController.region',
+  // 'GET /region/:id': 'ViewController.region',
 
-  'GET /hex/:id': 'ViewController.hex',
+  // 'GET /hex/:id': 'ViewController.hex',
 
   'GET /player/:name': 'ViewController.player',
 
@@ -51,7 +52,7 @@ module.exports.routes = {
 
   'POST /admin/reject_student': 'AdminController.reject',
 
-  'POST /admin/start': 'AdminController.startGame',
+  // 'POST /admin/start': 'AdminController.startGame',
 
   'POST /admin/edit': 'AdminController.edit',
 
@@ -62,50 +63,50 @@ module.exports.routes = {
 
   'POST /users/authenticate': 'UserController.authenticate',
 
-  'POST /map/get_plot': 'MapController.plot',
+  // 'POST /map/get_plot': 'MapController.plot',
 
-  //'POST /map/set_growth': 'MapController.growth',
+  // 'POST /map/set_growth': 'MapController.growth',
 
-  'POST /map/get_user_residents': 'MapController.residents',
+  // 'POST /map/get_user_residents': 'MapController.residents',
 
   //'POST /map/migrate_population': 'MapController.migrate',
 
-  'POST /bank/check_balance': 'TransactionController.balance',
+  // 'POST /bank/check_balance': 'TransactionController.balance',
 
-  'POST /bank/view_transactions': 'TransactionController.transactions',
+  // 'POST /bank/view_transactions': 'TransactionController.transactions',
 
-  'POST /bank/send_money': 'TransactionController.send',
+  // 'POST /bank/send_money': 'TransactionController.send',
 
-  'POST /bank/request_money': 'TransactionController.request',
+  // 'POST /bank/request_money': 'TransactionController.request',
 
-  'POST /bank/view_requests': 'TransactionController.view',
+  // 'POST /bank/view_requests': 'TransactionController.view',
 
-  'POST /bank/approve_request': 'TransactionController.approve',
+  // 'POST /bank/approve_request': 'TransactionController.approve',
 
-  'POST /resources/mine': 'ResourceController.mine',
+  // 'POST /resources/mine': 'ResourceController.mine',
 
-  'POST /resources/move': 'ResourceController.move',
+  // 'POST /resources/move': 'ResourceController.move',
 
-  'POST /resources/estimate_move': 'ResourceController.estimate',
+  // 'POST /resources/estimate_move': 'ResourceController.estimate',
 
-  'POST /resources/realify': 'ResourceController.realify',
+  // 'POST /resources/realify': 'ResourceController.realify',
 
-  'POST /resources/digify': 'ResourceController.digify',
+  // 'POST /resources/digify': 'ResourceController.digify',
 
-  'POST /resources/view': 'ResourceController.view',
+  // 'POST /resources/view': 'ResourceController.view',
 
-  'POST /resources/transfer_ownership': 'ResourceController.transfer',
+  // 'POST /resources/transfer_ownership': 'ResourceController.transfer',
 
-  'POST /market/get_price': 'MarketController.price',
+  // 'POST /market/get_price': 'MarketController.price',
 
-  'POST /market/ship_and_sell': 'MarketController.shipsell',
+  // 'POST /market/ship_and_sell': 'MarketController.shipsell',
 
-  'POST /market/ship_and_buy': 'MarketController.shipbuy',
+  // 'POST /market/ship_and_buy': 'MarketController.shipbuy',
 
-  'POST /market/get_price': 'MarketController.price',
+  // 'POST /market/get_price': 'MarketController.price',
 
-  'POST /food/set_rates': 'FoodController.setRates',
+  // 'POST /food/set_rates': 'FoodController.setRates',
 
-  'POST /food/view_available': 'FoodController.view'
+  // 'POST /food/view_available': 'FoodController.view'
 
 };
