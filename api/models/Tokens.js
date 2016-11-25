@@ -14,12 +14,12 @@ module.exports = {
       type: 'boolean',
       defaultsTo: false
     },
-    user: {
-      model: 'users'
+    user: {  // tokens belong to one user (token creator/owner)
+      model: 'users',
+      notNull: true
     },
-    permissions: {  // this automatically creates a many-to-many join with the permissions model
-      collection: 'permissions',
-      via: 'tokens'
+    permission: {  // tokens have one permission
+      model: 'permissions'
     }
   }
 };
