@@ -1,7 +1,93 @@
-var time = 48 * 60 * 60 * 1000;
-
 module.exports = {
 
+  // /players/user_data/
+  // POST user_id: user_id of player of interest
+  // RETURN status: “success” or “error: reason...”
+  // RETURN data: {object: id, name, and email}
+  user_data: function (req, res) {
+    if (!req.param('user_id')) return RespService.api(res, 'Missing user_id');
+    
+    // database lookup by user_id
+    Users.findOne(req.param('user_id')).exec(function (err, user) {
+      if (err) return RespService.api(res, 'Database fail: ' + err);
+      if (!user) return RespService.api(res, 'User not found in database');
+      
+      delete user.password;  // remove the password before returning results
+      return RespService.api(res, false, user);  // respond success w/ user data
+    });
+    
+  },
+
+
+  // /players/update_user/
+  // POST user_id: user_id of player of interest
+  // POST token: player token used for authentication of this task (string)
+  // POST (optional) name: player’s new name
+  // POST (optional) email: player’s new email
+  // POST (optional) password: player’s new password in plaintext
+  // RETURN status: “success” or “error: reason...”
+  // RETURN data: {object: id, name, and email}
+  update_user: function (req, res) {
+    //var return_json = authenticate(req, res);
+    
+    if (!req.param('user_id')) {  // if any parameters are missing
+      return_json.status = 'Error: At least one required parameter is missing';
+      return res.json(return_json);
+    }
+    
+    Users.find({  // database lookup
+      id: req.param('user_id')  // match input id to database
+    }).exec(function (err, results) {
+      
+      if (err) {  // if the database barfs
+        return_json.status = 'Error: Database lookup problem. Check input data.';
+        return res.json(return_json);
+      }
+      if (!results.length) {  // if there are no results from the lookup
+        return_json.status = 'Error: User not found in system';
+        return res.json(return_json);
+      }
+      
+      var user = results[0];  // the first result is our user
+      delete user.password;  // remove the password before returning results
+      return_json.data = user;  // set the cleaned up user data in the return object
+      return res.json(return_json);
+    });
+    
+  },
+
+  // /players/authenticate/
+  // POST user_id: user_id of player of interest
+  // POST token: player token used for authentication of this task (string)
+  // POST permission: the type of permission being requested, i.e. banking, mining, etc. (string, matches string in “players_permissions” table)
+  // RETURN status: “success” or “error: reason...”
+  // RETURN user_id: user_id of player
+  // RETURN token_id: the database id of the token used for tracking purposes
+  
+  // /players/create_user/
+  // POST token: player token used for authentication of this task (string)
+  // POST name: player’s new name
+  // POST email: player’s new email
+  // RETURN status: “success” or “error: reason...”
+  // RETURN data: {object: id, name, and email}
+  
+  // /players/issue_token/
+  // POST user_id: user_id of player of interest
+  // POST password: player’s password in plaintext
+  // POST permissions: [array of ids for permission types]
+  // POST (optional): expiration: datetime (when it expires) or “false”
+  // RETURN status: “success” or “error: reason...”
+  // RETURN data: {object: token, expiration, and [array of permissions]}
+  
+  // /players/list_tokens/
+  // POST user_id: user_id of player of interest
+  // POST password: player’s password in plaintext
+  // RETURN status: “success” or “error: reason...”
+  // RETURN data: [array of {object: token, expiration, and [array of permissions]}]
+
+  
+  
+  // @TODO: break this up into a UI login that does server session and user authentication as its own API method
   login: function (req, res) {
 
     Users.find({

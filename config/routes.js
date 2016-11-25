@@ -22,6 +22,9 @@
 
 module.exports.routes = {
 
+  // Players Microservice
+  'POST /players/user_data': 'UserController.user_data',
+
   // Web UI
   // 'GET /': 'ViewController.board',
   'GET /': 'ViewController.admin',
