@@ -1,3 +1,4 @@
+// Though used universally, this is officially part of the Players Microapp
 module.exports = {
 
   // When authentication is needed, verify user permission and return default status object
@@ -11,7 +12,7 @@ module.exports = {
     }).populate(['permission','user']).exec(function (err, results) {
       if (err) return RespService.e(res, 'Database lookup problem. Check input data. ' + err);
       if (!results.length) return RespService.e(res, 'Token not found in database');
-      var token = results[0];
+      var token = results[0];  // find returns an array, but we only have one result each time
       
       // first check if the requesting user is the token owner
       if (token.user.id != parseInt(req.param('user_id'))) {
@@ -22,7 +23,8 @@ module.exports = {
       // next, check if the token is a supertoken
       if (!token.supertoken) {
         // if not, check if it is the right permission type
-        if (!token.permission.name == permission_required) return RespService.e(res, 'Wrong permission type for this token');
+        if (!token.permission) return RespService.e(res, 'Something is really broken');
+        if (token.permission.name != permission_required) return RespService.e(res, 'Wrong permission type for this token');
       }
       
       callback(req, res);  // if authorized, run the requested action (passed as a callback function)
