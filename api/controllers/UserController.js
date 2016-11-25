@@ -5,7 +5,7 @@ module.exports = {
   // RETURN status: “success” or “error: reason...”
   // RETURN data: {object: id, name, and email}
   user_data: function (req, res) {
-    AuthService.authenticate(req, res, "players", function (req, res) { 
+    AuthService.authenticate(req, res, "players", false, function (req, res) { 
 
       // check for all required user input
       if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');

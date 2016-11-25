@@ -2,7 +2,7 @@
 module.exports = {
 
   // When authentication is needed, verify user permission and return default status object
-  authenticate: function (req, res, permission_required, callback) {
+  authenticate: function (req, res, permission_required, admin_required, callback) {
     if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');
     if (!req.param('token')) return RespService.e(res, 'Missing token');
     
@@ -13,6 +13,9 @@ module.exports = {
       if (err) return RespService.e(res, 'Database lookup problem. Check input data. ' + err);
       if (!results.length) return RespService.e(res, 'Token not found in database');
       var token = results[0];  // find returns an array, but we only have one result each time
+      
+      // check if admin is required
+      if (admin_required && token.user.usertype != "admin") return RespService.e(res, 'Only admins can use this function');
       
       // first check if the requesting user is the token owner
       if (token.user.id != parseInt(req.param('user_id'))) {
