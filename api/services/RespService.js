@@ -1,10 +1,13 @@
 module.exports = {
 
-  api: function (res, error_message, data) {
-    var return_json = { status: 'success'};
-    if (data) return_json.data = data;
-    if (error_message) return_json.status = 'Error: ' + error_message;
-    return res.json(return_json);
+  // response for errors
+  e: function (res, error_message) {
+    return res.json({ status: 'Error: ' + error_message});
+  },
+  
+  // response for successes
+  s: function (res, data) {
+    return res.json({ status: 'success', data: data});
   }
 
 }

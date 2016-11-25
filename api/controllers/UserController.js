@@ -5,15 +5,15 @@ module.exports = {
   // RETURN status: “success” or “error: reason...”
   // RETURN data: {object: id, name, and email}
   user_data: function (req, res) {
-    if (!req.param('user_id')) return RespService.api(res, 'Missing user_id');
+    if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');
     
     // database lookup by user_id
     Users.findOne(req.param('user_id')).exec(function (err, user) {
-      if (err) return RespService.api(res, 'Database fail: ' + err);
-      if (!user) return RespService.api(res, 'User not found in database');
+      if (err) return RespService.e(res, 'Database fail: ' + err);
+      if (!user) return RespService.e(res, 'User not found in database');
       
       delete user.password;  // remove the password before returning results
-      return RespService.api(res, false, user);  // respond success w/ user data
+      return RespService.s(res, user);  // respond success w/ user data
     });
     
   },
