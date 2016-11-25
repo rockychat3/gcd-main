@@ -24,6 +24,8 @@ module.exports.routes = {
 
   // Players Microservice
   'POST /players/create_user': 'UserController.create_user',
+  'POST /players/update_user/:id': 'UserController.update_user',
+  
   'POST /players/list_users': 'UserController.list_users',
   'POST /players/user_data': 'UserController.user_data',
   

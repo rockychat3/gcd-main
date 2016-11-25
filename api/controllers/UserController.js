@@ -24,6 +24,19 @@ module.exports = {
     });
   },
   
+  update_user: function (req, res) {
+    AuthService.authenticate(req, res, "players", function (req, res) { 
+
+      // @TODO: sort thru all the params that are allowed for updates
+
+      Users.update(req.param('id'),{name:'Flynn'}).exec(function afterwards(err, updated){
+        if (err) return RespService.e(res, 'Database fail: ' + err);
+        return RespService.s(res, updated);  // respond success w/ user data
+      });
+
+    });
+  },
+  
   // list all users
   list_users: function (req, res) {
     AuthService.authenticate(req, res, "admin", function (req, res) { 
@@ -95,7 +108,7 @@ module.exports = {
   // POST (optional) password: player’s new password in plaintext
   // RETURN status: “success” or “error: reason...”
   // RETURN data: {object: id, name, and email}
-  update_user: function (req, res) {
+  /*update_user: function (req, res) {
     //var return_json = authenticate(req, res);
     
     if (!req.param('user_id')) {  // if any parameters are missing
@@ -122,7 +135,7 @@ module.exports = {
       return res.json(return_json);
     });
     
-  },
+  },*/
 
   // /players/authenticate/
   // POST user_id: user_id of player of interest

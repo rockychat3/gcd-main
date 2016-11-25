@@ -39,10 +39,14 @@ module.exports = {
   // it hashes the plain text password to make it more secure and overwrites the original
   beforeValidate: function (values, cb) {
     // Hash password
-    bcrypt.hash(values.password, 10, function(err, hash) {  // 10 means 2^10 rehashes
-      if(err) return cb(err);
-      values.password = hash;  // overwrites original
-      cb();  // callback, completes the function unless you give it a parameter (then acts as error)
-    });
+    if (!values.password) {
+      cb();  // back out if no password
+    } else {
+      bcrypt.hash(values.password, 10, function(err, hash) {  // 10 means 2^10 rehashes
+        if(err) return cb(err);
+        values.password = hash;  // overwrites original
+        cb();  // callback, completes the function unless you give it a parameter (then acts as error)
+      });
+    }
   }
 };
