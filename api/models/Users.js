@@ -14,7 +14,6 @@ module.exports = {
     email: {  
       type: 'text',
       email: true,
-      unique: true,
       notNull: true
     },
     // the player's password, but hashed for protection of passwords

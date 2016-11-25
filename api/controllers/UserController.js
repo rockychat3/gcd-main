@@ -1,15 +1,51 @@
 module.exports = {
 
+  // /players/create_user/
+  // POST token: player token used for authentication of this task (string)
+  // POST name: player’s new name
+  // POST email: player’s new email
+  // RETURN status: “success” or “error: reason...”
+  // RETURN data: {object: id, name, and email}
+  create_user: function (req, res) {
+    AuthService.authenticate(req, res, "admin", function (req, res) { 
+
+      // check for all required user input
+      if (!req.param('name')) return RespService.e(res, 'Missing name');
+      if (!req.param('email')) return RespService.e(res, 'Missing email');
+      
+      var new_user = { name: req.param('name'), email: req.param('email'), password: 'changeme' };
+      if (req.param('usertype')) new_user.usertype = req.param('usertype');
+      
+      Users.create(new_user).exec(function (err, user){
+        if (err) return RespService.e(res, 'User creation error: ' + err);
+        return RespService.s(res, user);  // respond success w/ user data
+      });
+      
+    });
+  },
+  
+  // list all users
+  list_users: function (req, res) {
+    AuthService.authenticate(req, res, "admin", function (req, res) { 
+      
+      Users.find({}).exec(function (err, users) {
+        if (err) return RespService.e(res, 'Database fail: ' + err);
+        
+        users.forEach(function(user){ delete user.password; });
+
+        return RespService.s(res, users);  // respond success w/ user data
+      });
+      
+    });
+  },
+
   // /players/user_data/
   // POST user_id: user_id of player of interest
   // RETURN status: “success” or “error: reason...”
   // RETURN data: {object: id, name, and email}
   user_data: function (req, res) {
-    AuthService.authenticate(req, res, "players", false, function (req, res) { 
+    AuthService.authenticate(req, res, "players", function (req, res) { 
 
-      // check for all required user input
-      if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');
-    
       // database lookup by user_id
       Users.findOne(req.param('user_id')).exec(function (err, user) {
         if (err) return RespService.e(res, 'Database fail: ' + err);
@@ -21,7 +57,32 @@ module.exports = {
       
     });
     
-    
+  },
+
+
+  // /players/issue_token/
+  // POST user_id: user_id of player of interest
+  // POST password: player’s password in plaintext
+  // POST permissions: [array of ids for permission types]
+  // POST (optional): expiration: datetime (when it expires) or “false”
+  // RETURN status: “success” or “error: reason...”
+  // RETURN data: {object: token, expiration, and [array of permissions]}
+  issue_token: function (req, res) {
+    AuthService.password_authenticate(req, res, true, function (req, res) { 
+
+      return RespService.s(res, { msg: "hi"});  // respond success w/ user data
+      
+      /*
+      // database lookup by user_id
+      Users.findOne(req.param('user_id')).exec(function (err, user) {
+        if (err) return RespService.e(res, 'Database fail: ' + err);
+        if (!user) return RespService.e(res, 'User not found in database');
+        
+        delete user.password;  // remove the password before returning results
+        
+      });*/
+      
+    });
     
   },
 
@@ -71,20 +132,8 @@ module.exports = {
   // RETURN user_id: user_id of player
   // RETURN token_id: the database id of the token used for tracking purposes
   
-  // /players/create_user/
-  // POST token: player token used for authentication of this task (string)
-  // POST name: player’s new name
-  // POST email: player’s new email
-  // RETURN status: “success” or “error: reason...”
-  // RETURN data: {object: id, name, and email}
   
-  // /players/issue_token/
-  // POST user_id: user_id of player of interest
-  // POST password: player’s password in plaintext
-  // POST permissions: [array of ids for permission types]
-  // POST (optional): expiration: datetime (when it expires) or “false”
-  // RETURN status: “success” or “error: reason...”
-  // RETURN data: {object: token, expiration, and [array of permissions]}
+  
   
   // /players/list_tokens/
   // POST user_id: user_id of player of interest

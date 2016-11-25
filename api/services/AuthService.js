@@ -1,10 +1,15 @@
+var bcrypt = require('bcrypt');  // module used to hash passwords
+
 // Though used universally, this is officially part of the Players Microapp
 module.exports = {
 
   // When authentication is needed, verify user permission and return default status object
-  authenticate: function (req, res, permission_required, admin_required, callback) {
-    if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');
-    if (!req.param('token')) return RespService.e(res, 'Missing token');
+  // input: request object
+  // input: response object
+  // input: permission string ("admin" for admin users, or a microservice name such as "players")
+  // input: anonymous function to be executed upon successful completion
+  authenticate: function (req, res, permission_required, callback) {
+    if (!req.param('token')) return RespService.e(res, 'Missing token');  // check if token is present
     
     // database lookup by user_id
     Tokens.find({
@@ -15,7 +20,12 @@ module.exports = {
       var token = results[0];  // find returns an array, but we only have one result each time
       
       // check if admin is required
-      if (admin_required && token.user.usertype != "admin") return RespService.e(res, 'Only admins can use this function');
+      if (permission_required == "admin") {
+        if (token.user.usertype != "admin") return RespService.e(res, 'Only admins can use this function');
+        else return callback(req, res);  // if authorized, run the requested action (passed as a callback function)
+      }
+      
+      if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');  // for non-admin, check if user_id is present
       
       // first check if the requesting user is the token owner
       if (token.user.id != parseInt(req.param('user_id'))) {
@@ -30,7 +40,31 @@ module.exports = {
         if (token.permission.name != permission_required) return RespService.e(res, 'Wrong permission type for this token');
       }
       
-      callback(req, res);  // if authorized, run the requested action (passed as a callback function)
+      return callback(req, res);  // if authorized, run the requested action (passed as a callback function)
+    });
+    
+  },
+  
+  
+  // When authentication is needed with a password, check it and verify user permission
+  // input: request object
+  // input: response object
+  // input: permission string ("admin" for admin users, or a microservice name such as "players")
+  // input: anonymous function to be executed upon successful completion
+  password_authenticate: function (req, res, if_admin, callback) {
+    if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');  // check if user_id is present
+    if (!req.param('password')) return RespService.e(res, 'Missing password');  // check if token is present
+    
+    // database lookup by user_id
+    Users.findOne(req.param('user_id')).exec(function (err, user) {
+      if (err) return RespService.e(res, 'Database fail: ' + err);
+      if (!user) return RespService.e(res, 'User not found in database');
+      
+      if (!bcrypt.compareSync(req.param('password'), user.password)) return RespService.e(res, 'Password does not match');
+      
+      if (if_admin && user.usertype != 'admin') return RespService.e(res, 'Admin priviledges required');  // admin check
+      
+      return callback(req, res);  // if authorized, run the requested action (passed as a callback function)*/
     });
     
   }
