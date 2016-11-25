@@ -5,16 +5,27 @@ module.exports = {
   // RETURN status: “success” or “error: reason...”
   // RETURN data: {object: id, name, and email}
   user_data: function (req, res) {
-    if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');
     
-    // database lookup by user_id
-    Users.findOne(req.param('user_id')).exec(function (err, user) {
-      if (err) return RespService.e(res, 'Database fail: ' + err);
-      if (!user) return RespService.e(res, 'User not found in database');
+    // var auth = AuthService.authenticate(req, "players");
+    // if (!auth.pass) return RespService.e(res, auth.error);
+    
+    AuthService.authenticate(req, "players").exec(function (err, auth) {
+      if (!auth.pass) return RespService.e(res, auth.error);
       
-      delete user.password;  // remove the password before returning results
-      return RespService.s(res, user);  // respond success w/ user data
+      if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');
+    
+      // database lookup by user_id
+      Users.findOne(req.param('user_id')).exec(function (err, user) {
+        if (err) return RespService.e(res, 'Database fail: ' + err);
+        if (!user) return RespService.e(res, 'User not found in database');
+        
+        delete user.password;  // remove the password before returning results
+        return RespService.s(res, user);  // respond success w/ user data
+      });
+      
     });
+    
+    
     
   },
 

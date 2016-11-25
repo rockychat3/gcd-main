@@ -1,17 +1,16 @@
 module.exports = {
 
   // When authentication is needed, verify user permission and return default status object
-  authenticate: function (req, res) {
-    if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');
-    if (!req.param('token')) return RespService.e(res, 'Missing token');
+  authenticate: function (req, permission_required) {
+    if (!req.param('user_id')) return { pass: false, error: 'Missing user_id'};
+    if (!req.param('token')) return { pass: false, error: 'Missing token'};
     
     // database lookup by user_id
-    Users.findOne(req.param('user_id')).populate('tokens').populate('permissions').exec(function (err, user) {
-      if (err) return RespService.e(res, 'Database lookup problem. Check input data. ' + err);
-      if (!user) return RespService.e(res, 'User not found in database');
+    Users.findOne(req.param('user_id')).populate('tokens').exec(function (err, user) {
+      if (err) return { pass: false, error: 'Database lookup problem. Check input data. ' + err};
+      if (!user) return { pass: false, error: 'User not found in database'};
       
-      delete user.password;  // remove the password before returning results
-      return RespService.s(res, user);  // respond success w/ user data
+      return { pass: true };  // respond success w/ user data
     });
     
   }
