@@ -29,6 +29,7 @@ module.exports.routes = {
   'POST /players/list_user': 'UserController.list_user',
   
   'POST /players/create_token': 'UserController.create_token',
+  'POST /players/list_tokens': 'UserController.list_tokens',
   
 
   // Web UI
@@ -43,13 +44,11 @@ module.exports.routes = {
 
   'GET /player/:name': 'ViewController.player',
 
-  'POST /createToken': 'SessionController.createToken',
-
   'GET /login': 'ViewController.login',
 
-  'GET /register': 'ViewController.register',
+  // 'GET /register': 'ViewController.register',
 
-  'POST /register': 'UserController.register',
+  // 'POST /register': 'UserController.register',
 
   'POST /login': 'SessionController.login',
 
@@ -61,24 +60,7 @@ module.exports.routes = {
 
   'POST /admin/reject_student': 'AdminController.reject',
 
-  // 'POST /admin/start': 'AdminController.startGame',
-
-  'POST /admin/edit': 'AdminController.edit',
-
-  'GET /stats/:name': 'UserController.data',
-
   // Restful API
-  'POST /users/user_data': 'UserController.user',
-
-  'POST /users/authenticate': 'UserController.authenticate',
-
-  // 'POST /map/get_plot': 'MapController.plot',
-
-  // 'POST /map/set_growth': 'MapController.growth',
-
-  // 'POST /map/get_user_residents': 'MapController.residents',
-
-  //'POST /map/migrate_population': 'MapController.migrate',
 
   // 'POST /bank/check_balance': 'TransactionController.balance',
 

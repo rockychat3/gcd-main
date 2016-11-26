@@ -85,7 +85,7 @@ module.exports = {
 
   // /players/create_token/
   // create a new token for a given purpose
-  //   password auth required (self or admin)
+  //   password auth required (self only)
   //   required inputs: user_id, permission (the microapp being authorized, use "supertoken" for all apps)
   //   optional input: expiration (datetime when token stops working, defaults "false"),
   //   response: token object
@@ -128,17 +128,24 @@ module.exports = {
     
   },
 
-
-
-
-  
-  
   // /players/list_tokens/
-  // POST user_id: user_id of player of interest
-  // POST password: player’s password in plaintext
-  // RETURN status: “success” or “error: reason...”
-  // RETURN data: [array of {object: token, expiration, and [array of permissions]}]
-
+  // list all of a given user's tokens
+  //   password auth required (self only)
+  //   no required inputs
+  //   response: array of a player's token objects
+  list_tokens: function (req, res) {
+    AuthService.password_authenticate(req, res, false, function (req, res) { 
+      
+      // check for all required user input
+      if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');
+      
+      Tokens.find({ user: req.param('user_id') }).exec(function (err, tokens) {
+        if (err) return RespService.e(res, 'Database fail: ' + err);
+        return RespService.s(res, tokens);  // respond success w/ all tokens
+      });
+      
+    });
+  },
   
   
   // @TODO: break this up into a UI login that does server session and user authentication as its own API method
