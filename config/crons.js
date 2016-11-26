@@ -9,7 +9,7 @@ module.exports.crons = {
     return times;
   },
 
-  move: function () {
+  /*move: function () {
     require('../crons/move.js').run();
   },
 
@@ -19,6 +19,6 @@ module.exports.crons = {
 
   populate: function () {
     require('../crons/populate.js').run();
-  }
+  }*/
 
 }
