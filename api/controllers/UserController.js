@@ -1,11 +1,11 @@
 module.exports = {
 
   // /players/create_user/
-  // POST token: player token used for authentication of this task (string)
-  // POST name: player’s new name
-  // POST email: player’s new email
-  // RETURN status: “success” or “error: reason...”
-  // RETURN data: {object: id, name, and email}
+  // admin action for creating new users
+  //   token auth required (admin only)
+  //   required inputs: name (of new player), email (of new player)
+  //   optional input: usertype ("admin" or "government", or "human" is default)
+  //   response: user object
   create_user: function (req, res) {
     AuthService.authenticate(req, res, "admin", function (req, res) { 
 
@@ -24,12 +24,22 @@ module.exports = {
     });
   },
   
+  // /players/update_user/
+  // allows players to update their name or email
+  //   token auth required (self or admin)
+  //   required input: user_id (of player to update)
+  //   optional inputs: name (of player), email (of player)
+  //   response: user object
   update_user: function (req, res) {
     AuthService.authenticate(req, res, "players", function (req, res) { 
 
-      // @TODO: sort thru all the params that are allowed for updates
+      // only allow the following attributes to be updated
+      var to_update = {};
+      if (req.param('name')) to_update.name = req.param('name');
+      if (req.param('email')) to_update.email = req.param('email');
+      if (req.param('password')) to_update.password = req.param('password');
 
-      Users.update(req.param('id'),{name:'Flynn'}).exec(function afterwards(err, updated){
+      Users.update(req.param('user_id'),to_update).exec(function afterwards(err, updated){
         if (err) return RespService.e(res, 'Database fail: ' + err);
         return RespService.s(res, updated);  // respond success w/ user data
       });
@@ -37,115 +47,90 @@ module.exports = {
     });
   },
   
-  // list all users
+  // /players/list_users.
+  // admin action to list all users
+  //   token auth required (admin only)
+  //   no required input
+  //   response: array of user objects w/o passwords
   list_users: function (req, res) {
     AuthService.authenticate(req, res, "admin", function (req, res) { 
       
       Users.find({}).exec(function (err, users) {
         if (err) return RespService.e(res, 'Database fail: ' + err);
-        
-        users.forEach(function(user){ delete user.password; });
-
+        users.forEach(function(user){ delete user.password; });  // don't include the password in the returned results
         return RespService.s(res, users);  // respond success w/ user data
       });
       
     });
   },
 
-  // /players/user_data/
-  // POST user_id: user_id of player of interest
-  // RETURN status: “success” or “error: reason...”
-  // RETURN data: {object: id, name, and email}
-  user_data: function (req, res) {
+  // /players/list_user/
+  // lists a single user
+  //   token auth required (self or admin)
+  //   required input: user_id
+  //   response: user objects w/o password
+  list_user: function (req, res) {
     AuthService.authenticate(req, res, "players", function (req, res) { 
 
       // database lookup by user_id
       Users.findOne(req.param('user_id')).exec(function (err, user) {
         if (err) return RespService.e(res, 'Database fail: ' + err);
         if (!user) return RespService.e(res, 'User not found in database');
-        
         delete user.password;  // remove the password before returning results
         return RespService.s(res, user);  // respond success w/ user data
       });
       
     });
-    
   },
 
+  // /players/create_token/
+  // create a new token for a given purpose
+  //   password auth required (self or admin)
+  //   required inputs: user_id, permission (the microapp being authorized, use "supertoken" for all apps)
+  //   optional input: expiration (datetime when token stops working, defaults "false"),
+  //   response: token object
+  create_token: function (req, res) {
+    AuthService.password_authenticate(req, res, false, function (req, res) { 
 
-  // /players/issue_token/
-  // POST user_id: user_id of player of interest
-  // POST password: player’s password in plaintext
-  // POST permissions: [array of ids for permission types]
-  // POST (optional): expiration: datetime (when it expires) or “false”
-  // RETURN status: “success” or “error: reason...”
-  // RETURN data: {object: token, expiration, and [array of permissions]}
-  issue_token: function (req, res) {
-    AuthService.password_authenticate(req, res, true, function (req, res) { 
+      // check for all required user input
+      if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');
+      if (!req.param('permission')) return RespService.e(res, 'Missing permission');
+      
+      // create the token string
+      var token_string = Date.now().toString();
+      for (var i=0;i<30;i++) {
+        var start = Math.random() < 0.5 ? 65 : 97;
+        token_string += String.fromCharCode(start+Math.floor(Math.random()*26));
+      }
+      
+      var new_token = { token: token_string, user: req.param('user_id') };
 
-      return RespService.s(res, { msg: "hi"});  // respond success w/ user data
-      
-      /*
-      // database lookup by user_id
-      Users.findOne(req.param('user_id')).exec(function (err, user) {
-        if (err) return RespService.e(res, 'Database fail: ' + err);
-        if (!user) return RespService.e(res, 'User not found in database');
-        
-        delete user.password;  // remove the password before returning results
-        
-      });*/
-      
+      if (req.param('permission') == "supertoken") {  // if creating a supertoken, set params and ignore permission
+        new_token.supertoken = true;
+        Tokens.create(new_token).exec(function (err, token_result){
+          if (err) return RespService.e(res, 'Token creation error: ' + err);
+          return RespService.s(res, token_result);  // respond success w/ token data
+        });
+      } else {  // if creating a normal token, set the permission id
+        Permissions.findOne({ name: req.param('permission') }).exec(function (err, permission) {
+          if (err) return RespService.e(res, 'Database fail: ' + err);
+          if (!permission) return RespService.e(res, 'Permission not found in database');
+          
+          new_token.permission = permission.id;  // use the permission id from the database lookup
+          Tokens.create(new_token).exec(function (err, token_result){
+            if (err) return RespService.e(res, 'Token creation error: ' + err);
+            return RespService.s(res, token_result);  // respond success w/ token data
+          });
+        });
+      }
+
     });
     
   },
 
 
-  // /players/update_user/
-  // POST user_id: user_id of player of interest
-  // POST token: player token used for authentication of this task (string)
-  // POST (optional) name: player’s new name
-  // POST (optional) email: player’s new email
-  // POST (optional) password: player’s new password in plaintext
-  // RETURN status: “success” or “error: reason...”
-  // RETURN data: {object: id, name, and email}
-  /*update_user: function (req, res) {
-    //var return_json = authenticate(req, res);
-    
-    if (!req.param('user_id')) {  // if any parameters are missing
-      return_json.status = 'Error: At least one required parameter is missing';
-      return res.json(return_json);
-    }
-    
-    Users.find({  // database lookup
-      id: req.param('user_id')  // match input id to database
-    }).exec(function (err, results) {
-      
-      if (err) {  // if the database barfs
-        return_json.status = 'Error: Database lookup problem. Check input data.';
-        return res.json(return_json);
-      }
-      if (!results.length) {  // if there are no results from the lookup
-        return_json.status = 'Error: User not found in system';
-        return res.json(return_json);
-      }
-      
-      var user = results[0];  // the first result is our user
-      delete user.password;  // remove the password before returning results
-      return_json.data = user;  // set the cleaned up user data in the return object
-      return res.json(return_json);
-    });
-    
-  },*/
 
-  // /players/authenticate/
-  // POST user_id: user_id of player of interest
-  // POST token: player token used for authentication of this task (string)
-  // POST permission: the type of permission being requested, i.e. banking, mining, etc. (string, matches string in “players_permissions” table)
-  // RETURN status: “success” or “error: reason...”
-  // RETURN user_id: user_id of player
-  // RETURN token_id: the database id of the token used for tracking purposes
-  
-  
+
   
   
   // /players/list_tokens/
@@ -191,106 +176,6 @@ module.exports = {
   },
 
 
-  createToken: function (req, res) {
-    if (!req.session.name) {
-      res.status(401);
-      res.send('No current session available, log in to receive a token!');
-    }
-    else {
-      if (req.param('type') <= 5 || req.param('type') >= 1) {
 
-        token = Date.now().toString();
-        for(var i=0;i<30;i++) {
-          start = Math.random() < 0.5 ? 65 : 97;
-          token += String.fromCharCode(start+Math.floor(Math.random()*26));
-        }
-        
-        Token.query(`INSERT INTO token (string, player, permission) VALUES ('${token}', ${req.session.key}, ${req.param('type')})`, function (err, results) {
-          if (err) {
-            res.status(500);
-            return res.send('Could not add token to table');
-          }
-
-          // Expire any still active tokens of the same type and player
-          Token.query(`UPDATE token SET expired = true WHERE permission = ${req.param('type')} AND player = ${req.session.key} AND string != '${token}'`, function (error, result) {
-            return res.send(token);
-          });
-
-        });
-      }
-
-      else {
-        res.status(400);
-        return res.send('Index type out of range');
-      }
-    }
-  },
-
-  register: function(req, res) {
-    if (req.param('name') && req.param('email') && req.param('password')) {
-      Temp.query(`INSERT INTO temp (name, email, password) VALUES ('${req.param('name')}', '${req.param('email')}', '${req.param('password')}')`, function (err, temp) {
-        return res.send('Success');
-      });  
-    }
-    else {
-      res.status(400);
-      return res.send('Please enter in all fields');
-    }
-  },
-
-  data: function (req, res) {
-    // TODO
-  },
-
-  user: function (req, res) {
-    if (req.param('user_id')) {
-      Player.query(`SELECT player.name, hex.label FROM player LEFT OUTER JOIN hex ON hex.owner=player.id WHERE player.id = ${req.param('user_id')}`, function (err, player) {
-        if (!player.rows.length) {
-          res.status(404);
-          return res.send('User not found, try again');
-        }
-
-        var data = {};
-        data.name = player.rows[0].name;
-        data.properties = player.rows.map((hex) => hex.label);
-        return res.json(data);
-      });
-    }
-    else {
-      res.status(400);
-      return res.send('user_id field not present, try again');
-    }
-  },
-
-  authenticate: function (req, res) {
-    if (req.param('user_id') && req.param('token') && req.param('purpose')) {
-
-      // Automatically expire the token if it is now expired
-      if (parseInt(req.param('token').substr(0,13)) + time < Date.now()) {
-        Token.query(`UPDATE token SET expired = true WHERE string = '${req.param('token')}'`, function (e, result) {
-          res.status(403);
-          return res.json({ status: 'Error: Token has expired, please generate a new one', token_id: undefined });
-        });
-      }
-
-      Token.query(`SELECT token.id, token.expired FROM token INNER JOIN permission ON token.permission=permission.id WHERE token.string = '${req.param('token')}' AND token.player = ${req.param('user_id')} AND permission.permission = '${req.param('purpose')}'`, function (err, token) {
-        if (!token.rows.length) {
-          res.status(404);
-          return res.json({ status: 'Error: Token not found, try again', token_id: undefined });
-        }
-        else if (token.rows[0].expired) {
-          res.status(403);
-          return res.json({status: 'Error: Token has expired, please generate/use a new one', token_id: undefined});
-        }
-        else {
-          return res.json({ status: 'success', token_id: token.rows[0].id });
-        }
-      });
-    }
-    else {
-      res.status(400);
-      return res.json({ status: 'Error: Please enter all required fields', token_id: undefined });
-    }
-  }
 
 }
