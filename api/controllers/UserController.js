@@ -146,43 +146,5 @@ module.exports = {
       
     });
   },
-  
-  
-  // @TODO: break this up into a UI login that does server session and user authentication as its own API method
-  login: function (req, res) {
-
-    Users.find({
-      email: req.param('email')
-    }).exec(function (err, results) {
-      // first handle all error cases on login
-      if (err) {
-        console.log(err)
-        return res.send('Error: ' + err);
-      }
-      if (!results.length) return res.send('User not found in system');
-      var user = results[0];
-      if (req.param('password') != user.password) return res.send('Password is incorrect');
-
-      // next store the logged-in user with a server session
-      req.session.name = results.name;
-      req.session.key = results.id;
-      return res.send('Logged in');
-    });
-    
-  },
-
-
-  logout: function (req, res) {
-    req.session.destroy(function (err) {
-      if (err) {
-        console.log(err)
-        return res.send('Error: ' + err);
-      }
-      return res.send('Logged out');
-    });
-  },
-
-
-
 
 }
