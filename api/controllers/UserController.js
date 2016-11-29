@@ -53,15 +53,15 @@ module.exports = {
   //   no required input
   //   response: array of user objects w/o passwords
   list_users: function (req, res) {
-    AuthService.authenticate(req, res, "admin", function (req, res) { 
+    AuthService.authenticate(req, res, "admin", function (req, res) { //THIS FUNCTION CONTINUES SEVERAL LINES
       
-      Users.find({}).exec(function (err, users) {
+      Users.find({}).exec(function (err, users_array) {
         if (err) return RespService.e(res, 'Database fail: ' + err);
-        users.forEach(function(user){ delete user.password; });  // don't include the password in the returned results
-        return RespService.s(res, users);  // respond success w/ user data
+        users_array.forEach(function(user){ delete user.password; });  // don't include the password in the returned results
+        return RespService.s(res, users_array);  // respond success w/ user data
       });
       
-    });
+    });//IT ACTUALLY ENDS HERE
   },
 
   // /players/list_user/
@@ -73,11 +73,11 @@ module.exports = {
     AuthService.authenticate(req, res, "players", function (req, res) { 
 
       // database lookup by user_id
-      Users.findOne(req.param('user_id')).exec(function (err, user) {
+      Users.findOne(req.param('user_id')).exec(function (err, user_object) {
         if (err) return RespService.e(res, 'Database fail: ' + err);
-        if (!user) return RespService.e(res, 'User not found in database');
-        delete user.password;  // remove the password before returning results
-        return RespService.s(res, user);  // respond success w/ user data
+        if (!user_object) return RespService.e(res, 'User not found in database');
+        delete user_object.password;  // remove the password before returning results
+        return RespService.s(res, user_object);  // respond success w/ user data
       });
       
     });
