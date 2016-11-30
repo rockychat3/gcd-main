@@ -29,14 +29,14 @@ module.exports.connections = {
     password: 'admin',
     database: 'players'
   },
-  /*players: {
+  finances: {
     adapter: 'sails-postgresql',
     host: process.env.OPENSHIFT_POSTGRESQL_DB_HOST || 'localhost',
     port: process.env.OPENSHIFT_POSTGRESQL_DB_PORT || 5432,
     user: 'gcdweb',
     password: 'admin',
-    database: 'players'
-  },*/
+    database: 'finances'
+  },
   gcd: {
     adapter: 'sails-postgresql',
     host: process.env.OPENSHIFT_POSTGRESQL_DB_HOST || 'localhost',

@@ -1,24 +1,20 @@
 module.exports = {
 
-  // /players/create_user/
-  // admin action for creating new users
-  //   token auth required (admin only)
-  //   required inputs: name (of new player), email (of new player)
-  //   optional input: usertype ("admin" or "government", or "human" is default)
-  //   response: user object
-  create_user: function (req, res) {
-    AuthService.authenticate(req, res, "admin", function (req, res) { 
+   // /finances/create_account/
+  //   token auth required
+  //   required inputs: name (of new account)
+  //   response: account object
+  create_account: function (req, res) {
+    AuthService.authenticate(req, res, "finances", function (req, res) { 
 
       // check for all required user input
       if (!req.param('name')) return RespService.e(res, 'Missing name');
-      if (!req.param('email')) return RespService.e(res, 'Missing email');
       
-      var new_user = { name: req.param('name'), email: req.param('email'), password: 'changeme' };
-      if (req.param('usertype')) new_user.usertype = req.param('usertype');
+      var new_account = { name: req.param('name'), user_id: req.param('user_id')};
       
-      Users.create(new_user).exec(function (err, user){
-        if (err) return RespService.e(res, 'User creation error: ' + err);
-        return RespService.s(res, user);  // respond success w/ user data
+      Accounts.create(new_account).exec(function (err, account_object){
+        if (err) return RespService.e(res, 'Account creation error: ' + err);
+        return RespService.s(res, account_object);  // respond success w/ user data
       });
       
     });

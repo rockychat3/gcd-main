@@ -11,12 +11,14 @@
 
 module.exports.routes = {
 
-  // Players Microservice
-  'POST /players/create_user': 'UserController.create_user',
-  'POST /players/update_user': 'UserController.update_user',
-  'POST /players/list_users': 'UserController.list_users',
-  'POST /players/list_user': 'UserController.list_user',
-  'POST /players/create_token': 'UserController.create_token',
-  'POST /players/list_tokens': 'UserController.list_tokens',
+  // Players Microapp
+  'POST /players/create_user': 'UsersController.create_user',
+  'POST /players/update_user': 'UsersController.update_user',
+  'POST /players/list_users': 'UsersController.list_users',
+  'POST /players/list_user': 'UsersController.list_user',
+  'POST /players/create_token': 'UsersController.create_token',
+  'POST /players/list_tokens': 'UsersController.list_tokens',
 
+  // Finances Microapp
+   'POST /finances/create_account': 'FinancesController.create_account',
 };
