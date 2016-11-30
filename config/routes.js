@@ -21,4 +21,6 @@ module.exports.routes = {
 
   // Finances Microapp
    'POST /finances/create_account': 'FinancesController.create_account',
+   'POST /finances/update_account': 'FinancesController.update_account',
+   'POST /finances/list_accounts': 'FinancesController.list_accounts',
 };

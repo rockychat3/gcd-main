@@ -53,15 +53,11 @@ module.exports = {
   //   no required input
   //   response: array of user objects w/o passwords
   list_users: function (req, res) {
-    AuthService.authenticate(req, res, "admin", function (req, res) { //THIS FUNCTION CONTINUES SEVERAL LINES
-      
       Users.find({}).exec(function (err, users_array) {
         if (err) return RespService.e(res, 'Database fail: ' + err);
         users_array.forEach(function(user){ delete user.password; });  // don't include the password in the returned results
         return RespService.s(res, users_array);  // respond success w/ user data
       });
-      
-    });//IT ACTUALLY ENDS HERE
   },
 
   // /players/list_user/

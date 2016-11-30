@@ -7,10 +7,10 @@ module.exports = {
   create_account: function (req, res) {
     AuthService.authenticate(req, res, "finances", function (req, res) { 
 
-      // check for all required user input
-      if (!req.param('name')) return RespService.e(res, 'Missing name');
+      // check for all required user input name = account name
+      if (!req.param('account_name')) return RespService.e(res, 'Missing name');
       
-      var new_account = { name: req.param('name'), user_id: req.param('user_id')};
+      var new_account = { account_name: req.param('account_name'), user_id: req.param('user_id')};
       
       Accounts.create(new_account).exec(function (err, account_object){
         if (err) return RespService.e(res, 'Account creation error: ' + err);
@@ -26,16 +26,19 @@ module.exports = {
   //   required input: user_id (of player to update)
   //   optional inputs: name (of player), email (of player)
   //   response: user object
-  update_user: function (req, res) {
+  update_account: function (req, res) {
     AuthService.authenticate(req, res, "players", function (req, res) { 
-
+      
+      // check for all required user input
+      if (!req.param('user_id')) return RespService.e(res, 'Missing user id');
+      if (!req.param('account_id')) return RespService.e(res, 'Missing acount id');
+      if (!req.param('new_name')) return RespService.e(res, 'Missing new name');
+      
       // only allow the following attributes to be updated
       var to_update = {};
-      if (req.param('name')) to_update.name = req.param('name');
-      if (req.param('email')) to_update.email = req.param('email');
-      if (req.param('password')) to_update.password = req.param('password');
+      if (req.param('new_name')) to_update.account_name = req.param('new_name');
 
-      Users.update(req.param('user_id'),to_update).exec(function afterwards(err, updated){
+      Accounts.update(req.param('account_id'),to_update).exec(function afterwards(err, updated){
         if (err) return RespService.e(res, 'Database fail: ' + err);
         return RespService.s(res, updated);  // respond success w/ user data
       });
@@ -43,21 +46,25 @@ module.exports = {
     });
   },
   
-  // /players/list_users.
+  // /players/list_accounts.
   // admin action to list all users
   //   token auth required (admin only)
   //   no required input
   //   response: array of user objects w/o passwords
-  list_users: function (req, res) {
-    AuthService.authenticate(req, res, "admin", function (req, res) { //THIS FUNCTION CONTINUES SEVERAL LINES
-      
-      Users.find({}).exec(function (err, users_array) {
+  list_accounts: function (req, res) {
+    
+      Accounts.find({}).exec(function (err, accounts_array) {
         if (err) return RespService.e(res, 'Database fail: ' + err);
-        users_array.forEach(function(user){ delete user.password; });  // don't include the password in the returned results
-        return RespService.s(res, users_array);  // respond success w/ user data
+        accounts_array.forEach(function(account){ delete account.amount; });  // don't include the amount in the returned results
+        return RespService.s(res, accounts_array);  // respond success w/ user data
       });
       
-    });//IT ACTUALLY ENDS HERE
+      /*
+      Tokens.find({ user: req.param('user_id') }).exec(function (err, tokens) {
+        if (err) return RespService.e(res, 'Database fail: ' + err);
+        return RespService.s(res, tokens);  // respond success w/ all tokens
+      });
+      */
   },
 
   // /players/list_user/

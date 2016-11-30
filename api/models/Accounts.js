@@ -10,7 +10,7 @@ module.exports = {
       defaultsTo: 0,
       notNull: true
     },
-    name: {
+    account_name: {
       type: 'text',
       notNull:true
     },
