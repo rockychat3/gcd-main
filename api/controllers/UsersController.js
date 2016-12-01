@@ -66,8 +66,6 @@ module.exports = {
   //   required input: user_id
   //   response: user objects w/o password
   list_user: function (req, res) {
-    AuthService.authenticate(req, res, "players", function (req, res) { 
-
       // database lookup by user_id
       Users.findOne(req.param('user_id')).exec(function (err, user_object) {
         if (err) return RespService.e(res, 'Database fail: ' + err);
@@ -76,7 +74,6 @@ module.exports = {
         return RespService.s(res, user_object);  // respond success w/ user data
       });
       
-    });
   },
 
   // /players/create_token/
