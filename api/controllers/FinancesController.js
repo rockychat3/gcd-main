@@ -46,7 +46,7 @@ module.exports = {
     });
   },
   
-  // /players/list_accounts.
+  // /finances/list_accounts.
   // admin action to list all users
   //   token auth required (admin only)
   //   no required input
@@ -58,13 +58,19 @@ module.exports = {
         accounts_array.forEach(function(account){ delete account.amount; });  // don't include the amount in the returned results
         return RespService.s(res, accounts_array);  // respond success w/ user data
       });
-      
-      /*
-      Tokens.find({ user: req.param('user_id') }).exec(function (err, tokens) {
+  },
+  // /finances/check_balances/ shows all of owned balances.
+  // 
+  check_balances: function (req, res) {
+    
+    AuthService.authenticate(req, res, "finances", function (req, res) { 
+      Accounts.find({}).exec(function (err, accounts_array) {
         if (err) return RespService.e(res, 'Database fail: ' + err);
-        return RespService.s(res, tokens);  // respond success w/ all tokens
+//        accounts_array.forEach(function(account){ if (account.user_id==); });  // don't include the amount in the returned results
+        return RespService.s(res, accounts_array);  // respond success w/ user data
       });
-      */
+      
+    });
   },
 
   // /players/list_user/
@@ -72,6 +78,7 @@ module.exports = {
   //   token auth required (self or admin)
   //   required input: user_id
   //   response: user objects w/o password
+  
   list_user: function (req, res) {
     AuthService.authenticate(req, res, "players", function (req, res) { 
 

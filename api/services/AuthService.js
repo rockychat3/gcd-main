@@ -13,32 +13,32 @@ module.exports = {
     // database lookup by user_id
     Tokens.findOne({
       token: req.param('token')  // lookup the token in the database based on user input
-    }).populate(['permission','user']).exec(function (err, token_object) {
+    }).populate(['permission','user']).exec(function (err, token) {
       if (err) return RespService.e(res, 'Database lookup problem. Check input data. ' + err);
-      if (!token_object) return RespService.e(res, 'Token not found in database');
+      if (!token) return RespService.e(res, 'Token not found in database');
 
       // check if token is expired
       // @TODO
       
       // check if admin is required
       if (permission_required == "admin") {
-        if (token_object.user.usertype != "admin") return RespService.e(res, 'Only admins can use this function');
+        if (token.user.usertype != "admin") return RespService.e(res, 'Only admins can use this function');
         else return callback(req, res);  // if authorized, run the requested action (passed as a callback function)
       }
       
       if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');  // for non-admin, check if user_id is present
       
       // first check if the requesting user is the token owner
-      if (token_object.user.id != parseInt(req.param('user_id'))) {
+      if (token.user.id != parseInt(req.param('user_id'))) {
         // if not, check if the token's owner is an admin
-        if (token_object.user.usertype != "admin") return RespService.e(res, 'This user does not have permission with this token');
+        if (token.user.usertype != "admin") return RespService.e(res, 'This user does not have permission with this token');
       }
       
       // next, check if the token is a supertoken
-      if (!token_object.supertoken) {
+      if (!token.supertoken) {
         // if not, check if it is the right permission type
-        if (!token_object.permission) return RespService.e(res, 'Something is really broken');
-        if (token_object.permission.name != permission_required) return RespService.e(res, 'Wrong permission type for this token');
+        if (!token.permission) return RespService.e(res, 'Something is really broken');
+        if (token.permission.name != permission_required) return RespService.e(res, 'Wrong permission type for this token');
       }
       
       return callback(req, res);  // if authorized, run the requested action (passed as a callback function)
