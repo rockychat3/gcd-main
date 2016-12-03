@@ -1,31 +1,31 @@
 module.exports = {
 
-   // /finances/create_account/
+  //  /finances/create_account/
+  //  allows players to create their own accounts
   //   token auth required
-  //   required inputs: name (of new account)
+  //   required inputs: user_id, account_name
   //   response: account object
   create_account: function (req, res) {
     AuthService.authenticate(req, res, "finances", function (req, res) { 
 
-      // check for all required user input name = account name
+      // check for all required user input
+      if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');
       if (!req.param('account_name')) return RespService.e(res, 'Missing name');
       
-      var new_account = { account_name: req.param('account_name'), user_id: req.param('user_id')};
+      var new_account = {account_name: req.param('account_name'), user_id: req.param('user_id')};
       
       Accounts.create(new_account).exec(function (err, account_object){
         if (err) return RespService.e(res, 'Account creation error: ' + err);
         return RespService.s(res, account_object);  // respond success w/ user data
       });
-      
     });
   },
   
-  // /players/update_user/
-  // allows players to update their name or email
-  //   token auth required (self or admin)
-  //   required input: user_id (of player to update)
-  //   optional inputs: name (of player), email (of player)
-  //   response: user object
+  //  /players/update_user/
+  //  allows players to update the name of their account
+  //    token auth required
+  //    required input: user_id, account_id (to be updated), new_name (for the account)
+  //    response: account object
   update_account: function (req, res) {
     AuthService.authenticate(req, res, "players", function (req, res) { 
       
@@ -33,35 +33,26 @@ module.exports = {
       if (!req.param('user_id')) return RespService.e(res, 'Missing user id');
       if (!req.param('account_id')) return RespService.e(res, 'Missing acount id');
       if (!req.param('new_name')) return RespService.e(res, 'Missing new name');
-      Accounts.findOne({user_id: req.param('user_id'), id: req.param('account_id')}).exec(function(err, account_object) {
+      
+      // Find the account with the given user_id and account_id
+      Accounts.findOne({user_id: req.param('user_id'), id: req.param('account_id')}).exec(function(err, accounts_object) {
         // only allow the following attributes to be updated
         var to_update = {};
-        if (account_object.new_name) to_update.account_name = req.param('new_name');
+        if (accounts_object.new_name) to_update.account_name = accounts_object.new_name;
         
-        Accounts.update(req.param('account_id'),to_update).exec(function afterwards(err, updated){
+        Accounts.update(accounts_object.account_id, to_update).exec(function afterwards(err, updated){
           if (err) return RespService.e(res, 'Database fail: ' + err);
           return RespService.s(res, updated);  // respond success w/ user data
         });
-        
       });
-
     });
   },
   
-  add_money: function (req, res) {
-      AuthService.authenticate(req, res, "players", function (req, res) {
-      if (!req.param('account_id')) return RespService.e (res, 'Missing account id'); //account id of where admin is injectiong money
-      
-    
-      
-      });
-  },
-  
-  // /finances/list_accounts.
-  // admin action to list all users
-  //   token auth required (admin only)
-  //   no required input
-  //   response: array of user objects w/o passwords
+  //  /finances/list_accounts.
+  //  admin action to list all users
+  //    no token auth required
+  //    no required input
+  //    response: array of user objects without amounts
   list_accounts: function (req, res) {
     
       Accounts.find({}).exec(function (err, accounts_array) {
@@ -70,15 +61,30 @@ module.exports = {
         return RespService.s(res, accounts_array);  // respond success w/ user data
       });
   },
+  
+  //  /players/add_money/
+  //  allows admins to add money to an account
+  //    token auth required
+  //    required input: user_id, account_id (to be updated), new_name (for the account)
+  //    response: account object
+  add_money: function (req, res) {
+      AuthService.authenticate(req, res, "players", function (req, res) {
+      if (!req.param('account_id')) return RespService.e (res, 'Missing account id'); //account id of where admin is injecting money
+      
+    
+      
+      });
+  },
+  
+
   // /finances/check_balances/ shows all of owned balances.
   // 
   check_balances: function (req, res) {
     
     AuthService.authenticate(req, res, "finances", function (req, res) { 
-      Accounts.find({}).exec(function (err, accounts_array) {
+       Accounts.find({user_id: req.param('user_id')}).exec(function(err, accounts_object) {
         if (err) return RespService.e(res, 'Database fail: ' + err);
-//        accounts_array.forEach(function(account){ if (account.user_id==); });  // don't include the amount in the returned results
-        return RespService.s(res, accounts_array);  // respond success w/ user data
+        return RespService.s(res, accounts_object);  // respond success w/ user data
       });
       
     });
