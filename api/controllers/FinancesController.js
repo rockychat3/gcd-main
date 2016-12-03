@@ -33,17 +33,28 @@ module.exports = {
       if (!req.param('user_id')) return RespService.e(res, 'Missing user id');
       if (!req.param('account_id')) return RespService.e(res, 'Missing acount id');
       if (!req.param('new_name')) return RespService.e(res, 'Missing new name');
-      
-      // only allow the following attributes to be updated
-      var to_update = {};
-      if (req.param('new_name')) to_update.account_name = req.param('new_name');
-
-      Accounts.update(req.param('account_id'),to_update).exec(function afterwards(err, updated){
-        if (err) return RespService.e(res, 'Database fail: ' + err);
-        return RespService.s(res, updated);  // respond success w/ user data
+      Accounts.findOne({user_id: req.param('user_id'), id: req.param('account_id')}).exec(function(err, account_object) {
+        // only allow the following attributes to be updated
+        var to_update = {};
+        if (account_object.new_name) to_update.account_name = req.param('new_name');
+        
+        Accounts.update(req.param('account_id'),to_update).exec(function afterwards(err, updated){
+          if (err) return RespService.e(res, 'Database fail: ' + err);
+          return RespService.s(res, updated);  // respond success w/ user data
+        });
+        
       });
 
     });
+  },
+  
+  add_money: function (req, res) {
+      AuthService.authenticate(req, res, "players", function (req, res) {
+      if (!req.param('account_id')) return RespService.e (res, 'Missing account id'); //account id of where admin is injectiong money
+      
+    
+      
+      });
   },
   
   // /finances/list_accounts.
