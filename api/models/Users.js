@@ -31,7 +31,11 @@ module.exports = {
     // but the database key is stored in the tokens table
     tokens: {  
       collection: 'tokens',
-      via: 'user'
+      via: 'users'
+    },
+    accounts: {  
+      collection: 'accounts',
+      via: 'users'
     }
   },
   

@@ -14,7 +14,7 @@ module.exports = {
       type: 'boolean',
       defaultsTo: false
     },
-    user: {  // tokens belong to one user (token creator/owner)
+    user_id: {  // tokens belong to one user (token creator/owner)
       model: 'users',
       notNull: true
     },

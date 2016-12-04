@@ -8,7 +8,7 @@ module.exports = {
     },
     tokens: {  // this automatically creates a has-many join with the tokens model
       collection: 'tokens',
-      via: 'permission'
+      via: 'permissions'
     }
   }
 };
