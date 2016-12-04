@@ -46,6 +46,25 @@ module.exports = {
     
   },
   
+  account_authenticate: function (req, res, callback) {
+    if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');  // check if user_id is present
+    if (!req.param('account_id')) return RespService.e(res, 'Missing account_id');  // check if account_id is present
+    
+    // database lookup by user_id
+    Accounts.findOne({
+      id: req.param('account_id')  // lookup the token in the database based on user input
+    }).populate(['user_id']).exec(function (err, accounts_object) {
+      if (err) return RespService.e(res, 'Database lookup problem. Check input data. ' + err);
+      if (!accounts_object) return RespService.e(res, 'account not found in database');
+      
+      // check if the requesting user is the account owner
+      if (accounts_object.user_id =! parseInt(req.param('user_id'))) return RespService.e(res, 'This isn\'t your account, you don\'t have permission');
+      
+      return callback(req, res);  // if authorized, run the requested action (passed as a callback function)
+    });
+    
+  },
+  
   
   // When authentication is needed with a password, check it and verify user permission
   // required inputs: request object, response object, if admin priviledge is required (bool), function to be executed upon successful completion

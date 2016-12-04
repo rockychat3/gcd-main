@@ -3,7 +3,8 @@ module.exports = {
   attributes: {
     user_id: {
       type: 'integer',
-      notNull: true
+      notNull: true,
+      model: "users"
     },
     amount: {
       type: 'integer',
