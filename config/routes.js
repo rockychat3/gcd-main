@@ -23,4 +23,7 @@ module.exports.routes = {
    'POST /finances/create_account': 'FinancesController.create_account',
    'POST /finances/update_account': 'FinancesController.update_account',
    'POST /finances/list_accounts': 'FinancesController.list_accounts',
+   'POST /finances/add_money': 'FinancesController.add_money',
+   'POST /finances/check_balances': 'FinancesController.check_balances',
+   'POST /finances/check_balance': 'FinancesController.check_balance',
 };
