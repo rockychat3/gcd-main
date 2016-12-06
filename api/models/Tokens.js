@@ -14,11 +14,11 @@ module.exports = {
       type: 'boolean',
       defaultsTo: false
     },
-    user_id: {  // tokens belong to one user (token creator/owner)
+    user: {  // tokens belong to one user (token creator/owner)
       model: 'users',
       notNull: true
     },
-    permission: {  // tokens have one permission
+    permissions: {  // tokens have one permission
       model: 'permissions'
     }
   }

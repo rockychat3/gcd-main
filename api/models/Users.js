@@ -31,12 +31,8 @@ module.exports = {
     // but the database key is stored in the tokens table
     tokens: {  
       collection: 'tokens',
-      via: 'users'
+      via: 'user'
     },
-    accounts: {  
-      collection: 'accounts',
-      via: 'users'
-    }
   },
   
   // this code runs before a password is added to the database -- 

@@ -7,7 +7,7 @@ module.exports = {
     },
     notes: {
       type: 'text',
-      notNull: true
+      notNull: false
     },
     from: { //sender
       type: 'integer',

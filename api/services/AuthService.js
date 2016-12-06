@@ -9,12 +9,11 @@ module.exports = {
   // response: callback function is executed
   authenticate: function (req, res, permission_required, callback) {
     if (!req.param('token')) return RespService.e(res, 'Missing token');  // check if token is present
-    if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');  // check if user_id is present
     
     // database lookup by user_id
     Tokens.findOne({
       token: req.param('token')  // lookup the token in the database based on user input
-    }).populate(['permission','user_id']).exec(function (err, token_object) {
+    }).populate(['permissions','user']).exec(function (err, token_object) {
       if (err) return RespService.e(res, 'Database lookup problem. Check input data. ' + err);
       if (!token_object) return RespService.e(res, 'Token not found in database');
 
@@ -30,9 +29,9 @@ module.exports = {
       if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');  // for non-admin, check if user_id is present
       
       // first check if the requesting user is the token owner
-      if (token_object.users.id != parseInt(req.param('user_id'))) {
+      if (token_object.user.id != parseInt(req.param('user_id'))) {
         // if not, check if the token's owner is an admin
-        if (token_object.users.usertype != "admin") return RespService.e(res, 'This user does not have permission with this token');
+        if (token_object.user.usertype != "admin") return RespService.e(res, 'This user does not have permission with this token');
       }
       
       // next, check if the token is a supertoken
@@ -54,12 +53,12 @@ module.exports = {
     // database lookup by user_id
     Accounts.findOne({
       id: req.param('account_id')  // lookup the token in the database based on user input
-    }).populate(['user_id']).exec(function (err, accounts_object) {
+    }).exec(function (err, accounts_object) {
       if (err) return RespService.e(res, 'Database lookup problem. Check input data. ' + err);
       if (!accounts_object) return RespService.e(res, 'account not found in database');
       
       // check if the requesting user is the account owner
-      if (accounts_object.users.id != req.param('user_id')) return RespService.e(res, 'This isn\'t your account, you don\'t have permission');
+      if (accounts_object.user_id != req.param('user_id')) return RespService.e(res, 'This isn\'t your account, you don\'t have permission');
       
       return callback(req, res);
     });

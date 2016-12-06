@@ -4,7 +4,6 @@ module.exports = {
     user_id: {
       type: 'integer',
       notNull: true,
-      model: "users"
     },
     amount: {
       type: 'integer',
