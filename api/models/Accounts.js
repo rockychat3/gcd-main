@@ -16,7 +16,7 @@ module.exports = {
     },
     expenses: { //money given
       collection: "transactions",
-      via: "from"
+      via: "to"
     },
     income: { //money obtained
       collection: "transactions",

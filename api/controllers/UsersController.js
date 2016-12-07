@@ -8,7 +8,7 @@ module.exports = {
   //    response: user object
   create_user: function (req, res) {
     // calls the token authenticate function of AuthService. Makes sure that user_id matches the posted token
-    AuthService.authenticate(req, res, "admin", function (req, res) { //this call actually ends at the end of the function
+    //AuthService.authenticate(req, res, "admin", function (req, res) { //this call actually ends at the end of the function
 
       // check for all required user input
       if (!req.param('name')) return RespService.e(res, 'Missing name');
@@ -23,7 +23,7 @@ module.exports = {
         if (err) return RespService.e(res, 'User creation error: ' + err);
         return RespService.s(res, users_object);  // respond success w/ user data
       });
-    });
+    //});
   },
   
   //  /players/update_user/

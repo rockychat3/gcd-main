@@ -32,7 +32,7 @@ module.exports = {
     tokens: {  
       collection: 'tokens',
       via: 'user'
-    },
+    }
   },
   
   // this code runs before a password is added to the database -- 
