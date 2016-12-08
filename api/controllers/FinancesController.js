@@ -160,40 +160,43 @@ module.exports = {
         
         // check for all required user input
         if (!req.param('recipient_id')) return RespService.e(res, 'Missing recipient id');
+        if (!req.param('amount')) return RespService.e(res, 'Missing amount to be transferred');
         
-        // checks if number was entered and not a word
-        if(req.param('amount')) if (isNaN(req.param('amount'))) return RespService.e(res, 'try a number ya dummy');
-        if(req.param('amount') < 0)  return RespService.e(res, 'Clever girl. Close, but no cigar');
-        
-        var amount_temp = parseInt(req.param('amount'), 10);
-        
-        var from = {};
-        if (req.param('amount')) from.amount -= amount_temp;
-        
-        var to = {};
-        if (req.param('amount')) to.amount += amount_temp;
-        
-        console.log(amount_temp);
-        
+        // checks if number was entered and not a word, and if the number entered is > 0
+        if(req.param('amount')) if (isNaN(req.param('amount'))) return RespService.e(res, 'Not a number: try entering a number');
+        if(req.param('amount') < 0)  return RespService.e(res, 'Nice try.');
         
         var transaction = {amount: req.param('amount'), notes: req.param('notes'), from: req.param('account_id'), to: req.param('recipient_id')};
-        // respond success with transaction log
+        
+        // start callback nesting hell, this needs to be implemented in a better way
         Transactions.create(transaction).exec(function (err, transactions_object){
           if (err) return RespService.e(res, 'Transaction recording error: ' + err);
           
-          Accounts.update(req.param('account_id'), from).exec(function afterwards(err, updated){  
-            if (err) return RespService.e(res, 'First account update (from) failed! Database fail: ' + err);
+          Accounts.findOne({id: req.param('account_id')}).exec(function (err, accounts_object) {
+            if (err) return RespService.e(res, 'Finding account_id row failed! Error:' + err);
+            var from = {amount: accounts_object.amount};
+            if (req.param('amount')) from.amount -= parseInt(req.param('amount'));
+            
+            Accounts.update(req.param('account_id'), from).exec(function afterwards(err, updated){  
+              if (err) return RespService.e(res, 'First account update (send/from) failed! Database fail: ' + err);
           
-            Accounts.update(req.param('recipient_id'), to).exec(function afterward(err, updated){  
-              if (err) return RespService.e(res, 'Second account update (to) failed! Database fail: ' + err);
+              Accounts.findOne({id: req.param('recipient_id')}).exec(function (err, accounts_object) {
+                if (err) return RespService.e(res, 'Finding recipient_id row failed! Error:' + err);
+                var to = {amount: accounts_object.amount};
+                if (req.param('amount')) to.amount += parseInt(req.param('amount'));
+                
+                Accounts.update(req.param('recipient_id'), to).exec(function afterward(err, updated){  
+                  if (err) return RespService.e(res, 'Second account update (recieve/to) failed! Database fail: ' + err);
               
-              return RespService.s(res, transactions_object);
-            });
-          });
-        });
-      });
-    });  // auth end
-  },  // action end
+                  return RespService.s(res, transactions_object);
+                });// end recieve update
+              });// end find recipient account
+            });// end send update
+          });// end find account object
+        });// end transactions update
+      });// end account auth
+    });// end token auth
+  },// action end
   
   //  /finances/view_transactions/
   //  view transactions that happened
@@ -206,21 +209,16 @@ module.exports = {
       // calls the account authentication function of AuthService and makes sure that provided user id owns the account
       AuthService.account_authenticate(req, res, function(req, res){
         
-        if (req.param('sender')) {
-          Accounts.find({from: req.param('account_id')}).exec(function (err, accounts_object) {
+          // right now if both are set to return then the game server crashes
+          Transactions.find({from: req.param('account_id')}).exec(function (err, accounts_object) {
             if (err) return RespService.e(res, 'Database fail: ' + err);
-            return RespService.s(res, accounts_object);  // respond success with user data
+            if (req.param('sender')) return RespService.s(res, accounts_object);  // respond success with user data
           });
-        }
-        else if (req.param('recipient')) {
-          Accounts.find({to: req.param('account_id')}).exec(function (err, accounts_object) {
+          Transactions.find({to: req.param('account_id')}).exec(function (err, accounts_object) {
             if (err) return RespService.e(res, 'Database fail: ' + err);
-            return RespService.s(res, accounts_object);  // respond success with user data
+            if (req.param('recipient')) return RespService.s(res, accounts_object);  // respond success with user data
           });
-        }
-        else {
-          return RespService.e(res, 'No results, you didn\'t specify whether you wanted to see transactions where you are the reciever or the sender');
-        }
+        //else return RespService.e(res, 'No results, you didn\'t specify whether you wanted to see transactions where you are the reciever or the sender');
       });
     });
   },  // action end
