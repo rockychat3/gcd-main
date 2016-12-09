@@ -7,10 +7,10 @@ module.exports = {
   //    optional input: usertype ("admin" or "government", or "human" is default)
   //    response: user object
   create_user: function (req, res) {
-    // calls the token authenticate function of AuthService. Makes sure that user_id matches the posted token
-    //AuthService.authenticate(req, res, "admin", function (req, res) { //this call actually ends at the end of the function
+    // calls the token authenticate function of AuthService. Makes sure that user_id matches the provided password
+    AuthService.password_authenticate(req, res, true, function (req, res) { //this call actually ends at the end of the function
 
-      // check for all required user input
+      // checks for all required user input
       if (!req.param('name')) return RespService.e(res, 'Missing name');
       if (!req.param('email')) return RespService.e(res, 'Missing email');
       
@@ -18,13 +18,13 @@ module.exports = {
       var new_user = { name: req.param('name'), email: req.param('email'), password: 'changeme' };
       if (req.param('usertype')) new_user.usertype = req.param('usertype');
       
-      // creates the new user in the database with the created new_user object
+      // creates the new user in the database with the new_user object
       Users.create(new_user).exec(function (err, users_object){
         if (err) return RespService.e(res, 'User creation error: ' + err);
         return RespService.s(res, users_object);  // respond success w/ user data
-      });
-    //});
-  },
+      }); // end creation
+    }); // end password auth
+  }, // end action
   
   //  /players/update_user/
   //  allows players to update their name, email, or password
@@ -33,7 +33,6 @@ module.exports = {
   //    optional inputs: name (of player), email (of player), password (of player)
   //    response: user object
   update_user: function (req, res) {
-    // calls the token authenticate function of AuthService. Makes sure that user_id matches the posted token
     AuthService.authenticate(req, res, "players", function (req, res) { 
 
       // creates array "to_update" and adds name, email, and password variables if they're provided in the API call
@@ -86,7 +85,6 @@ module.exports = {
   //    optional input: expiration (datetime when token stops working, defaults "false"),
   //    response: token object
   create_token: function (req, res) {
-    // calls the password auth function of AuthService and makes sure the provided password matches the provided user id
     AuthService.password_authenticate(req, res, false, function (req, res) { 
 
       // check for all required user input
@@ -131,7 +129,6 @@ module.exports = {
   //    no required inputs
   //    response: array of a player's token objects
   list_tokens: function (req, res) {
-    // calls the password auth function of AuthService and makes sure the provided password matches the provided user id
     AuthService.password_authenticate(req, res, false, function (req, res) { 
       
       // check for all required user input

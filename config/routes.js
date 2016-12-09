@@ -26,4 +26,14 @@ module.exports.routes = {
    'POST /finances/add_money': 'FinancesController.add_money',
    'POST /finances/check_balances': 'FinancesController.check_balances',
    'POST /finances/check_balance': 'FinancesController.check_balance',
+   'POST /finances/reverse_transaction': 'FinancesController.reverse_transaction',
+   'POST /finances/send_money': 'FinancesController.send_money',
+   'POST /finances/view_transactions': 'FinancesController.view_transactions',
+   
+   //Market Microapp
+   'POST /markets/new_product': 'MarketsController.new_porduct',
+   'POST /markets/remove_product': 'MarketsController.remove_product',
+   'POST /markets/list_products': 'MarketsController.list_products'
+   
+   
 };

@@ -6,7 +6,6 @@ module.exports = {
   //   required inputs: user_id, account_name
   //   response: account object
   create_account: function (req, res) {
-    // calls the token authenticate function of AuthService. Makes sure that user_id matches the posted token
     AuthService.authenticate(req, res, "players", function (req, res) { 
 
       // check for all required user input
@@ -30,9 +29,7 @@ module.exports = {
   //    required input: user_id, account_id (to be updated), new_name (for the account)
   //    response: account object
   update_account: function (req, res) {
-    // calls the token authenticate function of AuthService. Makes sure that user_id matches the posted token
     AuthService.authenticate(req, res, "players", function (req, res) {
-      // calls the account authentication function of AuthService and makes sure that provided user id owns the account
       AuthService.account_authenticate(req, res, function(req, res) {
         
         // check for all required user input
@@ -47,9 +44,9 @@ module.exports = {
         Accounts.update(req.param('account_id'), to_update).exec(function afterwards(err, updated){
         if (err) return RespService.e(res, 'Database fail: ' + err);
         return RespService.s(res, updated);  // respond success with account data
-        });
-      });
-    });
+        }); // end update
+      }); // end account auth
+    }); // end token auth
   },
   
   //  /finances/list_accounts
@@ -73,7 +70,6 @@ module.exports = {
   //    optional input: amount (to be set at), add_amount (amount to be added)
   //    response: account object
   add_money: function (req, res) {
-    // calls the token authenticate function of AuthService. Makes sure that user_id matches the posted token
     AuthService.authenticate(req, res, "players", function (req, res) {
       
       // check for all required user input
@@ -90,10 +86,9 @@ module.exports = {
       
       // updates the account of the provided id with the array ("to_update") containing the update information
       Accounts.update(req.param('account_id'), to_update).exec(function afterwards(err, updated){
-      
         return RespService.s(res, updated);  // respond success with account data
       });
-    });
+    }); // end token auth
   },
   
   //  /finances/check_balances/
@@ -102,16 +97,16 @@ module.exports = {
   //    required input: user_id
   //    response: account object with amounts
   check_balances: function (req, res) {
-    // calls the token authenticate function of AuthService. Makes sure that user_id matches the posted token
     AuthService.authenticate(req, res, "players", function (req, res) {
-        // check for all required user input
-        if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');
       
-        // finds all rows of the accounts table
-        Accounts.find({user_id: req.param('user_id')}).exec(function(err, accounts_object) {
+      // check for all required user input
+      if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');
+      
+      // finds all rows of the accounts table
+      Accounts.find({user_id: req.param('user_id')}).exec(function(err, accounts_object) {
         if (err) return RespService.e(res, 'Database fail: ' + err);
         return RespService.s(res, accounts_object);  // respond success with user data
-        });
+      });
     });
   },
   
@@ -121,18 +116,16 @@ module.exports = {
   //    required input: user_id, account_id
   //    response: account object with amount
   check_balance: function (req, res) {
-    // calls the token authenticate function of AuthService. Makes sure that user_id matches the posted token
     AuthService.authenticate(req, res, "players", function (req, res) {
-      // calls the account authentication function of AuthService and makes sure that provided user id owns the account
-      AuthService.account_authenticate(req, res, function(req, res){
+      AuthService.account_authenticate(req, res, function (req, res){
         
         // find the row of the accounts table with the matching user and account id
         Accounts.findOne({user_id: req.param('user_id'), id: req.param('account_id')}).exec(function(err, accounts_object) {
-        if (err) return RespService.e(res, 'Database fail: ' + err);
-        return RespService.s(res, accounts_object);  // respond success with user data
+          if (err) return RespService.e(res, 'Database fail: ' + err);
+          return RespService.s(res, accounts_object);  // respond success with user data
         });
-      });
-    });
+      }); // end account auth
+    }); // end token auth
   },
   
   reverse_transaction: function (req, res) {
@@ -153,9 +146,7 @@ module.exports = {
   //    required input: user_id, account_id
   //    response: account object with amount
   send_money: function (req, res) {
-    // calls the token authenticate function of AuthService. Makes sure that user_id matches the posted token
     AuthService.authenticate(req, res, "players", function (req, res) {
-      // calls the account authentication function of AuthService and makes sure that provided user id owns the account
       AuthService.account_authenticate(req, res, function(req, res){
         
         // check for all required user input
