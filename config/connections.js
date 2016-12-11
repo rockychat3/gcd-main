@@ -25,32 +25,32 @@ module.exports.connections = {
     adapter: 'sails-postgresql',
     host: process.env.OPENSHIFT_POSTGRESQL_DB_HOST || 'localhost',
     port: process.env.OPENSHIFT_POSTGRESQL_DB_PORT || 5432,
-    user: 'ubuntu',
-    password: 'admin',
+    user: process.env.GCD_DB_USER || 'ubuntu',
+    password: process.env.GCD_DB_PW || 'admin',
     database: 'players'
   },
   finances: {
     adapter: 'sails-postgresql',
     host: process.env.OPENSHIFT_POSTGRESQL_DB_HOST || 'localhost',
     port: process.env.OPENSHIFT_POSTGRESQL_DB_PORT || 5432,
-    user: 'ubuntu',
-    password: 'admin',
+    user: process.env.GCD_DB_USER || 'ubuntu',
+    password: process.env.GCD_DB_PW || 'admin',
     database: 'finances'
   },
   markets: {
     adapter: 'sails-postgresql',
     host: process.env.OPENSHIFT_POSTGRESQL_DB_HOST || 'localhost',
     port: process.env.OPENSHIFT_POSTGRESQL_DB_PORT || 5432,
-    user: 'ubuntu',
-    password: 'admin',
+    user: process.env.GCD_DB_USER || 'ubuntu',
+    password: process.env.GCD_DB_PW || 'admin',
     database: 'markets'
   },
   gcd: {
     adapter: 'sails-postgresql',
     host: process.env.OPENSHIFT_POSTGRESQL_DB_HOST || 'localhost',
     port: process.env.OPENSHIFT_POSTGRESQL_DB_PORT || 5432,
-    user: 'ubuntu',
-    password: 'admin',
+    user: process.env.GCD_DB_USER || 'ubuntu',
+    password: process.env.GCD_DB_PW || 'admin',
     database: 'gcd'
   }
 
