@@ -21,7 +21,7 @@ module.exports = {
      
         // creates the new product in the database with the created new_product object
       Products.create(new_product).exec(function (err, products_object) {
-        if (err) return RespService.e(res, 'Done ya angery dogger: ' + err);
+        if (err) return RespService.e(res, 'Database fail: ' + err);
         return RespService.s(res, products_object);  // respon-d success w/ user data
       }); // end create
     }); //end auth
@@ -32,9 +32,9 @@ module.exports = {
       
       if (!req.param('product_name')) return RespService.e(res, 'Missing Name'); //product name
       
-      Products.remove(req.param('product_name')).exec(function (err, products_object) {
+      Products.delete(req.param('product_name')).exec(function (err, products_object) {
         if (err) return RespService.e(res, 'Database fail: ' + err);
-        return RespService.s(res, products_object);  // respond success with user data
+        return RespService.s(res, 'Delete successful');  // respond success
       }); // end delete
       
       /*
@@ -58,9 +58,17 @@ module.exports = {
     });
   },
   
+  get_price: function (req, res) {
+    AuthService.authenticate(req, res, "markets", function (req, res) {
+      Products.findOne(req.param('product_name')).exec(function (err, products_object) {
+        if (err) return RespService.e(res, 'Database Fail: ' +  err);
+        return RespService.s(res, products_object);
+      });
+    });
+  },
+  
   buy_product:function (req, res) {
     AuthService.authenticate(req, res, "markets", function (req, res) {
-      
       
     
     
