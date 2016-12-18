@@ -1,10 +1,6 @@
 module.exports = {
   connection: 'markets',  // microapp
   attributes: {
-    user_id: {
-      type: 'integer',
-      notNull: true,
-    },
     product_name: {
       type: 'text',
       notNull: true
@@ -20,6 +16,11 @@ module.exports = {
     buy_price: { //money obtained
       type: 'integer',
       notNull:true
+    },
+    in_stock: { //object in stock
+      type: 'boolean',
+      notNull:true,
+      defaultsTo: false
     }
   }
 };

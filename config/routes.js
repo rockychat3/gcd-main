@@ -31,9 +31,9 @@ module.exports.routes = {
    'POST /finances/view_transactions': 'FinancesController.view_transactions',
    
    //Market Microapp
-   'POST /markets/new_product': 'MarketsController.new_porduct',
+   'POST /markets/add_product': 'MarketsController.add_product',
    'POST /markets/remove_product': 'MarketsController.remove_product',
-   'POST /markets/list_products': 'MarketsController.list_products'
-   
+   'POST /markets/list_products': 'MarketsController.list_products',
+   'POST /markets/buy_product': 'MarketsController.buy_product',
    
 };

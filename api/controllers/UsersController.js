@@ -1,3 +1,5 @@
+var FinancesController = require("./FinancesController.js");
+
 module.exports = {
   
   //  /players/create_user/
@@ -18,10 +20,13 @@ module.exports = {
       var new_user = { name: req.param('name'), email: req.param('email'), password: 'changeme' };
       if (req.param('usertype')) new_user.usertype = req.param('usertype');
       
+          //req.param.user_id = req.param('user_id');
+          //req.param.account_name = (req.param('name') + 'default');
+      
       // creates the new user in the database with the new_user object
       Users.create(new_user).exec(function (err, users_object){
         if (err) return RespService.e(res, 'User creation error: ' + err);
-        return RespService.s(res, users_object);  // respond success w/ user data
+        return FinancesController.beginning_account(req, res, users_object);
       }); // end creation
     }); // end password auth
   }, // end action

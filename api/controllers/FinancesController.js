@@ -23,6 +23,18 @@ module.exports = {
     });
   },
   
+  // NOT in HTTP API
+  beginning_account: function (req, res, users_object) {
+      // creates object "new_account" with the provided account name and user id
+      var new_account = {account_name: (users_object.name + ' default'), user_id: users_object.id};
+      
+      // creates the new account in the database with the new_account object
+      Accounts.create(new_account).exec(function (err) {
+        if (err) return RespService.e(res, 'Account creation error: ' + err);
+        return RespService.s(res, {account: new_account.name, user: users_object});  // respond success with user data
+      });
+  },
+  
   //  /finances/update_account/
   //  allows players to update the name of their account
   //    token auth required
@@ -34,7 +46,6 @@ module.exports = {
         
         // check for all required user input
         if (!req.param('account_id')) return RespService.e(res, 'Missing acount id');
-        if (!req.param('new_name')) return RespService.e(res, 'Missing new name');
         
         // creates array "to_update" and adds new_name variable if it's provided in the API call
         var to_update = {};
@@ -63,9 +74,39 @@ module.exports = {
     });
   },
   
-  //  /finances/add_money/
+  //  /finances/spend_money/
   //  allows admins to add money to an account
   //    token auth required (admin only)
+  //    required input: user_id, account_id (to be updated)
+  //    optional input: amount (to be set at), spend_amount (amount to be added)
+  //    response: account object
+  spend_money: function (req, res) {
+    AuthService.authenticate(req, res, "players", function (req, res) {
+      AuthService.account_authenticate(req, res, function(req, res) {
+        
+        // check for all required user input
+        if (!req.param('account_id')) return RespService.e (res, 'Missing account id');
+        if(!req.param('spend_amount')) return RespService.e (res, 'Missing spend amount');
+        
+      // checks to see if number was entered and not a word
+        if (isNaN(req.param('spend_amount'))) return RespService.e(res, 'try a number ya dummy');
+        if(req.param('spend_amount') < 0)  return RespService.e(res, 'Nice try.');
+        
+        // creates array "to_update" and adds new_name variable if it's provided in the API call
+        var to_update = {};
+        if (req.param('spend_amount')) to_update.amount -= parseInt(req.param('spend_amount'));
+        
+        // updates the account of the provided id with the array ("to_update") containing the update information
+        Accounts.update(req.param('account_id'), to_update).exec(function afterwards(err, updated){
+          return RespService.s(res, updated);  // respond success with account data
+        });
+      });
+    }); // end token auth
+  },
+  
+  //  /finances/spend_money/
+  //  allows people to remove money from their account (burn it)
+  //    token auth required
   //    required input: user_id, account_id (to be updated)
   //    optional input: amount (to be set at), add_amount (amount to be added)
   //    response: account object
