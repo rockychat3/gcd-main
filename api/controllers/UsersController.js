@@ -1,4 +1,5 @@
-var FinancesController = require("./FinancesController.js");
+var bcrypt = require('bcrypt');  // module used to hash passwords
+//var FinancesController = require("./FinancesController.js");
 
 module.exports = {
   
@@ -9,27 +10,64 @@ module.exports = {
   //    optional input: usertype ("admin" or "government", or "human" is default)
   //    response: user object
   create_user: function (req, res) {
-    // calls the token authenticate function of AuthService. Makes sure that user_id matches the provided password
-    AuthService.password_authenticate(req, res, true, function (req, res) { //this call actually ends at the end of the function
+    
+    // checks for all required user input
+    if (!req.param('name')) return RespService.e(res, 'Missing name');
+    if (!req.param('email')) return RespService.e(res, 'Missing email');
+    if (isNaN(req.param('amount')) && (req.param('amount') < 0)) return RespService.e(res, 'try a positive number ya dummy');
 
-      // checks for all required user input
-      if (!req.param('name')) return RespService.e(res, 'Missing name');
-      if (!req.param('email')) return RespService.e(res, 'Missing email');
+    var flow = {
+      req: req,
+      res: res,
+      internal_data: {},
+      returnable_data: {},
+      callbacks: [
+        { callback: sails.controllers.users.password_authenticate, params: true},
+        { callback: sails.controllers.users.new_user, params: { name: req.param('name'), email: req.param('email'), password: 'changeme' } },
+        { callback: sails.controllers.finances.beginning_account },
+      ]
+    };
+    return FlowService.callNext(flow);
+  },
+  
+  
+  // internal function to insert a new user into the db
+  new_user: function (flow, new_user) {
+    // checks if the optional parameter usertype is included and adds it to the call
+    if (flow.req.param('usertype')) new_user.usertype = flow.req.param('usertype');
+    
+    // creates the new user in the database with the new_user object
+    Users.create(new_user).exec(function (err, users_object){
+      if (err) return RespService.e(flow.res, 'User creation error: ' + err);
+      flow.returnable_data.user = users_object;  // save the new user for return
+      return FlowService.callNext(flow);
+    });
+  },
+        
+  
+  // When authentication is needed with a password, check it and verify user permission
+  // required inputs: request object, response object, if admin priviledge is required (bool), function to be executed upon successful completion
+  // response: callback function is executed
+  password_authenticate: function (flow, if_admin) {
+    if (!flow.req.param('user_id')) return RespService.e(flow.res, 'Missing user_id');  // check if user_id is present
+    if (!flow.req.param('password')) return RespService.e(flow.res, 'Missing password');  // check if token is present
+    
+    // database lookup by user_id
+    Users.findOne(flow.req.param('user_id')).exec(function (err, user_object) {
+      if (err) return RespService.e(flow.res, 'Database fail: ' + err);
+      if (!user_object) return RespService.e(flow.res, 'User not found in database');
       
-      //creates array "new_user" with all the info provided in the call
-      var new_user = { name: req.param('name'), email: req.param('email'), password: 'changeme' };
-      if (req.param('usertype')) new_user.usertype = req.param('usertype');
+      if (!bcrypt.compareSync(flow.req.param('password'), user_object.password)) return RespService.e(flow.res, 'Password does not match');
       
-          //req.param.user_id = req.param('user_id');
-          //req.param.account_name = (req.param('name') + 'default');
+      if (if_admin && user_object.usertype != 'admin') return RespService.e(flow.res, 'Admin privileges required');  // admin check
       
-      // creates the new user in the database with the new_user object
-      Users.create(new_user).exec(function (err, users_object){
-        if (err) return RespService.e(res, 'User creation error: ' + err);
-        return FinancesController.beginning_account(req, res, users_object);
-      }); // end creation
-    }); // end password auth
-  }, // end action
+      return FlowService.callNext(flow);  // if authorized, run the requested action (passed as a callback function)*/
+    });
+  },
+  
+  
+  
+  
   
   //  /players/update_user/
   //  allows players to update their name, email, or password
@@ -145,4 +183,10 @@ module.exports = {
       });
     });
   },
+  
+  
+  
+  
+  
+
 }

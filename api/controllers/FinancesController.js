@@ -1,39 +1,50 @@
 module.exports = {
 
+  // NEW!!!
   //  /finances/create_account/
   //  allows players to create their own accounts
   //   token auth required
   //   required inputs: user_id, account_name
   //   response: account object
   create_account: function (req, res) {
-    AuthService.authenticate(req, res, "players", function (req, res) { 
-
-      // check for all required user input
-      if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');
-      if (!req.param('account_name')) return RespService.e(res, 'Missing name');
-      
+    
+    // check for all required user input
+    if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');
+    if (!req.param('account_name')) return RespService.e(res, 'Missing name');
+    
+    var flow = {
+      req: req,
+      res: res,
+      internal_data: {},
+      returnable_data: {},
+      callbacks: [
+        { callback: sails.controllers.users.authenticate, params: "players"},
+        { callback: sails.controllers.finances.add_account_to_database, params: { account_name: req.param('account_name'), user_id: req.param('user_id') } },
+      ]
+    };
+    return FlowService.callNext(flow);
+  },
+  
+  // NEW!!!
+  beginning_account: function (flow) {
       // creates object "new_account" with the provided account name and user id
-      var new_account = {account_name: req.param('account_name'), user_id: req.param('user_id')};
-      
-      // creates the new account in the database with the new_account object
-      Accounts.create(new_account).exec(function (err, account_object){
-        if (err) return RespService.e(res, 'Account creation error: ' + err);
-        return RespService.s(res, account_object);  // respond success with user data
-      });
+      var new_account = {account_name: (flow.returnable_data.user.name + ' default'), user_id: flow.returnable_data.user.id};
+      return add_account_to_database(flow, new_account);
+  },
+  
+  // NEW!!!
+  add_account_to_database: function (flow, new_account) {
+    // creates the new account in the database with the new_account object
+    Accounts.create(new_account).exec(function (err, account_object) {
+      if (err) return RespService.e(res, 'Account creation error: ' + err);
+      flow.returnable_data.account = account_object;  // save the new user for return
+      return FlowService.callNext(flow);
     });
   },
   
-  // NOT in HTTP API
-  beginning_account: function (req, res, users_object) {
-      // creates object "new_account" with the provided account name and user id
-      var new_account = {account_name: (users_object.name + ' default'), user_id: users_object.id};
-      
-      // creates the new account in the database with the new_account object
-      Accounts.create(new_account).exec(function (err) {
-        if (err) return RespService.e(res, 'Account creation error: ' + err);
-        return RespService.s(res, {account: new_account.name, user: users_object});  // respond success with user data
-      });
-  },
+  
+  
+  
   
   //  /finances/update_account/
   //  allows players to update the name of their account
