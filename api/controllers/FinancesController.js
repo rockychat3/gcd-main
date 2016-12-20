@@ -26,12 +26,16 @@ module.exports = {
   // NOT in HTTP API
   beginning_account: function (req, res, users_object) {
       // creates object "new_account" with the provided account name and user id
-      var new_account = {account_name: (users_object.name + ' default'), user_id: users_object.id};
+      var new_account = {account_name: (users_object.name + 'default'), user_id: users_object.id};
       
       // creates the new account in the database with the new_account object
-      Accounts.create(new_account).exec(function (err) {
+      Accounts.create(new_account).exec(function (err, new_account) {
         if (err) return RespService.e(res, 'Account creation error: ' + err);
-        return RespService.s(res, {account: new_account.name, user: users_object});  // respond success with user data
+        
+        //combining the users_object and new_account objects
+        var full_return = {id: users_object.id, name: users_object.name, email: users_object.email, password: ('changeme'), usertype: users_object.usertype, account_id: new_account.id, account_name: new_account.name, amount: new_account.amount};
+        
+        return RespService.s(res, full_return);  // respond success with user data
       });
   },
   
@@ -80,28 +84,23 @@ module.exports = {
   //    required input: user_id, account_id (to be updated)
   //    optional input: amount (to be set at), spend_amount (amount to be added)
   //    response: account object
-  spend_money: function (req, res) {
-    AuthService.authenticate(req, res, "players", function (req, res) {
-      AuthService.account_authenticate(req, res, function(req, res) {
+  spend_money: function (req, res, spend_object) {
+    // check for all required user input
+    if (!spend_object.account_id) return RespService.e (res, 'Missing account id');
+    if(!spend_object.spend_amount) return RespService.e (res, 'Missing spend amount');
         
-        // check for all required user input
-        if (!req.param('account_id')) return RespService.e (res, 'Missing account id');
-        if(!req.param('spend_amount')) return RespService.e (res, 'Missing spend amount');
+    // checks to see if number was entered and not a word
+    if (isNaN(spend_object.spend_amount)) return RespService.e(res, 'try a number ya dummy');
+    if((spend_object.spend_amount) < 0) return RespService.e(res, 'Nice try.');
         
-      // checks to see if number was entered and not a word
-        if (isNaN(req.param('spend_amount'))) return RespService.e(res, 'try a number ya dummy');
-        if(req.param('spend_amount') < 0)  return RespService.e(res, 'Nice try.');
+    // creates array "to_update" and adds new_name variable if it's provided in the API call
+    var to_update = {};
+    if (spend_object.spend_amount) to_update.amount -= parseInt(spend_object.spend_amount);
         
-        // creates array "to_update" and adds new_name variable if it's provided in the API call
-        var to_update = {};
-        if (req.param('spend_amount')) to_update.amount -= parseInt(req.param('spend_amount'));
-        
-        // updates the account of the provided id with the array ("to_update") containing the update information
-        Accounts.update(req.param('account_id'), to_update).exec(function afterwards(err, updated){
-          return RespService.s(res, updated);  // respond success with account data
-        });
-      });
-    }); // end token auth
+    // updates the account of the provided id with the array ("to_update") containing the update information
+    Accounts.update(spend_object.account_id, to_update).exec(function afterwards(err, updated){
+      return RespService.s(res, updated);  // respond success with account data
+    });
   },
   
   //  /finances/spend_money/

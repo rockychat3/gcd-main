@@ -34,6 +34,8 @@ module.exports.routes = {
    'POST /markets/add_product': 'MarketsController.add_product',
    'POST /markets/remove_product': 'MarketsController.remove_product',
    'POST /markets/list_products': 'MarketsController.list_products',
+   'POST /markets/get_price': 'MarketsController.get_price',
    'POST /markets/buy_product': 'MarketsController.buy_product',
+   'POST /markets/sell_product': 'MarketsController.sell_product',
    
 };

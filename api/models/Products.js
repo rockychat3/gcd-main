@@ -1,5 +1,5 @@
 module.exports = {
-  connection: 'markets',  // microapp
+  //connection: 'markets',  // microapp
   attributes: {
     product_name: {
       type: 'text',

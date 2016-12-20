@@ -1,7 +1,7 @@
 var bcrypt = require('bcrypt');  // module used to hash passwords
 
 module.exports = {
-  connection: 'players',  // microapp's database
+  //connection: 'players',  // microapp's database
   attributes: {
     // the player's first and last name as a text string
     name: {  

@@ -1,5 +1,5 @@
 module.exports = {
-  connection: 'finances',  // microapp
+  //connection: 'finances',  // microapp
   attributes: {
     amount: {
       type: 'integer',

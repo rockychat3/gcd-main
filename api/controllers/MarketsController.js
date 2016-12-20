@@ -1,5 +1,3 @@
-var FinancesController = require("./FinancesController.js");
-
 module.exports = {
   
   
@@ -86,43 +84,12 @@ module.exports = {
         
         Products.findOne(req.param('product_name')).exec(function (err, products_object) {
           
-          
-          
           if (req.param('force'));
           else if (products_object.in_stock != true) return RespService.e(res, 'The thing you\'re trying to buy isn\'t listed as in stock')
           
-          req.param.user_id = req.param('user_id');
-          req.param.token = req.param('token');
-          req.param.account_id = req.param('account_id');
-          req.param.spend_amount = products_object.buy_price;
+          var spend_object = {account_id: req.param('account_id'), spend_amount: products_object.buy_price};
           
-          FinancesController.spend_money(req, res);
-           
-           
-           /* var options = {
-            host: 'https://gcd-students-1-andypethan.c9users.io/',
-            port: 8080,
-            path: '/finances/add_money/',
-            method: 'POST'
-          };
-
-            var req = http.request(options, function(res) {
-            console.log('STATUS: ' + res.statusCode);
-            console.log('HEADERS: ' + JSON.stringify(res.headers));
-            res.setEncoding('utf8');
-            res.on('data', function (chunk) {
-            console.log('BODY: ' + chunk);
-           });
-          });
-
-          req.on('error', function(e) {
-          console.log('problem with request: ' + e.message);
-        });
-
-          // write data to request body
-          req.write('data\n');
-          req.write('data\n');
-          req.end(); */
+          return sails.controllers.finances.spend_money(req, res, spend_object);
         });
       });
     });
