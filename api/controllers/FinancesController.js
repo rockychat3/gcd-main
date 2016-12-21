@@ -241,13 +241,9 @@ module.exports = {
       AuthService.account_authenticate(req, res, function(req, res){
         
           // right now if both are set to return then the game server crashes
-          Transactions.find({from: req.param('account_id')}).exec(function (err, accounts_object) {
+          Transactions.find({from: req.param('account_id'), to: req.param('account_id')}).exec(function (err, accounts_object) {
             if (err) return RespService.e(res, 'Database fail: ' + err);
             if (req.param('sender')) return RespService.s(res, accounts_object);  // respond success with user data
-          });
-          Transactions.find({to: req.param('account_id')}).exec(function (err, accounts_object) {
-            if (err) return RespService.e(res, 'Database fail: ' + err);
-            if (req.param('recipient')) return RespService.s(res, accounts_object);  // respond success with user data
           });
         //else return RespService.e(res, 'No results, you didn\'t specify whether you wanted to see transactions where you are the reciever or the sender');
       });
