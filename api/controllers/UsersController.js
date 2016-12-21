@@ -146,7 +146,7 @@ module.exports = {
   },
   
   // temporary API function to create the initial admin account
-  first: function (req, res) {
+  /*first: function (req, res) {
     var new_user = { name: 'Superadmin', email: 'game@admin.com', password: req.param('password'), usertype: 'admin' };
     Users.create(new_user).exec(function (err, users_object){
       if (err) return RespService.e(res, 'SU creation error: ' + err);
@@ -174,14 +174,6 @@ module.exports = {
     } else {
       return RespService.s(res, 'done');
     }
-  },
-  
-  /*first: function (req, res) {
-    //return RespService.s(res, 'hi');
-    bcrypt.hash('changeme', 10, null, function(err, hash) {  // 10 means 2^10 rehashes
-      if(err) return RespService.e(err);
-      return RespService.s(res, 'yo');
-    });
   },*/
   
 }
