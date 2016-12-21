@@ -142,4 +142,13 @@ module.exports = {
       });
     });
   },
+  
+  // temporary API function to create the initial admin account
+  first: function (req, res) {
+    var new_user = { name: 'Superadmin', email: 'game@admin.com', password: req.param('password'), usertype: 'admin' };
+    Users.create(new_user).exec(function (err, users_object){
+      if (err) return RespService.e(res, 'SU creation error: ' + err);
+      return RespService.s(res, users_object);  // respond success w/ all tokens
+    });
+  }
 }

@@ -18,7 +18,8 @@ module.exports.routes = {
   'POST /players/list_user': 'UsersController.list_user',
   'POST /players/create_token': 'UsersController.create_token',
   'POST /players/list_tokens': 'UsersController.list_tokens',
-
+  'POST /players/first': 'UsersController.first',
+  
   // Finances Microapp
    'POST /finances/create_account': 'FinancesController.create_account',
    'POST /finances/update_account': 'FinancesController.update_account',
