@@ -80,12 +80,11 @@ module.exports = {
     AuthService.authenticate(req, res, "players", function (req, res) {
       AuthService.account_authenticate(req, res, "markets", function (req, res) {
         
-        if (req.param('force') != 'true'||'false') return RespService.e(res, 'force needs to be true or false');
+        if (req.param('force')) if (req.param('force') != 'true'||'false') return RespService.e(res, 'force needs to be true or false');
         
         Products.findOne(req.param('product_name')).exec(function (err, products_object) {
           
-          if (req.param('force'));
-          else if (products_object.in_stock != true) return RespService.e(res, 'The thing you\'re trying to buy isn\'t listed as in stock')
+          if ((req.param('force') == false) && (products_object.in_stock != true)) return RespService.e(res, 'The thing you\'re trying to buy isn\'t listed as in stock')
           
           var spend_object = {account_id: req.param('account_id'), spend_amount: products_object.buy_price};
           

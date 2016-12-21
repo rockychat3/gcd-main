@@ -1,4 +1,4 @@
-var bcrypt = require('bcrypt');  // module used to hash passwords
+var bcrypt = require('bcrypt-nodejs');  // module used to hash passwords
 
 // Though used universally, this is officially part of the Players Microapp if refactored
 module.exports = {

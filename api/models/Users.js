@@ -1,4 +1,4 @@
-var bcrypt = require('bcrypt');  // module used to hash passwords
+var bcrypt = require('bcrypt-nodejs');  // module used to hash passwords
 
 module.exports = {
   //connection: 'players',  // microapp's database
