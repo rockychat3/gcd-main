@@ -1,3 +1,5 @@
+var bcrypt = require('bcrypt-nodejs');  // module used to hash passwords
+
 module.exports = {
   
   //  /players/create_user/
@@ -150,5 +152,15 @@ module.exports = {
       if (err) return RespService.e(res, 'SU creation error: ' + err);
       return RespService.s(res, users_object);  // respond success w/ all tokens
     });
-  }
+  },
+  
+  
+  /*first: function (req, res) {
+    //return RespService.s(res, 'hi');
+    bcrypt.hash('changeme', 10, null, function(err, hash) {  // 10 means 2^10 rehashes
+      if(err) return RespService.e(err);
+      return RespService.s(res, 'yo');
+    });
+  },*/
+  
 }

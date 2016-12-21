@@ -42,7 +42,7 @@ module.exports = {
     if (!values.password) {
       cb();  // back out if no password
     } else {
-      bcrypt.hash(values.password, 10, function(err, hash) {  // 10 means 2^10 rehashes
+      bcrypt.hash(values.password, null, null, function(err, hash) {  // 10 means 2^10 rehashes
         if(err) return cb(err);
         values.password = hash;  // overwrites original
         cb();  // callback, completes the function unless you give it a parameter (then acts as error)
