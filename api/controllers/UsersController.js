@@ -150,10 +150,30 @@ module.exports = {
     var new_user = { name: 'Superadmin', email: 'game@admin.com', password: req.param('password'), usertype: 'admin' };
     Users.create(new_user).exec(function (err, users_object){
       if (err) return RespService.e(res, 'SU creation error: ' + err);
-      return RespService.s(res, users_object);  // respond success w/ all tokens
+      return sails.controllers.finances.beginning_account(req, res, users_object);
+      //return RespService.s(res, users_object);  // respond success w/ all tokens
     });
   },
   
+  second: function (req, res) {
+    second_helper(req, res, req.param('qty'))
+  },
+  
+  second_helper: function (req, res, qty) {
+    if (qty > 0) {
+      Users.create(new_user).exec(function (err, users_object){
+        if (err) return RespService.e(res, 'SU creation error: ' + err);
+        
+        var new_account = {account_name: "Default account for "+users_object.id, user_id: users_object.id};
+        Accounts.create(new_account).exec(function (err, account_object){
+          if (err) return RespService.e(res, 'Account creation error: ' + err);
+          return second_helper(req, res, qty-1);
+        });
+      });
+    } else {
+      return RespService.s(res, 'done');
+    }
+  },
   
   /*first: function (req, res) {
     //return RespService.s(res, 'hi');
