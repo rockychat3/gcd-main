@@ -156,18 +156,19 @@ module.exports = {
   },
   
   second: function (req, res) {
-    second_helper(req, res, req.param('qty'))
+    sails.controllers.users.second_helper(req, res, req.param('qty'))
   },
   
   second_helper: function (req, res, qty) {
     if (qty > 0) {
+      var new_user = { name: 'Player', email: 'change@me.com', password: 'changeme' };
       Users.create(new_user).exec(function (err, users_object){
         if (err) return RespService.e(res, 'SU creation error: ' + err);
         
         var new_account = {account_name: "Default account for "+users_object.id, user_id: users_object.id};
         Accounts.create(new_account).exec(function (err, account_object){
           if (err) return RespService.e(res, 'Account creation error: ' + err);
-          return second_helper(req, res, qty-1);
+          return sails.controllers.users.second_helper(req, res, qty-1);
         });
       });
     } else {
