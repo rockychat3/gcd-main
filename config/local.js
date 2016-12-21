@@ -31,8 +31,8 @@ module.exports = {
 
   host: process.env.OPENSHIFT_NODEJS_IP || "0.0.0.0",
   port: process.env.OPENSHIFT_NODEJS_PORT || 8080,
-  environment: process.env.NODE_ENV || 'development'
-
+  environment: process.env.NODE_ENV || 'development',
+  
 };
 
 //module.exports.models.migrate = 'safe';

@@ -21,30 +21,6 @@
 
 module.exports.connections = {
 
-  /*players: {
-    adapter: 'sails-postgresql',
-    host: process.env.OPENSHIFT_POSTGRESQL_DB_HOST || 'localhost',
-    port: process.env.OPENSHIFT_POSTGRESQL_DB_PORT || 5432,
-    user: process.env.GCD_DB_USER || 'ubuntu',
-    password: process.env.GCD_DB_PW || 'admin',
-    database: 'players'
-  },
-  finances: {
-    adapter: 'sails-postgresql',
-    host: process.env.OPENSHIFT_POSTGRESQL_DB_HOST || 'localhost',
-    port: process.env.OPENSHIFT_POSTGRESQL_DB_PORT || 5432,
-    user: process.env.GCD_DB_USER || 'ubuntu',
-    password: process.env.GCD_DB_PW || 'admin',
-    database: 'finances'
-  },
-  markets: {
-    adapter: 'sails-postgresql',
-    host: process.env.OPENSHIFT_POSTGRESQL_DB_HOST || 'localhost',
-    port: process.env.OPENSHIFT_POSTGRESQL_DB_PORT || 5432,
-    user: process.env.GCD_DB_USER || 'ubuntu',
-    password: process.env.GCD_DB_PW || 'admin',
-    database: 'markets'
-  },*/
   gcd: {
     adapter: 'sails-postgresql',
     host: process.env.OPENSHIFT_POSTGRESQL_DB_HOST || 'localhost',
@@ -52,6 +28,14 @@ module.exports.connections = {
     user: 'admincbziwz3' || 'ubuntu',
     password: '5BLEy48g5Dsm' || 'admin',
     database: 'gcd2'
-  }
+  },
+  productionServer: {
+	  adapter: 'sails-postgresql',
+	  host: process.env.OPENSHIFT_POSTGRESQL_DB_HOST || 'localhost',
+	  port: process.env.OPENSHIFT_POSTGRESQL_DB_PORT || 5432,
+	  user: 'admincbziwz3',
+	  password: '5BLEy48g5Dsm',
+	  database: 'gcd2'
+  },
 
 };
