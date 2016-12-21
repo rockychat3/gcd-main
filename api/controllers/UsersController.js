@@ -17,18 +17,31 @@ module.exports = {
       if (!req.param('email')) return RespService.e(res, 'Missing email');
       
       //creates array "new_user" with all the info provided in the call
-      var new_user = { name: req.param('name'), email: req.param('email'), password: 'changeme' };
-      if (req.param('usertype')) new_user.usertype = req.param('usertype');
+      var user = { name: req.param('name'), email: req.param('email'), password: 'changeme' };
+      if (req.param('usertype')) user.usertype = req.param('usertype');
       
-      // creates the new user in the database with the new_user object
-      Users.create(new_user).exec(function (err, users_object){
-        if (err) return RespService.e(res, 'User creation error: ' + err);
-          
-        return sails.controllers.finances.beginning_account(req, res, users_object);
-        
-      }); // end creation
+      return create_user_internal({ req: req, res: res, user: user });
+      
+      
+      
     }); // end password auth
   }, // end action
+  
+  create_user_internal: function () {
+    
+    if !('user' in options) return RespService.e(res, 'Internal error: user object missing');
+    
+    // creates the new user in the database with the new_user object
+    Users.create(user)
+      .then(function (user_object) { RespService.cb(options, 'users_object', user_object) })
+      .catch(function (err) { return RespService.e(res, 'User creation error: ' + err); });
+      
+      return (req, res, users_object);
+      
+    }); // end creation
+    
+    
+  }
   
   //  /players/update_user/
   //  allows players to update their name, email, or password

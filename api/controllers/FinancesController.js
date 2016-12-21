@@ -24,9 +24,9 @@ module.exports = {
   },
   
   // NOT in HTTP API
-  beginning_account: function (req, res, users_object) {
+  i_beginning_account: function (options) {
       // creates object "new_account" with the provided account name and user id
-      var new_account = {account_name: (users_object.name + 'default'), user_id: users_object.id};
+      var new_account = { account_name: (options.users_object.name + 'default'), user_id: options.users_object.id };
       
       // creates the new account in the database with the new_account object
       Accounts.create(new_account).exec(function (err, new_account) {
