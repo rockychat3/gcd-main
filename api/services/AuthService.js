@@ -82,5 +82,22 @@ module.exports = {
       
       return callback(req, res);  // if authorized, run the requested action (passed as a callback function)*/
     });
+  },
+  
+  
+  // TRYING PROMISES
+  password_authenticate_2: function (req, res, if_admin) {
+    if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');  // check if user_id is present
+    if (!req.param('password')) return RespService.e(res, 'Missing password');  // check if token is present
+    
+    // database lookup by user_id
+    Users.findOne(req.param('user_id'))
+      .then(function (user_object) {
+        if (!user_object) return RespService.e(res, 'User not found in database');
+        if (!bcrypt.compareSync(req.param('password'), user_object.password)) return RespService.e(res, 'Password does not match');
+        if (if_admin && user_object.usertype != 'admin') return RespService.e(res, 'Admin privileges required');  // admin check
+        return;
+      })
+      .catch(function (err) { return RespService.e(res, 'Database fail: ' + err); });
   }
 }
