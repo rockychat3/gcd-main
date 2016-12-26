@@ -5,7 +5,10 @@
   "keywords": [],
   "dependencies": {
     "async": "^2.0.1",
+    "async-handler": "0.0.3",
+    "asyncawait": "^1.0.6",
     "bcrypt-nodejs": ">=0.0.3",
+    "bluebird": "^3.4.7",
     "grunt": "0.4.5",
     "grunt-cli": "1.2.0",
     "grunt-contrib-clean": "0.6.0",
@@ -35,6 +38,6 @@
     "type": "git",
     "url": "git://github.com/anonymous node/sails user/gcd.git"
   },
-  "author": "anonymous node/sails user",
-  "license": ""
+  "author": "Evan Richardson, Andy Pethan, and students of the Grand Challenge Design course",
+  "license": "MIT"
 }

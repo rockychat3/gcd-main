@@ -18,8 +18,8 @@ module.exports.routes = {
   'POST /players/list_user': 'UsersController.list_user',
   'POST /players/create_token': 'UsersController.create_token',
   'POST /players/list_tokens': 'UsersController.list_tokens',
-  'POST /players/first': 'UsersController.first',
-  'POST /players/second': 'UsersController.second',
+  //'POST /players/first': 'UsersController.first',
+  //'POST /players/second': 'UsersController.second',
   
   // Finances Microapp
    'POST /finances/create_account': 'FinancesController.create_account',
@@ -30,6 +30,7 @@ module.exports.routes = {
    'POST /finances/check_balance': 'FinancesController.check_balance',
    'POST /finances/reverse_transaction': 'FinancesController.reverse_transaction',
    'POST /finances/send_money': 'FinancesController.send_money',
+   'POST /finances/send_money_async': 'FinancesController.send_money_async',
    'POST /finances/view_transactions': 'FinancesController.view_transactions',
    
    //Market Microapp
