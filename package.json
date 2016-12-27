@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "description": "a Sails application",
   "keywords": [],
+  "engines": {
+    "node": "~ 0.12.4",
+    "npm": ">= 1.0.0"
+  },
   "dependencies": {
     "async-handler": "0.0.3",
     "asyncawait": "^1.0.6",
