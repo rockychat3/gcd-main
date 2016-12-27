@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "a Sails application",
   "keywords": [],
-  "devDependencies": {
+  "dependencies": {
     "async-handler": "0.0.3",
     "asyncawait": "^1.0.6",
     "bcrypt-nodejs": ">=0.0.3",
