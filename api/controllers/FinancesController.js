@@ -27,22 +27,6 @@ module.exports = {
     });
   },
   
-  // NOT in HTTP API
-  beginning_account: function (req, res, users_object) {
-      // creates object "new_account" with the provided account name and user id
-      var new_account = {account_name: (users_object.name + 'default'), user_id: users_object.id};
-      
-      // creates the new account in the database with the new_account object
-      Accounts.create(new_account).exec(function (err, new_account) {
-        if (err) return RespService.e(res, 'Account creation error: ' + err);
-        
-        //combining the users_object and new_account objects
-        var full_return = {id: users_object.id, name: users_object.name, email: users_object.email, password: ('changeme'), usertype: users_object.usertype, account_id: new_account.id, account_name: new_account.name, amount: new_account.amount};
-        
-        return RespService.s(res, full_return);  // respond success with user data
-      });
-  },
-  
   //  /finances/update_account/
   //  allows players to update the name of their account
   //    token auth required
@@ -189,14 +173,14 @@ module.exports = {
   //    token auth required
   //    required input: user_id, account_id
   //    response: account object with amount
-  send_money: asyncHandler( function (req, res){
-    await (AuthService.authenticate_async(req, res, "players"));
-    await (AuthService.account_authenticate_async(req, res));
+  send_money: asyncHandler( function (req, res) {
+    try { 
+      await(AuthService.authenticate_async(req, "finances"));  // verify permission to use finances app
+      await(AuthService.account_authenticate_async(req));  // verify that the user is the account owner (or admin)
+    } catch(err) { return RespService.e(res, err); };
     
     // check for all required user input (that isn't verified by AuthService) starting with recipient_id
     if ((!req.param('recipient_id')) || isNaN(req.param('recipient_id'))) return RespService.e(res, 'Missing recipient id');
-    var recipient_id = req.param('recipient_id');
-    
     // also make sure the amount is present, numeric, positive, and parsed
     if (!req.param('amount')) return RespService.e(res, 'Missing amount to be transferred');
     // checks if number was entered and not a word, and if the number entered is > 0
@@ -214,7 +198,7 @@ module.exports = {
     catch(err) { return RespService.e(res, 'Finding recipient row failed! Error:' + err); }
     
     // create the transaction record
-    var transactions_object = {amount: transfer_amount, notes: req.param('notes'), from: req.param('account_id'), to: recipient_id};
+    var transactions_object = {amount: transfer_amount, notes: req.param('notes'), from: req.param('account_id'), to: req.param('recipient_id')};
     try { transactions_object = await(Transactions.create(transactions_object)); }
     catch(err) { return RespService.e(res, 'Transaction recording error: ' + err); }
 
@@ -225,7 +209,7 @@ module.exports = {
        
     // update the recipient's total amount
     var recipient_object_update = { amount: recipient_object.amount+transfer_amount };
-    try { await(Accounts.update(recipient_id, recipient_object_update)); }
+    try { await(Accounts.update(req.param('recipient_id'), recipient_object_update)); }
     catch(err) { return RespService.e(res, 'Second account update (recieve/to) failed! Database fail: ' + err); }
     
     // respond with the transaction confirmation and new amounts

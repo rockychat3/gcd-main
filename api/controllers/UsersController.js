@@ -1,3 +1,6 @@
+var async = require('asyncawait/async');
+var await = require('asyncawait/await');
+var asyncHandler = require('async-handler')(async, await);
 var bcrypt = require('bcrypt-nodejs');  // module used to hash passwords
 
 module.exports = {
@@ -8,27 +11,37 @@ module.exports = {
   //    required inputs: name (of new player), email (of new player)
   //    optional input: usertype ("admin" or "government", or "human" is default)
   //    response: user object
-  create_user: function (req, res) {
+  create_user: asyncHandler( function (req, res) {
     // calls the token authenticate function of AuthService. Makes sure that user_id matches the provided password
-    AuthService.password_authenticate(req, res, true, function (req, res) { //this call actually ends at the end of the function
+    try { await(AuthService.password_authenticate_async(req, true)); }
+    catch(err) { return RespService.e(res, err); };
 
-      // checks for all required user input
-      if (!req.param('name')) return RespService.e(res, 'Missing name');
-      if (!req.param('email')) return RespService.e(res, 'Missing email');
-      
-      //creates array "new_user" with all the info provided in the call
-      var new_user = { name: req.param('name'), email: req.param('email'), password: 'changeme' };
-      if (req.param('usertype')) new_user.usertype = req.param('usertype');
-      
-      // creates the new user in the database with the new_user object
-      Users.create(new_user).exec(function (err, users_object){
-        if (err) return RespService.e(res, 'User creation error: ' + err);
-          
-        return sails.controllers.finances.beginning_account(req, res, users_object);
+    // checks for all required user input
+    if (!req.param('name')) return RespService.e(res, 'Missing name');
+    if (!req.param('email')) return RespService.e(res, 'Missing email');
+    
+    //creates array "new_user" with all the info provided in the call
+    var new_user = { name: req.param('name'), email: req.param('email'), password: 'changeme' };
+    if (req.param('usertype')) new_user.usertype = req.param('usertype');
+    
+    // creates the new user in the database with the new_user object
+    try { var users_object = await(Users.create(new_user)); }
+    catch(err) { return RespService.e(res, 'User creation error: ' + err); }
         
-      }); // end creation
-    }); // end password auth
-  }, // end action
+    // creates object "new_account" with the provided account name and user id
+    var new_account = {account_name: (users_object.name + 'default'), user_id: users_object.id};
+    
+    // creates the new account in the database with the new_account object
+    try { var new_account = await(Accounts.create(new_account)); }
+    catch(err) { return RespService.e(res, 'Account creation error: ' + err); }
+      
+    //combining the users_object and new_account objects
+    var full_return = {id: users_object.id, name: users_object.name, email: users_object.email, 
+                        password: 'changeme', usertype: users_object.usertype, account_id: new_account.id, 
+                        account_name: new_account.name, amount: new_account.amount};
+      
+    return RespService.s(res, full_return);  // respond success with user data
+  }), // end action
   
   //  /players/update_user/
   //  allows players to update their name, email, or password
