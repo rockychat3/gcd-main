@@ -31,11 +31,9 @@ module.exports.connections = {
   },
   productionServer: {
 	  adapter: 'sails-postgresql',
-	  host: process.env.OPENSHIFT_POSTGRESQL_DB_HOST || 'localhost',
-	  port: process.env.OPENSHIFT_POSTGRESQL_DB_PORT || 5432,
-	  user: 'admincbziwz3',
-	  password: '5BLEy48g5Dsm',
-	  database: 'gcd2'
+	  url: process.env.DATABASE_URL,
+    pool: false,
+    ssl: true
   },
 
 };
