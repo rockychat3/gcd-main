@@ -1,6 +1,8 @@
+var async = require('asyncawait/async');
+var await = require('asyncawait/await');
+var asyncHandler = require('async-handler')(async, await);
 var bcrypt = require('bcrypt-nodejs');  // module used to hash passwords
 
-// Though used universally, this is officially part of the Players Microapp if refactored
 module.exports = {
 
   // When authentication is needed, verify user permission and return default status object
@@ -45,6 +47,46 @@ module.exports = {
     });
   },
   
+  // When authentication is needed, verify user permission and return default status object
+  // required inputs: request object, response object, permission string ("admin" for admin users, or a microservice name such as "players"),
+  //   function to be executed upon successful completion
+  // response: callback function is executed
+  authenticate_async: function (req, res, permission_required) {
+    if (!req.param('token')) return RespService.e(res, 'Missing token');  // check if token is present
+    
+    // lookup token and connected permissions and user info 
+    try { var token = await(Tokens.findOne({token: req.param('token')}).populate(['permissions','user'])); } 
+    catch(err) { return RespService.e(res, 'Database lookup problem. Check input data. ' + err); }
+    
+    if (!token) return RespService.e(res, 'Token not found in database');
+
+    // check if token is expired
+    // @TODO
+      
+    // check if admin is required
+    if (permission_required == "admin") {
+      if (token.user.usertype != "admin") return RespService.e(res, 'Only admins can use this function');
+      else return;  // if authorized, allow the requested action to proceed
+    }
+      
+    if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');  // for non-admin, check if user_id is present
+      
+    // first check if the requesting user is the token owner
+    if (token.user.id != parseInt(req.param('user_id'))) {
+      // if not, check if the token's owner is an admin
+      if (token.user.usertype != "admin") return RespService.e(res, 'This user does not have permission with this token');
+    }
+      
+    // next, check if the token is a supertoken
+    if (!token.supertoken) {
+      // if not, check if it is the right permission type
+      if (!token.permission) return RespService.e(res, 'Something is really broken');
+      if (token.permission.name != permission_required) return RespService.e(res, 'Wrong permission type for this token');
+    }
+      
+    return;  // if authorized, allow the requested action to proceed
+  },
+  
   account_authenticate: function (req, res, callback) {
     if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');  // check if user_id is present
     if (!req.param('account_id')) return RespService.e(res, 'Missing account_id');  // check if account_id is present
@@ -63,6 +105,20 @@ module.exports = {
     });
   },
   
+  account_authenticate_async: function (req, res) {
+    if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');  // check if user_id is present
+    if (!req.param('account_id')) return RespService.e(res, 'Missing account_id');  // check if account_id is present
+    
+    // 
+    try { var accounts_object = await(Accounts.findOne(req.param('account_id'))); }
+    catch(err) { return RespService.e(res, 'Account lookup problem. Check input data. ' + err); }
+    if (!accounts_object) return RespService.e(res, 'account not found in database');
+      
+    // check if the requesting user is the account owner
+    if (accounts_object.user_id != req.param('user_id')) return RespService.e(res, 'This isn\'t your account, you don\'t have permission');
+      
+    return;
+  },
   
   // When authentication is needed with a password, check it and verify user permission
   // required inputs: request object, response object, if admin priviledge is required (bool), function to be executed upon successful completion

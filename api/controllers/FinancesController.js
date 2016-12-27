@@ -1,7 +1,9 @@
 var async = require('asyncawait/async');
 var await = require('asyncawait/await');
-var asyncHandler = require('async-handler')(async, await)
+var asyncHandler = require('async-handler')(async, await);
+
 var Promise = require('bluebird');
+var AuthServiceAS = Promise.promisifyAll(AuthService.authenticate_async);
 
 module.exports = {
 
@@ -240,48 +242,48 @@ module.exports = {
   //    required input: user_id, account_id
   //    response: account object with amount
   send_money_async: asyncHandler( function (req, res){
-    //await AuthService.authenticate_async(req, res, "players");
-    //await AuthService.account_authenticate_async(req, res);
+    await (AuthService.authenticate_async(req, res, "players"));
+    await (AuthService.account_authenticate_async(req, res));
     
-    // check for all required user input
+    // check for all required user input (that isn't verified by AuthService) starting with recipient_id
     if ((!req.param('recipient_id')) || isNaN(req.param('recipient_id'))) return RespService.e(res, 'Missing recipient id');
     var recipient_id = req.param('recipient_id');
     
+    // also make sure the amount is present, numeric, positive, and parsed
     if (!req.param('amount')) return RespService.e(res, 'Missing amount to be transferred');
     // checks if number was entered and not a word, and if the number entered is > 0
     if(req.param('amount')) if (isNaN(req.param('amount'))) return RespService.e(res, 'Not a number: try entering a number');
     if(req.param('amount') < 0)  return RespService.e(res, 'Nice try.');
     var transfer_amount = parseInt(req.param('amount'));
     
-    try { var sender_object = await(Accounts.findOne(req.param('account_id'))); }                 //CLEAN SYNTAX NO NEED FOR ID
-    catch(err) { return RespService.e(res, 'Finding account_id row failed! Error:' + err); }
-    
+    // check the sender and make sure there is enough money in the account
+    try { var sender_object = await(Accounts.findOne(req.param('account_id'))); }
+    catch(err) { return RespService.e(res, 'Finding account row failed! Error:' + err); }
     if (sender_object.amount < transfer_amount) return RespService.e(res, 'Insufficient funds in your account to complete transaction');
     
-    try { var recipient_object = await(Accounts.findOne(req.param('recipient_id'))); }               //CLEAN SYNTAX NO NEED FOR ID
-    catch(err) { return RespService.e(res, 'Finding recipient_id row failed! Error:' + err); }
+    // lookup the recipient
+    try { var recipient_object = await(Accounts.findOne(req.param('recipient_id'))); }
+    catch(err) { return RespService.e(res, 'Finding recipient row failed! Error:' + err); }
     
+    // create the transaction record
     var transactions_object = {amount: transfer_amount, notes: req.param('notes'), from: req.param('account_id'), to: recipient_id};
     try { transactions_object = await(Transactions.create(transactions_object)); }
     catch(err) { return RespService.e(res, 'Transaction recording error: ' + err); }
-    
-    console.log(transactions_object);
-    console.log(recipient_id);
-    console.log(sender_object);
-    
-    sender_object.amount -= transfer_amount;
-    console.log(sender_object);
-    
-    try { await(Accounts.update({id:req.param('account_id')}, sender_object)); }
+
+    // update the sender's total amount
+    var sender_object_update = { amount: sender_object.amount-transfer_amount };
+    try { await(Accounts.update(req.param('account_id'), sender_object_update)); }
     catch(err) { return RespService.e(res, 'First account update (send/from) failed! Database fail: ' + err); }
        
-    recipient_object.amount += transfer_amount;
-    try { await(Accounts.update({id:recipient_id}, recipient_object)); }
+    // update the recipient's total amount
+    var recipient_object_update = { amount: recipient_object.amount+transfer_amount };
+    try { await(Accounts.update(recipient_id, recipient_object_update)); }
     catch(err) { return RespService.e(res, 'Second account update (recieve/to) failed! Database fail: ' + err); }
     
-    return RespService.s(res, transactions_object);
+    // respond with the transaction confirmation and new amounts
+    return RespService.s(res, {transaction: transactions_object, sender: sender_object_update, recipient: recipient_object_update});
     
-  }),// action end
+  }),
   
   //  /finances/view_transactions/
   //  view transactions that happened
