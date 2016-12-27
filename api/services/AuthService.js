@@ -1,4 +1,4 @@
-var await = require('asyncawait/await');
+var await = require('../../compiled_modules/asyncawait/await');
 var bcrypt = require('bcrypt-nodejs');  // module used to hash passwords
 
 module.exports = {

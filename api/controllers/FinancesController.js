@@ -1,5 +1,5 @@
-var async = require('asyncawait/async');
-var await = require('asyncawait/await');
+var async = require('../../compiled_modules/asyncawait/async');
+var await = require('../../compiled_modules/asyncawait/await');
 var asyncHandler = require('async-handler')(async, await);
 
 module.exports = {
