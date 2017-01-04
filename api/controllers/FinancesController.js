@@ -107,15 +107,21 @@ module.exports = {
       if(req.param('amount')) if (isNaN(req.param('amount'))) return RespService.e(res, 'try a number ya dummy');
       if(req.param('add_amount')) if (isNaN(req.param('add_amount'))) return RespService.e(res, 'try a number ya dummy');
       
-      // creates array "to_update" and adds new_name variable if it's provided in the API call
-      var to_update = {};
-      if (req.param('amount')) to_update.amount = parseInt(req.param('amount'));
-      else if (req.param('add_amount')) to_update.amount += parseInt(req.param('add_amount'));
-      
       // updates the account of the provided id with the array ("to_update") containing the update information
-      Accounts.update(req.param('account_id'), to_update).exec(function afterwards(err, updated){
-        return RespService.s(res, updated);  // respond success with account data
+      Accounts.findOne(req.param('account_id')).exec(function afterwards(err, initial){
+        if (err) return RespService.e(res, 'account lookup issue' + err);  // respond success with account data
+        
+        // creates array "to_update" and adds new_name variable if it's provided in the API call
+        var to_update = {};
+        if (req.param('amount')) to_update.amount = parseInt(req.param('amount'));
+        if (req.param('add_amount')) to_update.amount = parseInt(req.param('add_amount')) + initial.amount;
+        
+        // updates the account of the provided id with the array ("to_update") containing the update information
+        Accounts.update(req.param('account_id'), to_update).exec(function afterwards(err, updated){
+          return RespService.s(res, updated);  // respond success with account data
+        });
       });
+      
     }); // end token auth
   },
   
