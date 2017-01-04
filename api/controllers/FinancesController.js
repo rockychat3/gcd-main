@@ -67,7 +67,7 @@ module.exports = {
   },
   
   //  /finances/spend_money/
-  //  allows admins to add money to an account
+  //  allows admins to burn money from an account
   //    token auth required (admin only)
   //    required input: user_id, account_id (to be updated)
   //    optional input: amount (to be set at), spend_amount (amount to be added)
@@ -91,46 +91,45 @@ module.exports = {
     });
   },
   
-  //  /finances/spend_money/
-  //  allows people to remove money from their account (burn it)
+  //  /finances/add_money/
+  //  allows the admin to add or remove money from accounts
   //    token auth required
   //    required input: user_id, account_id (to be updated)
   //    optional input: amount (to be set at), add_amount (amount to be added)
   //    response: account object
-  add_money: function (req, res) {
-    AuthService.authenticate(req, res, "players", function (req, res) {
-      
-      // check for all required user input
-      if (!req.param('account_id')) return RespService.e (res, 'Missing account id');
-      
-      // checks to see if number was entered and not a word
-      if(req.param('amount')) if (isNaN(req.param('amount'))) return RespService.e(res, 'try a number ya dummy');
-      if(req.param('add_amount')) if (isNaN(req.param('add_amount'))) return RespService.e(res, 'try a number ya dummy');
-      
-      // updates the account of the provided id with the array ("to_update") containing the update information
-      Accounts.findOne(req.param('account_id')).exec(function afterwards(err, initial){
-        if (err) return RespService.e(res, 'account lookup issue' + err);  // respond success with account data
-        
-        // creates array "to_update" and adds new_name variable if it's provided in the API call
-        var to_update = {};
-        if (req.param('amount')) to_update.amount = parseInt(req.param('amount'));
-        if (req.param('add_amount')) to_update.amount = parseInt(req.param('add_amount')) + initial.amount;
-        
-        // updates the account of the provided id with the array ("to_update") containing the update information
-        Accounts.update(req.param('account_id'), to_update).exec(function afterwards(err, updated){
-          return RespService.s(res, updated);  // respond success with account data
-        });
-      });
-      
-    }); // end token auth
-  },
+  add_money: asyncHandler(function (req, res) {
+    try { 
+      await(AuthService.authenticate_async(req, "admin"));  // verify permission to use finances app
+    } catch(err) { return RespService.e(res, err); };
+    
+    // check for all required user input
+    if (!req.param('account_id')) return RespService.e (res, 'Missing account id');
+    
+    // checks to see if number was entered and not a word
+    if(req.param('amount')) if (isNaN(req.param('amount'))) return RespService.e(res, 'try a number ya dummy');
+    if(req.param('add_amount')) if (isNaN(req.param('add_amount'))) return RespService.e(res, 'try a number ya dummy');
+    
+    try { var initial = await(Accounts.findOne(req.param('account_id'))); }
+    catch(err) { return RespService.e(res, 'Account lookup issue: ' + err); }
+    
+    // creates array "to_update" and adds new_name variable if it's provided in the API call
+    var to_update = {};
+    if (req.param('amount')) to_update.amount = parseInt(req.param('amount'));
+    if (req.param('add_amount')) to_update.amount = parseInt(req.param('add_amount')) + initial.amount;
+    
+    // updates the account of the provided id with the array ("to_update") containing the update information
+    try { var updated = await(Accounts.update(req.param('account_id'), to_update)); }
+    catch(err) { return RespService.e(res, 'Account update issue: ' + err); }
+    
+    return RespService.s(res, updated)
+  }),
   
   //  /finances/check_balances/
   //  shows all of owned balances
   //    token auth required
   //    required input: user_id
   //    response: account object with amounts
-  check_balances: function (req, res) {
+  check_balances: asyncHandler(function (req, res) {
     try { 
       await(AuthService.authenticate_async(req, "finances"));  // verify permission to use finances app
     } catch(err) { return RespService.e(res, err); };
@@ -139,7 +138,7 @@ module.exports = {
     catch(err) { return RespService.e(res, 'Database fail: ' + err); }
     
     return RespService.s(res, accounts_object);  // respond success with user data
-  },
+  }),
   
   //  /finances/check_balance/
   //  shows one balance
