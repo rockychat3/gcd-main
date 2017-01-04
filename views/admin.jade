@@ -1,0 +1,94 @@
+doctype html
+
+html
+  head
+    title #{title} - Grand Challenge Design
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+
+    script(src="http://code.jquery.com/jquery-2.0.0.min.js")
+    link(href="/styles/bootstrap.min.css" rel="stylesheet")
+    link(href="/styles/select2.css" rel="stylesheet")
+    link(href="/styles/style.css" rel="stylesheet")
+    script(src="/js/bootstrap.min.js")
+    script(src="/js/main.js")
+    script(src="/js/admin.js")
+    script(src="/js/select2.js")
+    script.
+      $(document).ready(function() {$(".js-example-basic-single").select2({placeholder:'Select one', allowClear: true});});
+
+  body
+    // header
+    div(class="navbar navbar-default")
+      div.container
+
+        div.navbar-header
+          button(type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse")
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+          div.navbar-brand
+            | #[a(href="/" class="link") Grand Challenge Design] | #{title}
+
+        div(class="navbar-collapse collapse")
+          ul(class="nav navbar-nav navbar-right")
+            if user
+              - link = '/player/' + user
+              li #[a(href=link) #{user}]
+              li #[a(href="javascript:logout()") Logout]
+
+            else
+              li #[a(href="/login") Log in]
+              li #[a(href="/register") Register]
+
+    div.container
+      div.row
+        if !started
+          div.col-sm-6
+            if temp.length
+              h3 Player Requests:
+              ul
+                each player in temp
+                  li #[ #[h4 #{player.name}, #{player.email}] #[button.btn.btn-default(type="button" onclick="javascript:approve('#{player.name}', '#{player.email}', '#{player.password}')") #[span.glyphicon.glyphicon-ok]] #[button.btn.btn-default(type="button" onclick="javascript:reject('#{player.name}')") #[span.glyphicon.glyphicon-remove]]]
+
+          div.col-sm-6
+            br
+            button.btn(type='button' onclick="javascript:startGame()") Start Game
+
+        else
+          h3 Since The Game Is Started You Can't Add People
+
+
+
+      hr
+      div.row
+        div.col-sm-6
+          h3 View Student Stats
+          ul
+            each player in players
+              - link = "/stats/" + player.name
+              li #[h4 #[a(href=link target="_blank") #{player.name}] #[a(href=link download) #[span.glyphicon.glyphicon-download-alt]]]
+
+        div.col-sm-6
+          h3 Edit Hex Data
+          label(for='hex' style='width: 100%') Hex ID:
+            br
+            select.js-example-basic-single#hex(style='width: 50%')
+              option
+              each hex in hexes
+                option(value=hex.id) #{hex.label}
+
+          label(for='field' style='width: 100%') Field:
+            br
+            select.js-example-basic-single#field(style='width: 50%')
+              option
+              option(value="owner") Owner
+              option(value="tier") Tier
+              option(value="resource") Resource type
+              option(value="amount") Resource amount
+              option(value="population") Population
+
+          div.input-group#value #[strong Value:]
+            input.form-control(type="text" placeholder="New value")
+          br
+          button.btn(onclick="javascript:commit()") Commit Changes
+

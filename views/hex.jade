@@ -1,0 +1,84 @@
+doctype html
+
+html
+  head
+    title #{title} - Grand Challenge Design
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+
+    script(src="http://code.jquery.com/jquery-2.0.0.min.js")
+    link(href="/styles/bootstrap.min.css" rel="stylesheet")
+    link(href="/styles/style.css" rel="stylesheet")
+    script(src="/js/bootstrap.min.js")
+    script(src="/js/main.js")
+
+  body 
+    // header
+    div(class="navbar navbar-default")
+      div.container
+
+        div.navbar-header
+          button(type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse")
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+          div.navbar-brand
+            | #[a(href="/" class="link") Grand Challenge Design] | #{title} 
+
+        div(class="navbar-collapse collapse")
+          ul(class="nav navbar-nav navbar-right")
+            if user 
+              - link = '/player/' + user
+              li #[a(href=link) #{user}] 
+              li #[a(href="javascript:logout()") Logout]
+
+            else
+              li #[a(href="/login") Log in]
+              li #[a(href="/register") Register]
+
+    div.container
+      if hex
+        div.row
+          div.col-sm-3
+          div.col-sm-3
+            br
+
+            if hex[0].tier == 'farm'   
+              div.hexfarm
+                div.hextop
+                div.hexbottom
+
+            else if hex[0].tier == 'town'   
+              div.hextown
+                div.hextop
+                div.hexbottom
+
+            else if hex[0].tier == 'utility'   
+              div.hexutility
+                div.hextop
+                div.hexbottom
+
+            else if hex[0].tier == 'mine'   
+              div.hexmine
+                div.hextop
+                div.hexbottom
+
+            else if hex[0].tier == 'industrial'   
+              div.hexindustrial
+                div.hextop
+                div.hexbottom
+
+            else
+              div.hex
+
+          div.col-md-6
+            ul(style="display:inline-block;")
+              li #[h3 ID: #{hex[0].label}]
+              if hex[0].name
+                li #[h3 Owner: #[a(href="/player/"+hex[0].name) #{hex[0].name}]]
+              li #[h3 Population: #{hex[0].population} ]
+              if hex[0].type
+                li #[h3 Resource: #{hex[0].type}]
+                li #[h3 Amount: #{hex[0].amount}]
+
+      else
+        h2 #{title} not found

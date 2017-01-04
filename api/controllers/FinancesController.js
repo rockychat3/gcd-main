@@ -125,17 +125,14 @@ module.exports = {
   //    required input: user_id
   //    response: account object with amounts
   check_balances: function (req, res) {
-    AuthService.authenticate(req, res, "players", function (req, res) {
-      
-      // check for all required user input
-      if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');
-      
-      // finds all rows of the accounts table
-      Accounts.find({user_id: req.param('user_id')}).exec(function(err, accounts_object) {
-        if (err) return RespService.e(res, 'Database fail: ' + err);
-        return RespService.s(res, accounts_object);  // respond success with user data
-      });
-    });
+    try { 
+      await(AuthService.authenticate_async(req, "finances"));  // verify permission to use finances app
+    } catch(err) { return RespService.e(res, err); };
+    
+    try { var accounts_object = await(Accounts.find({user_id: req.param('user_id')})); }
+    catch(err) { return RespService.e(res, 'Database fail: ' + err); }
+    
+    return RespService.s(res, accounts_object);  // respond success with user data
   },
   
   //  /finances/check_balance/
@@ -143,30 +140,39 @@ module.exports = {
   //    token auth required
   //    required input: user_id, account_id
   //    response: account object with amount
-  check_balance: function (req, res) {
-    AuthService.authenticate(req, res, "players", function (req, res) {
-      AuthService.account_authenticate(req, res, function (req, res){
-        
-        // find the row of the accounts table with the matching user and account id
-        Accounts.findOne({user_id: req.param('user_id'), id: req.param('account_id')}).exec(function(err, accounts_object) {
-          if (err) return RespService.e(res, 'Database fail: ' + err);
-          return RespService.s(res, accounts_object);  // respond success with user data
-        });
-      }); // end account auth
-    }); // end token auth
-  },
+  check_balance: asyncHandler(function (req, res) {
+    try { 
+      await(AuthService.authenticate_async(req, "finances"));  // verify permission to use finances app
+      await(AuthService.account_authenticate_async(req));  // verify that the user is the account owner (or admin)
+    } catch(err) { return RespService.e(res, err); };
+    
+    // find the row of the accounts table with the matching user and account id
+    try { var accounts_object = await(Accounts.findOne({user_id: req.param('user_id'), id: req.param('account_id')})); }
+    catch(err) {  return RespService.e(res, 'Database fail: ' + err); }
+    
+    return RespService.s(res, accounts_object);  // respond success with user data
+  }),
   
-  reverse_transaction: function (req, res) {
+  // requires the user_id, account_id, and transaction_id.  Only valid for users on the receiving end of a transaction.
+  reverse_transaction: asyncHandler(function (req, res) {
+    try { 
+      await(AuthService.authenticate_async(req, "finances"));  // verify permission to use finances app
+      await(AuthService.account_authenticate_async(req));  // verify that the user is the account owner (or admin)
+    } catch(err) { return RespService.e(res, err); };
+    
     if (!req.param('transaction_id')) return RespService.e(res, 'Missing transaction id');
     
-    Transactions.findOne({id: req.param('transaction_id')}).exec(function(err, transactions_object) {
-      if (err) return RespService.e(res, 'Database fail: ' + err);
-      req.param.recipient_id = transactions_object.sender_id;
-      req.param.sender_id = transactions_object.recipient_id;
-      req.param.amount = transactions_object.amount;
-      send_money(req, res);
-    });
-  },
+    try { var transactions_object = await(Transactions.findOne({id: req.param('transaction_id'), to: req.param('account_id')})); }
+    catch(err) { return RespService.e(res, 'Database fail: ' + err); }
+    if (!transactions_object) return RespService.e(res, 'Transaction not found or you are not the recipient of this transaction');
+    
+    // simply create a reverse transaction of the original rather than deleting records
+    try { var results = await(this.internal_money_transfer(transactions_object.to, transactions_object.from, transactions_object.amount, "REVERSED:" + transactions_object.notes)); }
+    catch(err) { return RespService.e(res, 'Money transfer issue:' + err); }
+    
+    // respond with the transaction confirmation and new amounts
+    return RespService.s(res, results);
+  }),
   
   //  /finances/send_money/
   //  send money to another account
@@ -181,6 +187,7 @@ module.exports = {
     
     // check for all required user input (that isn't verified by AuthService) starting with recipient_id
     if ((!req.param('recipient_id')) || isNaN(req.param('recipient_id'))) return RespService.e(res, 'Missing recipient id');
+    if (!req.param('notes')) return RespService.e(res, 'Missing notes');
     // also make sure the amount is present, numeric, positive, and parsed
     if (!req.param('amount')) return RespService.e(res, 'Missing amount to be transferred');
     // checks if number was entered and not a word, and if the number entered is > 0
@@ -188,53 +195,59 @@ module.exports = {
     if(req.param('amount') < 0)  return RespService.e(res, 'Nice try.');
     var transfer_amount = parseInt(req.param('amount'));
     
+    // call internal money transfer function
+    try { var results = await(this.internal_money_transfer(req.param('account_id'), req.param('recipient_id'), transfer_amount, req.param('notes'))); }
+    catch(err) { return RespService.e(res, 'Money transfer issue:' + err); }
+    
+    // respond with the transaction confirmation and new amounts
+    return RespService.s(res, results);
+  }),
+  
+  internal_money_transfer: function(sender_account_id, recipient_account_id, transfer_amount, notes) {
     // check the sender and make sure there is enough money in the account
-    try { var sender_object = await(Accounts.findOne(req.param('account_id'))); }
-    catch(err) { return RespService.e(res, 'Finding account row failed! Error:' + err); }
-    if (sender_object.amount < transfer_amount) return RespService.e(res, 'Insufficient funds in your account to complete transaction');
+    try { var sender_object = await(Accounts.findOne(sender_account_id)); }
+    catch(err) { throw new Error('Finding account row failed! Error:' + err); }
+    if (sender_object.amount < transfer_amount) throw new Error('Insufficient funds in your account to complete transaction');
     
     // lookup the recipient
-    try { var recipient_object = await(Accounts.findOne(req.param('recipient_id'))); }
-    catch(err) { return RespService.e(res, 'Finding recipient row failed! Error:' + err); }
+    try { var recipient_object = await(Accounts.findOne(recipient_account_id)); }
+    catch(err) { throw new Error('Finding recipient row failed! Error:' + err); }
     
     // create the transaction record
-    var transactions_object = {amount: transfer_amount, notes: req.param('notes'), from: req.param('account_id'), to: req.param('recipient_id')};
+    var transactions_object = {amount: transfer_amount, notes: notes, from: sender_account_id, to: recipient_account_id};
     try { transactions_object = await(Transactions.create(transactions_object)); }
-    catch(err) { return RespService.e(res, 'Transaction recording error: ' + err); }
+    catch(err) { throw new Error('Transaction recording error: ' + err); }
 
     // update the sender's total amount
     var sender_object_update = { amount: sender_object.amount-transfer_amount };
-    try { await(Accounts.update(req.param('account_id'), sender_object_update)); }
-    catch(err) { return RespService.e(res, 'First account update (send/from) failed! Database fail: ' + err); }
+    try { await(Accounts.update(sender_account_id, sender_object_update)); }
+    catch(err) { throw new Error('First account update (send/from) failed! Database fail: ' + err); }
        
     // update the recipient's total amount
     var recipient_object_update = { amount: recipient_object.amount+transfer_amount };
-    try { await(Accounts.update(req.param('recipient_id'), recipient_object_update)); }
-    catch(err) { return RespService.e(res, 'Second account update (recieve/to) failed! Database fail: ' + err); }
+    try { await(Accounts.update(recipient_account_id, recipient_object_update)); }
+    catch(err) { throw new Error('Second account update (recieve/to) failed! Database fail: ' + err); }
     
-    // respond with the transaction confirmation and new amounts
-    return RespService.s(res, {transaction: transactions_object, sender: sender_object_update, recipient: recipient_object_update});
-  }),
+    return {transaction: transactions_object, sender: sender_object_update, recipient: recipient_object_update};
+  },
   
   //  /finances/view_transactions/
   //  view transactions that happened
   //    token auth required
   //    required input: user_id, account_id
   //    response: account object with amount
-  view_transactions: function (req, res) {
-    // calls the token authenticate function of AuthService. Makes sure that user_id matches the posted token
-    AuthService.authenticate(req, res, "players", function (req, res) {
-      // calls the account authentication function of AuthService and makes sure that provided user id owns the account
-      AuthService.account_authenticate(req, res, function(req, res){
-        
-          // right now if both are set to return then the game server crashes
-          Transactions.find({from: req.param('account_id'), to: req.param('account_id')}).exec(function (err, accounts_object) {
-            if (err) return RespService.e(res, 'Database fail: ' + err);
-            if (req.param('sender')) return RespService.s(res, accounts_object);  // respond success with user data
-          });
-        //else return RespService.e(res, 'No results, you didn\'t specify whether you wanted to see transactions where you are the reciever or the sender');
-      });
-    });
-  },  // action end
+  view_transactions: asyncHandler( function (req, res) {
+    try { 
+      await(AuthService.authenticate_async(req, "finances"));  // verify permission to use finances app
+      await(AuthService.account_authenticate_async(req));  // verify that the user is the account owner (or admin)
+    } catch(err) { return RespService.e(res, err); };
+    
+    // right now if both are set to return then the game server crashes
+    try { var accounts_object = await(Transactions.find({from: req.param('account_id'), to: req.param('account_id')})); }
+    catch(err) { return RespService.e(res, 'Database fail: ' + err); }
+    
+    return RespService.s(res, accounts_object);  // respond success with user data
+  }),
+  
 }  // controller end
 
