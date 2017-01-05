@@ -4,6 +4,99 @@ var asyncHandler = require('async-handler')(async, await);
 
 module.exports = {
   
+  //  /markets/list_products
+  //  returns all products and their attributes
+  //    no auth required
+  //    no input required
+  //    response: list of product objects
+  list_products: asyncHandler(function (req, res) {
+    try { var products_list = await(Products.find({})); }
+    catch(err) { return RespService.e(res, 'Database Fail: ' +  err); }
+
+    return RespService.s(res, products_list);
+  }),
+  
+  
+  //  /markets/list_product
+  //  returns a single product based on id lookup
+  //    required input: product_id
+  //    response: product object
+  list_product: asyncHandler(function (req, res) {
+    try { var products_object = await(Products.findOne(req.param('product_id'))); }
+    catch(err) { return RespService.e(res, 'Database Fail: ' +  err); }
+    
+    return RespService.s(res, products_object);
+  }),
+  
+  
+  //  /markets/buy_product
+  //  allows a player to buy a product from the open market
+  //    required auth: user_id, token
+  //    required input: account_id, product_id, quantity
+  //    response: transaction object
+  buy_product: asyncHandler(function (req, res) {
+    try { await(AuthService.authenticate_async(req, "markets")); }  // verify permission to use finances app
+    catch(err) { return RespService.e(res, "User authentication error:" + err); };
+    try { await(AuthService.account_authenticate_async(req)); }  // verify that the user is the account owner (or admin)
+    catch(err) { return RespService.e(res, "Account authentication error:" + err); };
+    
+    // check for all required user input
+    if (!req.param('product_id')) return RespService.e(res, 'Missing product_id');
+    if (!req.param('quantity')) return RespService.e(res, 'Missing quantity');
+
+    // lookup the product to check its price
+    try { var products_object = await(Products.findOne(req.param('product_id'))); }
+    catch(err) { return RespService.e(res, 'Database Fail: ' +  err); }
+    if (!products_object) return RespService.e(res, 'Product not found in database');
+
+    // call the internal transfer with recipient=0
+    if ((!products_object.in_stock)&&(!req.param('force'))) RespService.e(res, 'Product not in stock (use force=true to override)');
+    var total_cost = req.param('quantity') * products_object.buy_price;
+    var notes = "Market purchase: " + req.param('quantity') + "x " + products_object.product_name;
+    try { var results = await(sails.controllers.finances.internal_money_transfer(req.param('account_id'), 0, total_cost, notes)); }
+    catch(err) { return RespService.e(res, 'Money transfer issue:' + err); }
+    
+    // respond with the transaction confirmation and new amounts
+    return RespService.s(res, results);
+  }),
+  
+  
+  //  /markets/sell_product
+  //  allows a player to sell a product to the open market
+  //    required auth: user_id, token
+  //    required input: account_id, product_id, quantity
+  //    response: transaction object
+  sell_product: asyncHandler(function (req, res) {
+    try { await(AuthService.authenticate_async(req, "markets")); }  // verify permission to use finances app
+    catch(err) { return RespService.e(res, "User authentication error:" + err); };
+    try { await(AuthService.account_authenticate_async(req)); }  // verify that the user is the account owner (or admin)
+    catch(err) { return RespService.e(res, "Account authentication error:" + err); };
+
+    // check for all required user input
+    if (!req.param('product_id')) return RespService.e(res, 'Missing product_id');
+    if (!req.param('quantity')) return RespService.e(res, 'Missing quantity');
+    
+    // first, look-up the product
+    try { var products_object = await(Products.findOne(req.param('product_id'))); }
+    catch(err) { return RespService.e(res, 'Product lookup issue:' + err); }
+    if (!products_object) return RespService.e(res, 'Product not found');
+    
+    // first, update the in-stock status since there is now at least one unit available
+    try { await(Products.update(req.param('product_id'), {in_stock: true})); }
+    catch(err) { return RespService.e(res, 'Product status update issue:' + err); }
+    
+    // call the internal transfer with sender=0
+    var total_value = req.param('quantity') * products_object.sell_price;
+    var notes = "Sale back to market: " + req.param('quantity') + "x " + products_object.product_name;
+    try { var results = await(sails.controllers.finances.internal_money_transfer(0, req.param('account_id'), total_value, notes)); }
+    catch(err) { return RespService.e(res, 'Money transfer issue:' + err); }
+    
+    // respond with the transaction confirmation and new amounts
+    return RespService.s(res, results);
+  }),
+  
+  
+  
   //  /market/add_product/
   //  adds product to market
   //    token auth required (admin token)
@@ -51,7 +144,7 @@ module.exports = {
   
   
   update_product: asyncHandler(function (req, res) {
-    try { await(AuthService.authenticate_async(req, "markets")); }  // verify permission to use finances app
+    try { await(AuthService.authenticate_async(req, "admin")); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
 
     // creates array "to_update" and adds product_name, product_cost, and in_stock variables if they're provided in the API call
@@ -65,73 +158,5 @@ module.exports = {
     catch(err) { return RespService.e(res, 'Database fail: ' + err); }
     
     return RespService.s(res, updated);  // respond success with user data
-  }),
- 
- 
-  list_products: asyncHandler(function (req, res) {
-    try { var products_list = await(Products.find({})); }
-    catch(err) { return RespService.e(res, 'Database Fail: ' +  err); }
-
-    return RespService.s(res, products_list);
-  }),
-  
-  
-  get_price: asyncHandler(function (req, res) {
-    try { var products_object = await(Products.findOne(req.param('product_id'))); }
-    catch(err) { return RespService.e(res, 'Database Fail: ' +  err); }
-    
-    return RespService.s(res, products_object);
-  }),
-  
-  
-  buy_product: asyncHandler(function (req, res) {
-    try { await(AuthService.authenticate_async(req, "markets")); }  // verify permission to use finances app
-    catch(err) { return RespService.e(res, "User authentication error:" + err); };
-    try { await(AuthService.account_authenticate_async(req)); }  // verify that the user is the account owner (or admin)
-    catch(err) { return RespService.e(res, "Account authentication error:" + err); };
-    
-    // check for all required user input
-    if (!req.param('product_id')) return RespService.e(res, 'Missing product_id');
-    if (!req.param('quantity')) return RespService.e(res, 'Missing quantity');
-    if (req.param('force')) if (req.param('force') != 'true'||'false') return RespService.e(res, 'force needs to be true or false');
-
-    // call the internal transfer with recipient=0
-    var total_cost = req.param('quantity')*products_object.buy_price;
-    var notes = "Market purchase: " + req.param('quantity') + "x " + req.param('product_name');
-    try { var results = await(sails.controllers.finances.internal_money_transfer(req.param('account_id'), 0, total_cost, notes)); }
-    catch(err) { return RespService.e(res, 'Money transfer issue:' + err); }
-    
-    // respond with the transaction confirmation and new amounts
-    return RespService.s(res, results);
-  }),
-  
-  
-  sell_product: asyncHandler(function (req, res) {
-    try { await(AuthService.authenticate_async(req, "markets")); }  // verify permission to use finances app
-    catch(err) { return RespService.e(res, "User authentication error:" + err); };
-    try { await(AuthService.account_authenticate_async(req)); }  // verify that the user is the account owner (or admin)
-    catch(err) { return RespService.e(res, "Account authentication error:" + err); };
-
-    // check for all required user input
-    if (!req.param('product_id')) return RespService.e(res, 'Missing product_id');
-    if (!req.param('quantity')) return RespService.e(res, 'Missing quantity');
-    
-    // first, look-up the product
-    try { var products_object = await(Products.findOne(req.param('product_id'))); }
-    catch(err) { return RespService.e(res, 'Product lookup issue:' + err); }
-    if (!products_object) return RespService.e(res, 'Product not found');
-    
-    // first, update the in-stock status since there is now at least one unit available
-    try { await(Products.update(req.param('product_id'), {in_stock: true})); }
-    catch(err) { return RespService.e(res, 'Product status update issue:' + err); }
-    
-    // call the internal transfer with sender=0
-    var total_value = req.param('quantity')*products_object.sell_price;
-    var notes = "Sale back to market: " + req.param('quantity') + "x " + req.param('product_name');
-    try { var results = await(sails.controllers.finances.internal_money_transfer(0, req.param('account_id'), total_value, notes)); }
-    catch(err) { return RespService.e(res, 'Money transfer issue:' + err); }
-    
-    // respond with the transaction confirmation and new amounts
-    return RespService.s(res, results);
   }),
 }

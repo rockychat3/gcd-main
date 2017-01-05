@@ -6,9 +6,9 @@ module.exports = {
 
   //  /finances/create_account/
   //  allows players to create their own accounts
-  //   token auth required
-  //   required inputs: user_id, account_name
-  //   response: account object
+  //    required auth: user_id, token
+  //    required inputs: account_name
+  //    response: account object
   create_account: asyncHandler(function (req, res) {
     try { await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
@@ -30,8 +30,8 @@ module.exports = {
   
   //  /finances/update_account/
   //  allows players to update the name of their account
-  //    token auth required
-  //    required input: user_id, account_id (to be updated), new_name (for the account)
+  //    required auth: user_id, token
+  //    required input: account_id (to be updated), new_name (for the account)
   //    response: account object
   update_account: asyncHandler(function (req, res) {
     try { await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
@@ -67,8 +67,8 @@ module.exports = {
   
   //  /finances/check_balances/
   //  shows all of owned balances
-  //    token auth required
-  //    required input: user_id
+  //    required auth: user_id, token
+  //    no required input
   //    response: account object with amounts
   check_balances: asyncHandler(function (req, res) {
     try { await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
@@ -83,8 +83,8 @@ module.exports = {
 
   //  /finances/reverse_transaction/
   //  undoes a previous transaction (may ONLY be called by the recipient of the previous transaction)
-  //    token auth required
-  //    required input: user_id, account_id, transaction_id
+  //    required auth: user_id, token
+  //    required input: account_id, transaction_id
   //    response: account and transactions object
   reverse_transaction: asyncHandler(function (req, res) {
     try { await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
@@ -109,8 +109,8 @@ module.exports = {
   
   //  /finances/send_money/
   //  send money to another account
-  //    token auth required
-  //    required input: user_id, account_id, recipient_id, amount, notes
+  //    required auth: user_id, token
+  //    required input: account_id, recipient_id, amount, notes
   //    response: account and transactions object
   send_money: asyncHandler( function (req, res) {
     try { await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
@@ -134,8 +134,8 @@ module.exports = {
   
   //  /finances/view_transactions/
   //  view transactions that happened
-  //    token auth required
-  //    required input: user_id, account_id
+  //    required auth: user_id, token
+  //    required input: account_id
   //    response: transactions list from account holder
   view_transactions: asyncHandler( function (req, res) {
     try { await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
@@ -151,19 +151,17 @@ module.exports = {
   }),
   
   
-  // **TEMPORARILY A PUBLIC FUNCTION!  ONCE MARKETS ARE IMPLEMENTED, THIS WILL BE ADMIN ONLY**
-  //  /finances/spend_money/
-  //  allows users to buy things with their money
-  //    token auth required 
+  
+  //  /finances/remove_money/
+  //  allows admins to take away money
+  //    admin token auth required 
   //    required input: user_id, account_id, amount (to spend), notes (reason for spending)
   //    optional input: amount (to be set at), spend_amount (amount to be added)
   //    response: account and transactions object
-  spend_money: asyncHandler(function (req, res) {
-    try { await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
+  remove_money: asyncHandler(function (req, res) {
+    try { await(AuthService.authenticate_async(req, "admin")); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
-    try { await(AuthService.account_authenticate_async(req)); }  // verify that the user is the account owner (or admin)
-    catch(err) { return RespService.e(res, "Account authentication error:" + err); };
-
+    
     // check for all required user input
     if (!req.param('account_id')) return RespService.e (res, 'Missing account_id');
     if (!req.param('amount')) return RespService.e(res, 'Missing amount');
@@ -178,10 +176,9 @@ module.exports = {
   }),
   
   
-  
   //  /finances/add_money/
   //  allows the admin to add or remove money from accounts
-  //    token auth required
+  //    admin token auth required
   //    required input: user_id, account_id, amount (to be added)
   //    optional input: notes
   //    response: account and transactions object
