@@ -17,7 +17,7 @@ module.exports = {
     if (!req.param('product_name')) return RespService.e(res, 'Missing product_name'); 
     if (!req.param('product_cost')) return RespService.e(res, 'Missing product_cost');
     if (!req.param('in_stock')) return RespService.e(res, 'Missing in_stock');
-    if (req.param('in_stock') != 'true'||'false') return RespService.e(res, 'in_stock needs to be true or false');
+    if ((req.param('in_stock') != ('true'||'false'))) return RespService.e(res, 'in_stock needs to be true or false');
     
     // setting the buying/selling prices. The numbers should be moved to a settings file before release
     var sell_price = parseInt(req.param('product_cost'))*0.85;
