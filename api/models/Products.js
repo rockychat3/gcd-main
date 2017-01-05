@@ -5,19 +5,19 @@ module.exports = {
       type: 'text',
       notNull: true
     },
-    sell_price: {
+    sell_price: {  // generated price to sell to market
       type: 'integer',
       notNull:true
     },
-    product_cost: { //money given
+    product_cost: {  // user provided
       type: 'integer',
       notNull:true
     },
-    buy_price: { //money obtained
+    buy_price: {  // generated purchase price
       type: 'integer',
       notNull:true
     },
-    in_stock: { //object in stock
+    in_stock: {  // object in stock
       type: 'boolean',
       notNull:true,
       defaultsTo: false
