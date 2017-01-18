@@ -1,7 +1,6 @@
 var bcrypt = require('bcrypt-nodejs');  // module used to hash passwords
 
 module.exports = {
-  //connection: 'players',  // microapp's database
   attributes: {
     // the player's first and last name as a text string
     name: {  
@@ -24,7 +23,7 @@ module.exports = {
     // the type of user, generally a normal 'human', or admin, or town or county gov't
     usertype: {  
       type: 'string',
-      enum: ['human', 'government', 'admin'],
+      enum: ['human', 'government', 'admin', 'corporation'],
       defaultsTo: 'human'
     },
     // this is a soft reference to the many tokens a player has, 

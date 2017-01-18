@@ -1,5 +1,4 @@
 module.exports = {
-  //connection: 'players',  // microapp
   attributes: {
     name: {
       type: 'text',
