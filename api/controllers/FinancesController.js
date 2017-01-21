@@ -144,7 +144,7 @@ module.exports = {
     catch(err) { return RespService.e(res, "Account authentication error:" + err); };
     
     // right now if both are set to return then the game server crashes
-    try { var transactions_list = await(Transactions.find({from: req.param('account_id'), to: req.param('account_id')})); }
+    try { var transactions_list = await(Transactions.find({or: [{from: req.param('account_id')}, {to: req.param('account_id')}]})); }
     catch(err) { return RespService.e(res, 'Database fail: ' + err); }
     
     return RespService.s(res, transactions_list);  // respond success with user data
