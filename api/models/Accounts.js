@@ -1,8 +1,8 @@
 module.exports = {
   attributes: {
-    user_id: {
-      type: 'integer',
-      notNull: true,
+    user_id: {  // tokens belong to one user (token creator/owner)
+      model: 'users',
+      notNull: true
     },
     amount: {
       type: 'integer',

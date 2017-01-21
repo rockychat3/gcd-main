@@ -87,10 +87,10 @@ module.exports = {
   //    required input: account_id, transaction_id
   //    response: account and transactions object
   reverse_transaction: asyncHandler(function (req, res) {
-    /*try { await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
+    try { await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
     try { await(AuthService.account_authenticate_async(req)); }  // verify that the user is the account owner (or admin)
-    catch(err) { return RespService.e(res, "Account authentication error:" + err); };*/
+    catch(err) { return RespService.e(res, "Account authentication error:" + err); };
     
     if (!req.param('transaction_id')) return RespService.e(res, 'Missing transaction id');
     
