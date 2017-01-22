@@ -29,7 +29,7 @@ module.exports = {
     catch(err) { return RespService.e(res, 'User creation error: ' + err); }
         
     // creates object "new_account" with the provided account name and user id
-    var new_account = {account_name: (users_object.name + 'default'), user_id: users_object.id};
+    var new_account = {account_name: (users_object.name + 'default'), user: users_object.id, id: users_object.id};
     
     // creates the new account in the database with the new_account object
     try { var new_account = await(Accounts.create(new_account)); }

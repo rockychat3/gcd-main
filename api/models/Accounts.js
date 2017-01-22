@@ -1,25 +1,25 @@
 module.exports = {
   attributes: {
-    user_id: {  // tokens belong to one user (token creator/owner)
+    user: {  // tokens belong to one user (token creator/owner)
       model: 'users',
-      notNull: true
+      notNull: true,
     },
     amount: {
       type: 'integer',
       defaultsTo: 0,
-      notNull: true
+      notNull: true,
     },
     account_name: {
       type: 'text',
-      notNull:true
+      notNull:true,
     },
     expenses: { //money given
       collection: "transactions",
-      via: "to"
+      via: "to",
     },
     income: { //money obtained
       collection: "transactions",
-      via: "from"
-    }
+      via: "from",
+    },
   }
 };

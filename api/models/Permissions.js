@@ -3,11 +3,11 @@ module.exports = {
     name: {
       type: 'text',
       unique: true,
-      notNull: true
+      notNull: true,
     },
     tokens: {  // this automatically creates a has-many join with the tokens model
       collection: 'tokens',
-      via: 'permissions'
-    }
+      via: 'permissions',
+    },
   }
 };

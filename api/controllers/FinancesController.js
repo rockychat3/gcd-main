@@ -18,7 +18,7 @@ module.exports = {
     if (!req.param('account_name')) return RespService.e(res, 'Missing account_name');
       
     // creates object "new_account" with the provided account name and user id
-    var new_account = {account_name: req.param('account_name'), user_id: req.param('user_id')};
+    var new_account = {account_name: req.param('account_name'), user: req.param('user_id')};
       
     // creates the new account in the database with the new_account object
     try { var account_object = await(Accounts.create(new_account)); }
@@ -74,7 +74,7 @@ module.exports = {
     try { await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
 
-    try { var accounts_object = await(Accounts.find({user_id: req.param('user_id')})); }
+    try { var accounts_object = await(Accounts.find({user: req.param('user_id')})); }
     catch(err) { return RespService.e(res, 'Database fail: ' + err); }
     
     return RespService.s(res, accounts_object);  // respond success with user data

@@ -5,7 +5,7 @@ module.exports = {
     // the player's first and last name as a text string
     name: {  
       type: 'text',
-      notNull: true
+      notNull: true,
     },
     // the player's email address, must be unique for login purposes
     // note: use +something in gmail address to allow one person many accounts
@@ -13,25 +13,29 @@ module.exports = {
     email: {  
       type: 'text',
       email: true,
-      notNull: true
+      notNull: true,
     },
     // the player's password, but hashed for protection of passwords
     password: {  
       type: 'text',
-      notNull: true
+      notNull: true,
     },
     // the type of user, generally a normal 'human', or admin, or town or county gov't
     usertype: {  
       type: 'string',
       enum: ['human', 'government', 'admin', 'corporation'],
-      defaultsTo: 'human'
+      defaultsTo: 'human',
     },
     // this is a soft reference to the many tokens a player has, 
     // but the database key is stored in the tokens table
     tokens: {  
       collection: 'tokens',
-      via: 'user'
-    }
+      via: 'user',
+    },
+    // the hex where a player's RasPi and official residence are located
+    residence: {  
+      model: 'hexes',
+    },
   },
   
   // this code runs before a password is added to the database -- 
@@ -47,5 +51,5 @@ module.exports = {
         cb();  // callback, completes the function unless you give it a parameter (then acts as error)
       });
     }
-  }
+  },
 };
