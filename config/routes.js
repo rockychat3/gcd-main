@@ -32,7 +32,7 @@ module.exports.routes = {
   'GET /finances/add_money': 'FinancesController.add_money',
   'GET /finances/remove_money/': 'FinancesController.remove_money',
    
-  //Market Microapp
+  // Market Microapp
   'GET /markets/list_products': 'MarketsController.list_products',
   'GET /markets/list_product': 'MarketsController.list_product',
   'GET /markets/buy_product': 'MarketsController.buy_product',
@@ -41,5 +41,9 @@ module.exports.routes = {
   'GET /markets/add_product': 'MarketsController.add_product',
   'GET /markets/remove_product': 'MarketsController.remove_product',
   'GET /markets/update_product': 'MarketsController.update_product',
+  
+  // Board Microapp
+  'GET /board/buy_new_hex': 'BoardController.buy_new_hex',
+  'GET /board/sell_hex': 'BoardController.sell_hex',
   
 };
