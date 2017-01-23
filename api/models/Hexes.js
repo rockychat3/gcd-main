@@ -3,7 +3,7 @@ module.exports = {
     //autoPK: false, // no "id" field for hexes
     name: {  // the PK and externally referenced name of a plot
       type: 'text',
-      //primaryKey: true,
+      primaryKey: true,
       unique: true,
       notNull: true,
     },
