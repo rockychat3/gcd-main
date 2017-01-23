@@ -48,7 +48,7 @@ module.exports = {
     if (!req.param('account_id')) throw new Error('Missing account_id');
     
     // lookup account in db
-    try { var accounts_object = await(Accounts.findOne(req.param('account_id')).populate('user_id')); }
+    try { var accounts_object = await(Accounts.findOne(req.param('account_id')).populate('user')); }
     catch(err) { throw new Error('Account lookup problem. Check input data. ' + err); }
     if (!accounts_object) throw new Error('account not found in database');
       
