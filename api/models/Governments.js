@@ -12,5 +12,11 @@ module.exports = {
       enum: ['town', 'county'],
       defaultsTo: 'town',
     },
+    user: {  // player who owns the hex
+      model: 'users',
+    },
+    primary_account: {  // interconnected region that connects to the hex
+      model: 'accounts',
+    },
   },
 };
