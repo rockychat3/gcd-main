@@ -53,7 +53,7 @@ module.exports = {
     if (!accounts_object) throw new Error('account not found in database');
       
     // check if the requesting user is the account owner, and if not, if the requesting token is admin
-    if (accounts_object.user_id.id != parseInt(req.param('user_id'))) {
+    if (accounts_object.user.id != parseInt(req.param('user_id'))) {
       try { var token = await(Tokens.findOne({token: req.param('token')}).populate(['user'])); } 
       catch(err) { throw new Error('Admin token lookup problem. Check input data. ' + err); }
       if (token.user.usertype != "admin") throw new Error('This isn\'t your account, you don\'t have permission');
