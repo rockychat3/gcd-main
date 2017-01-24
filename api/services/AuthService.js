@@ -5,6 +5,7 @@ module.exports = {
 
   // When authentication is needed, verify user permission and return default status object
   // required inputs: request object, permission string ("admin" for admin users, or a microservice name such as "players"),
+  // returns the user's id (for admin, returns -1)
   authenticate_async: function (req, permission_required) {
     if (!req.param('token')) throw new Error('Missing token');
     
@@ -20,17 +21,9 @@ module.exports = {
     // check if admin is required
     if (permission_required == "admin") {
       if (token.user.usertype != "admin") throw new Error('Only admins can use this function');
-      else return;  // if authorized, allow the requesting action to proceed
+      else return -1;  // if authorized, allow the requesting action to proceed
     }
-      
-    if (!req.param('user_id')) throw new Error('Missing user_id');  // for non-admin, check if user_id is present
-      
-    // first check if the requesting user is the token owner
-    if (token.user.id != parseInt(req.param('user_id'))) {
-      // if not, check if the token's owner is an admin
-      if (token.user.usertype != "admin") throw new Error('This user does not have permission with this token');
-    }
-      
+
     // next, check if the token is a supertoken
     if (!token.supertoken) {
       // if not, check if it is the right permission type
@@ -38,28 +31,39 @@ module.exports = {
       if (token.permission.name != permission_required) throw new Error('Wrong permission type for this token');
     }
       
-    return;  // if authorized, allow the requesting action to proceed
+    return token.user.id;  // if authorized, allow the requesting action to proceed
   },
   
   
   // verifies that the account is yours
-  account_authenticate_async: function (req) {
-    if (!req.param('user_id')) throw new Error('Missing user_id');
+  account_authenticate_async: function (req, user_id) {
     if (!req.param('account_id')) throw new Error('Missing account_id');
     
     // lookup account in db
-    try { var accounts_object = await(Accounts.findOne(req.param('account_id')).populate('user')); }
+    try { var accounts_object = await(Accounts.findOne(req.param('account_id'))); }
     catch(err) { throw new Error('Account lookup problem. Check input data. ' + err); }
     if (!accounts_object) throw new Error('account not found in database');
       
     // check if the requesting user is the account owner, and if not, if the requesting token is admin
-    if (accounts_object.user.id != parseInt(req.param('user_id'))) {
-      try { var token = await(Tokens.findOne({token: req.param('token')}).populate(['user'])); } 
-      catch(err) { throw new Error('Admin token lookup problem. Check input data. ' + err); }
-      if (token.user.usertype != "admin") throw new Error('This isn\'t your account, you don\'t have permission');
-    }
-    
+    if ((accounts_object.user != user_id) && (user_id != -1)) throw new Error('This isn\'t your account, you don\'t have permission');
+
     return;  // if authorized, allow the requesting action to proceed
+  },
+  
+  
+  // verifies that the hex is yours
+  hex_authenticate_async: function (req, user_id) {
+    if (!req.param('hex_name')) throw new Error('Missing hex_name');
+    
+    // lookup account in db
+    try { var hex_object = await(Hexes.findOne(req.param('hex_name'))); }
+    catch(err) { throw new Error('Hex lookup problem. Check input data. ' + err); }
+    if (!hex_object) throw new Error('hex not found in database');
+      
+    // check if the requesting user is the account owner, and if not, if the requesting token is admin
+    if ((hex_object.owner != user_id) && (user_id != -1)) throw new Error('This isn\'t your account, you don\'t have permission');
+
+    return hex_object;  // if authorized, allow the requesting action to proceed
   },
   
   

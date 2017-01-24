@@ -6,17 +6,20 @@ module.exports = {
 
   //  /finances/create_account/
   //  allows players to create their own accounts
-  //    required auth: user_id, token
+  //    required auth: token
   //    required inputs: account_name
+  //    optional inputs: user_id
   //    response: account object
   create_account: asyncHandler(function (req, res) {
-    try { await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
+    try { var user_id = await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
     
+    // in case an admin wants to lookup another user
+    if (user_id<0) user_id = req.param('user_id');
+    
     // check for all required user input
-    if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');
     if (!req.param('account_name')) return RespService.e(res, 'Missing account_name');
-      
+    
     // creates object "new_account" with the provided account name and user id
     var new_account = {account_name: req.param('account_name'), user: req.param('user_id')};
       
@@ -30,13 +33,13 @@ module.exports = {
   
   //  /finances/update_account/
   //  allows players to update the name of their account
-  //    required auth: user_id, token
+  //    required auth: token
   //    required input: account_id (to be updated), new_name (for the account)
   //    response: account object
   update_account: asyncHandler(function (req, res) {
-    try { await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
+    try { var user_id = await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
-    try { await(AuthService.account_authenticate_async(req)); }  // verify that the user is the account owner (or admin)
+    try { await(AuthService.account_authenticate_async(req, user_id)); }  // verify that the user is the account owner (or admin)
     catch(err) { return RespService.e(res, "Account authentication error:" + err); };
     
     // check for all required user input
@@ -67,14 +70,17 @@ module.exports = {
   
   //  /finances/check_balances/
   //  shows all of owned balances
-  //    required auth: user_id, token
-  //    no required input
+  //    required auth: token
+  //    optional inputs: user_id
   //    response: account object with amounts
   check_balances: asyncHandler(function (req, res) {
-    try { await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
+    try { var user_id = await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
-
-    try { var accounts_object = await(Accounts.find({user: req.param('user_id')})); }
+    
+    // in case an admin wants to lookup another user
+    if (user_id<0) user_id = req.param('user_id');
+    
+    try { var accounts_object = await(Accounts.find({user: user_id})); }
     catch(err) { return RespService.e(res, 'Database fail: ' + err); }
     
     return RespService.s(res, accounts_object);  // respond success with user data
@@ -83,13 +89,13 @@ module.exports = {
 
   //  /finances/reverse_transaction/
   //  undoes a previous transaction (may ONLY be called by the recipient of the previous transaction)
-  //    required auth: user_id, token
+  //    required auth: token
   //    required input: account_id, transaction_id
   //    response: account and transactions object
   reverse_transaction: asyncHandler(function (req, res) {
-    try { await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
+    try { var user_id = await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
-    try { await(AuthService.account_authenticate_async(req)); }  // verify that the user is the account owner (or admin)
+    try { await(AuthService.account_authenticate_async(req, user_id)); }  // verify that the user is the account owner (or admin)
     catch(err) { return RespService.e(res, "Account authentication error:" + err); };
     
     if (!req.param('transaction_id')) return RespService.e(res, 'Missing transaction id');
@@ -109,13 +115,13 @@ module.exports = {
   
   //  /finances/send_money/
   //  send money to another account
-  //    required auth: user_id, token
+  //    required auth: token
   //    required input: account_id, recipient_id, amount, notes
   //    response: account and transactions object
   send_money: asyncHandler( function (req, res) {
-    try { await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
+    try { var user_id = await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
-    try { await(AuthService.account_authenticate_async(req)); }  // verify that the user is the account owner (or admin)
+    try { await(AuthService.account_authenticate_async(req, user_id)); }  // verify that the user is the account owner (or admin)
     catch(err) { return RespService.e(res, "Account authentication error:" + err); };
     
     // check for all required user input (that isn't verified by AuthService)
@@ -134,13 +140,13 @@ module.exports = {
   
   //  /finances/view_transactions/
   //  view transactions that happened
-  //    required auth: user_id, token
+  //    required auth: token
   //    required input: account_id
   //    response: transactions list from account holder
   view_transactions: asyncHandler( function (req, res) {
-    try { await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
+    try { var user_id = await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
-    try { await(AuthService.account_authenticate_async(req)); }  // verify that the user is the account owner (or admin)
+    try { await(AuthService.account_authenticate_async(req, user_id)); }  // verify that the user is the account owner (or admin)
     catch(err) { return RespService.e(res, "Account authentication error:" + err); };
     
     // right now if both are set to return then the game server crashes

@@ -10,7 +10,7 @@ module.exports = {
   //    required inputs: hex_name
   //    response: confirmation of purchase
   buy_new_hex: asyncHandler(function (req, res) {
-    try { await(AuthService.authenticate_async(req, "board")); }  // verify permission to use finances app
+    try { var user_id = await(AuthService.authenticate_async(req, "board")); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
     
     // check for all required user input
@@ -23,11 +23,12 @@ module.exports = {
     if (hex_object.owner) return RespService.e(res, 'Hex is already owned -- the owner must use sell_hex to transfer');
     
     // set new owner and update db
-    try { var updated = await(Hexes.update(req.param('hex_name'), {owner: req.param('user_id')})); }
+    try { var updated = await(Hexes.update(req.param('hex_name'), {owner: user_id})); }
     catch(err) { return RespService.e(res, 'Database fail: ' + err); }
     
     return RespService.s(res, updated);  // respond success with account data
   }),
+  
   
   //  /board/sell_hex/
   //  allows players to sell land to another player (does NOT handle the money transfer)
@@ -35,20 +36,14 @@ module.exports = {
   //    required inputs: hex_name, recipient_id
   //    response: confirmation of purchase
   sell_hex: asyncHandler(function (req, res) {
-    try { await(AuthService.authenticate_async(req, "board")); }  // verify permission to use finances app
+    try { var user_id = await(AuthService.authenticate_async(req, "board")); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
+    try { await(AuthService.hex_authenticate_async(req, user_id)); }  // verify that the user is the hex owner (or admin)
+    catch(err) { throw new Error('Hex authentication error:' + err); };
     
     // check for all required user input
-    if (!req.param('hex_name')) return RespService.e(res, 'Missing ');
     if (!req.param('recipient_id')) return RespService.e(res, 'Missing recipient_id');
-    
-    // lookup the hex and check for ownership
-    try { var hex_object = await(Hexes.findOne(req.param('hex_name'))); }
-    catch(err) { return RespService.e(res, 'Hex lookup error: ' + err); }
-    if (!hex_object) return RespService.e(res, 'Hex not found');
-    if (!hex_object.owner) return RespService.e(res, 'Hex is unowned -- use buy_new_hex to transfer');
-    if (hex_object.owner != req.param('user_id')) return RespService.e(res, 'Hex is not yours');
-    
+
     // lookup the new user
     try { var recipient_object = await(Users.findOne(req.param('recipient_id'))); }
     catch(err) { return RespService.e(res, 'User lookup error: ' + err); }
@@ -58,20 +53,20 @@ module.exports = {
     try { var updated = await(Hexes.update(req.param('hex_name'), {owner: req.param('recipient_id')})); }
     catch(err) { return RespService.e(res, 'Database fail: ' + err); }
     
-    return RespService.s(res, updated);  // respond success with account data
+    return RespService.s(res, updated);  // respond success with hex data
   }),
+  
   
   //  /board/lookup_hex/
   //  checks the region, owner, town, and use of a given tile
   //    required auth: none
   //    required inputs: hex_name
-  //    response: confirmation of purchase
+  //    response: hex object
   lookup_hex: asyncHandler(function(req, res) {
       
       // check for all required user input
     if (!req.param('hex_name')) return RespService.e(res, 'Missing hex_name');
-    if (!req.param('recipient_id')) return RespService.e(res, 'Missing recipient_id');
-    
+
     try { var hex_object = await(Hexes.findOne(req.param('hex_name'))); }
     catch(err) { return RespService.e(res, 'Hex lookup error: ' + err); }
     if (!hex_object) return RespService.e(res, 'Hex not found');

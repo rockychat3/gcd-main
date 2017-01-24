@@ -52,6 +52,8 @@ module.exports = {
   update_user: function (req, res) {
     AuthService.authenticate(req, res, "players", function (req, res) { 
 
+      if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');
+      
       // creates array "to_update" and adds name, email, and password variables if they're provided in the API call
       var to_update = {};
       if (req.param('name')) to_update.name = req.param('name');
