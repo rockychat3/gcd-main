@@ -31,13 +31,13 @@ module.exports = {
   
   //  /markets/buy_product
   //  allows a player to buy a product from the open market
-  //    required auth: user_id, token
+  //    required auth: token
   //    required input: account_id, product_id, quantity
   //    response: transaction object
   buy_product: asyncHandler(function (req, res) {
-    try { await(AuthService.authenticate_async(req, "markets")); }  // verify permission to use finances app
+    try { var user_id = await(AuthService.authenticate_async(req, "markets")); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
-    try { await(AuthService.account_authenticate_async(req)); }  // verify that the user is the account owner (or admin)
+    try { await(AuthService.account_authenticate_async(req, user_id)); }  // verify that the user is the account owner (or admin)
     catch(err) { return RespService.e(res, "Account authentication error:" + err); };
     
     // check for all required user input
@@ -63,13 +63,13 @@ module.exports = {
   
   //  /markets/sell_product
   //  allows a player to sell a product to the open market
-  //    required auth: user_id, token
+  //    required auth: token
   //    required input: account_id, product_id, quantity
   //    response: transaction object
   sell_product: asyncHandler(function (req, res) {
-    try { await(AuthService.authenticate_async(req, "markets")); }  // verify permission to use finances app
+    try { var user_id = await(AuthService.authenticate_async(req, "markets")); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
-    try { await(AuthService.account_authenticate_async(req)); }  // verify that the user is the account owner (or admin)
+    try { await(AuthService.account_authenticate_async(req, user_id)); }  // verify that the user is the account owner (or admin)
     catch(err) { return RespService.e(res, "Account authentication error:" + err); };
 
     // check for all required user input
@@ -100,7 +100,7 @@ module.exports = {
   //  /market/add_product/
   //  adds product to market
   //    token auth required (admin token)
-  //    requires user_id and account_id
+  //    requires account_id
   //    requires product_id and item_name
   //    response: item is added to market
   add_product: asyncHandler(function (req, res) {
