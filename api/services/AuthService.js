@@ -30,8 +30,12 @@ module.exports = {
       if (!token.permission) throw new Error('Something is really broken');
       if (token.permission.name != permission_required) throw new Error('Wrong permission type for this token');
     }
-      
-    return token.user.id;  // if authorized, allow the requesting action to proceed
+    
+    // admin user_id overwrite
+    var user_id = token.user.id;
+    if ((req.param('admin'))&&(token.user.usertype == "admin")) user_id = -1;
+    
+    return user_id;  // if authorized, allow the requesting action to proceed
   },
   
   
@@ -44,6 +48,7 @@ module.exports = {
     catch(err) { throw new Error('Account lookup problem. Check input data. ' + err); }
     if (!accounts_object) throw new Error('account not found in database');
       
+    console.log(user_id);
     // check if the requesting user is the account owner, and if not, if the requesting token is admin
     if ((accounts_object.user != user_id) && (user_id != -1)) throw new Error('This isn\'t your account, you don\'t have permission');
 
