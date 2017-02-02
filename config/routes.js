@@ -37,13 +37,15 @@ module.exports.routes = {
   'GET /markets/list_product': 'MarketsController.list_product',
   'GET /markets/buy_product': 'MarketsController.buy_product',
   'GET /markets/sell_product': 'MarketsController.sell_product',
+  
   // Admin
   'GET /markets/add_product': 'MarketsController.add_product',
   'GET /markets/remove_product': 'MarketsController.remove_product',
   'GET /markets/update_product': 'MarketsController.update_product',
   
   // Board Microapp
-  'GET /board/buy_new_hex': 'BoardController.buy_new_hex',
+  'GET /board/buy_hex': 'BoardController.buy_hex',
   'GET /board/sell_hex': 'BoardController.sell_hex',
+  'GET /board/lookup_hex': 'BoardController.lookup_hex',
   
 };

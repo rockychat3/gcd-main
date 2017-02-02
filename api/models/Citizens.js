@@ -5,7 +5,7 @@ module.exports = {
       notNull: true,
     },
     employer: {  // where the person works
-      model: 'hexes',
+      model: 'employers',
     },
     excess_income: {
       type: 'integer',

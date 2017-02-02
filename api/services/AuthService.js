@@ -28,7 +28,7 @@ module.exports = {
     if (!token.supertoken) {
       // if not, check if it is the right permission type
       if (!token.permission) throw new Error('Something is really broken');
-      if (token.permission.name != permission_required) throw new Error('Wrong permission type for this token');
+      if (token.permission.name != permission_required) throw new Error('This token\'s powerlevel isn\'t high enough');
     }
     
     // admin user_id overwrite

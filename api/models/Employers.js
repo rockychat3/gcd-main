@@ -23,5 +23,9 @@ module.exports = {
       type: 'integer',
       defaultsTo: 0,
     },
+    workers: {  // this automatically creates a has-many join with the tokens model
+      collection: 'citizens',
+      via: 'employer',
+    },
   }
 };

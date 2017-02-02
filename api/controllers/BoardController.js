@@ -4,12 +4,12 @@ var asyncHandler = require('async-handler')(async, await);
 
 module.exports = {
 
-  //  /board/buy_new_hex/
+  //  /board/buy_hex/
   //  allows players to buy land from a town government (does NOT handle the money transfer)
   //    required auth: user_id, token
   //    required inputs: hex_name
   //    response: confirmation of purchase
-  buy_new_hex: asyncHandler(function (req, res) {
+  buy_hex: asyncHandler(function (req, res) {
     try { var user_id = await(AuthService.authenticate_async(req, "board")); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
     
@@ -63,7 +63,6 @@ module.exports = {
   //    required inputs: hex_name
   //    response: hex object
   lookup_hex: asyncHandler(function(req, res) {
-      
       // check for all required user input
     if (!req.param('hex_name')) return RespService.e(res, 'Missing hex_name');
 
@@ -72,7 +71,31 @@ module.exports = {
     if (!hex_object) return RespService.e(res, 'Hex not found');
       
     return RespService.s(res, hex_object);
-  })
+  }),
+  
+  //  /board/set_residency/
+  //  lets a player change the hex that their rasperry pi is on
+  //    required auth: user_id, token
+  //    required inputs: hex_name
+  //    response: hex object
+  set_residency: asyncHandler(function(req, res) {
+    //check if hex is owned
+    try { var hex_object = await(Hexes.findOne(req.param('hex_name'))); } 
+    catch(err) { return RespService.e(res, 'hex lookup error: ' + err); }  
+    
+    if (hex_object.owner != req.param("user_id")) {
+       return RespService.e(res, 'whomst\'d\'ve do you think thou\st art?');
+     }
+  }),
+        
+  
+  
+  set_region: asyncHandler(function(req,res){
+    try { var user_id = await(AuthService.authenticate_async(req, "board")); }
+  }),
+  
+  
+  
   
 }  // controller end
 
