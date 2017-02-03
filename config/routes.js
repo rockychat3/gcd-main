@@ -47,5 +47,5 @@ module.exports.routes = {
   'GET /board/buy_hex': 'BoardController.buy_hex',
   'GET /board/sell_hex': 'BoardController.sell_hex',
   'GET /board/lookup_hex': 'BoardController.lookup_hex',
-  
+  'GET /board/set_residency': 'BoardCon'
 };

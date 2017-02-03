@@ -66,7 +66,7 @@ module.exports = {
     if (!hex_object) throw new Error('hex not found in database');
       
     // check if the requesting user is the account owner, and if not, if the requesting token is admin
-    if ((hex_object.owner != user_id) && (user_id != -1)) throw new Error('This isn\'t your account, you don\'t have permission');
+    if ((hex_object.owner != user_id) && (user_id != -1)) throw new Error('This isn\'t your hex, you don\'t have permission');
 
     return hex_object;  // if authorized, allow the requesting action to proceed
   },

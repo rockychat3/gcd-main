@@ -159,7 +159,7 @@ module.exports = {
       });
     });
   },
-  
+
   // temporary API function to create the initial admin account
   /*first: function (req, res) {
     var new_user = { name: 'Superadmin', email: 'game@admin.com', password: req.param('password'), usertype: 'admin' };

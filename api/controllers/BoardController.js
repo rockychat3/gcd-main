@@ -39,7 +39,7 @@ module.exports = {
     try { var user_id = await(AuthService.authenticate_async(req, "board")); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
     try { await(AuthService.hex_authenticate_async(req, user_id)); }  // verify that the user is the hex owner (or admin)
-    catch(err) { throw new Error('Hex authentication error:' + err); };
+    catch(err) { return RespService.e('Hex authentication error:' + err); };
     
     // check for all required user input
     if (!req.param('recipient_id')) return RespService.e(res, 'Missing recipient_id');
@@ -83,18 +83,51 @@ module.exports = {
     try { var hex_object = await(Hexes.findOne(req.param('hex_name'))); } 
     catch(err) { return RespService.e(res, 'hex lookup error: ' + err); }  
     
-    if (hex_object.owner != req.param("user_id")) {
-       return RespService.e(res, 'whomst\'d\'ve do you think thou\st art?');
-     }
+    try { await(AuthService.hex_authenticate_async(req, user_id)); }  // verify that the user is the hex owner (or admin)
+    catch(err) { return RespService.e('whomst\'d\'ve do you think thou\'st art?:' + err); }
+    
+    var to_update = {};
+    if (req.param('hex_name')) to_update.name = req.param('hex_name');
+    
+    Hexes.update(req.param('hex_name'), to_update).exec(function afterwards(err, updated){
+      if (err) return RespService.e(res, 'Database fail: ' + err);
+      return RespService.s(res, updated);  // respond success with user data
+    })
   }),
         
   
   
-  set_region: asyncHandler(function(req,res){
-    try { var user_id = await(AuthService.authenticate_async(req, "board")); }
+  set_region: asyncHandler(function(req,res) {
+    try { var user_object = await(AuthService.authenticate_async(req, "admin")); }
+    catch (err) { return RespService.e(res, 'Sorry ol chap but ya power level isnt high enough') }
+    
   }),
   
+  merge_regions: asyncHandler(function(req,res) {
+    try { var user_object = await(AuthService.authenticate_async(req, "admin")); }
+    catch (err) { return RespService.e(res, 'Sorry ol chap but ya power level isnt high enough') }
+    
+    var to_update = {};
+    if (req.param('new_region')) to_update.region = req.param('old_region');
+    
+    Hexes.update(req.param('old_region'), to_update).exec(function afterwards(err, updated){
+      if (err) return RespService.e(res, 'Database fail: ' + err);
+      return RespService.s(res, updated);// respond success with user data
+    })
+    
+    
+    }),
   
+  set_residency: asyncHandler(function(req, res) {
+    
+  }),
+  
+  set_town: asyncHandler(function(req,res) {
+     try { var user_object = await(AuthService.authenticate_async(req, "admin")) }
+     catch (err) { return RespService.e(res, 'Sorry ol chap but ya power level isnt high enough')}
+  }),
+  
+ 
   
   
 }  // controller end
