@@ -2,6 +2,7 @@ module.exports = {
   attributes: {
     home: {  // where the person lives
       model: 'homes',
+      defaultsTo: 0,
       notNull: true,
     },
     employer: {  // where the person works

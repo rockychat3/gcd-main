@@ -83,7 +83,7 @@ module.exports = {
     // formally removes a person from a home
     function remove_citizen_from_home(citizen_id) {
       homes_dict[citizens_dict[citizen_id].home].res_count -= 1;  // reduce residents in housing unit
-      citizens_dict[citizen_id].home = null;  // remove citizen reference to home
+      citizens_dict[citizen_id].home = 0;  // remove citizen reference to home (make homeless)
     }
     
     // helper function to check if a single home meets qualifications for renting
@@ -112,23 +112,30 @@ module.exports = {
     }
     
     // search for a job in a given region
-    function job_search(region, min_wage) {  // set prior wage to 0 when searching from unemployed or prior wage + 50 for improved job
-      var best = { wage: min_wage, employer_id: false };  // begin w/ wage to beat and no best job
-      for (var position of open_positions_by_region[region] ) {  // start searching upgraded homes in the citizen's work region
-        if (position.wage > best.wage) best.employer_id = position.employer;
+    function job_search(min_wage) {  // set prior wage to 0 when searching from unemployed or prior wage + 50 for improved job, make region=false if searching all
+      var best = { wage: min_wage, employer_id: false, home_id: false };  // begin w/ wage to beat and no best job
+      for (var position of open_positions ) {  // iterate through each position available in that region
+        if (position.wage > best.wage) {
+          var temp_home = home_search(position.region, position.wage);  // check that housing is available
+          if (temp_home) {  // if a job exists and affordable housing exists in that region, make this the "best job"
+            best.employer_id = position.employer;  // save the employer as best
+            best.wage = position.wage;  // and the new wage to beat
+            best.home_id = temp_home;  // and the best home they could live in
+          }
+        }
       }
-      return best.employer_id;  // return either an employer_id or a 
+      return best;  // return all details of the best employer option
     }
     
-    function add_citizen_to_job(citizen_id, position) {
-      employers_dict[position.employer].worker_count += 1;  // increase the worker_count by 1 after hiring
-      citizens_dict[citizen_id].employer = position.employer;  // add employer reference to citizen
+    function add_citizen_to_job(citizen_id, employer_id) {
+      employers_dict[employer_id].worker_count += 1;  // increase the worker_count by 1 after hiring
+      citizens_dict[citizen_id].employer = employer_id;  // add employer reference to citizen
       unemployed_citizens_list.splice(unemployed_citizens_list.indexOf(citizen_id), 1);  // remove the citizen_id from unemployed_citizens_list
       // remove the position from available
-      for (var i=0; i<open_positions_by_region[position.region].length; i++) {  // loop thru all until found, then remove and exit
-        if (open_positions_by_region[position.region][i].employer == position.employer) {
-          open_positions_by_region[position.region].splice(i, 1);  // remove the position from open_positions_by_region
-          break;
+      for (var i=0; i<open_positions.length; i++) {  // loop thru all until found, then remove and exit
+        if (open_positions[i].employer == employer_id) {
+          open_positions.splice(i, 1);  // remove the position from open_positions
+          return;  // stop after first find (there may be multiple positions of one employer...don't want to remove all)
         }
       }
     }
@@ -168,15 +175,12 @@ module.exports = {
       if (!(citizen.employer)) unemployed_citizens_list.push(citizen.id);  // if no employer, add to unemployed list
     } 
     
-    // lookup all employers, index them by region, and check to see if there were any positions cut
+    // lookup all employers and check to see if there were any positions cut
     try { var unprocessed_employers_list = await(Employers.find({}).populate('workers','hex')); }
     catch(err) { return RespService.e(res, "Employer search db fail: " + err); }
     var employers_dict = {};  // function-wide variable w/ employers indexed as obj[id]
-    var employer_ids_by_region = {};  // function-wide variable w/ employer_ids listed by region
     for (var employer of unprocessed_employers_list) {
       employers_dict[employer.id] = employer;  // add employer to the organized dictionary
-      if (!employer_ids_by_region[employer.hex.region]) employer_ids_by_region[employer.hex.region] = [];  // create array in object per region
-      employer_ids_by_region[employer.hex.region].push(employer.id);  // add ids to array by region for easy lookup later
     }
     
     // scan all employers for extra employees to be cut
@@ -192,7 +196,7 @@ module.exports = {
     
     // go through each employed person to verify that they can still afford housing (and quit job if not)
     for (var citizen_id in citizens_dict) {
-      var wage = citizens_dict[citizen_id].employer.wage;  // store wage locally for convenience
+      var wage = employers_dict[citizens_dict[citizen_id].employer].wage;  // store wage locally for convenience
       if ((wage / 2) < (citizens_dict[citizen_id].home.rent)) {  // check if half wage is enough to cover updated rent
         remove_citizen_from_home(citizen_id);  // abandon home
         var best_home_id = home_search(employers_dict[citizens_dict[citizen_id].employer.id].hex.region, wage);  // search for new home in region
@@ -201,51 +205,87 @@ module.exports = {
       }
     }
     
-    // create list of open positions across the map
-    var open_positions_by_region = {};
-    for (var region in employer_ids_by_region) {
-      for (var employer_id of employer_ids_by_region[region])
+    // create list of open positions
+    var open_positions = [];
+    for (var employer_id in employers_dict) {
       if (employers_dict[employer_id].worker_count < employers_dict[employer_id].positions) {  // check if there are too few workers given new position numbers
-        var position = { employer: employer_id, wage: employers_dict[employer_id].wage, region: region };  // add essentials to a position object
+        var position = { employer: employer_id, wage: employers_dict[employer_id].wage, region: employers_dict[employer_id].hex.region };  // add essentials to a position object
         for (var i=0; i<(employers_dict[employer_id].positions - employers_dict[employer_id].worker_count); i++) {  // for every open position...
-          open_positions_by_region[region].push(position);  // add object to the function-wide positions variable by region
+          open_positions.push(position);  // add object to the function-wide positions variable by region
         }
       }
     }
     
     // cycle through employed citizens for opportunity to upgrade to a better paying job if pay > +50 AND housing available
-    var f_changed = true;
+    var f_changed = true;  // flag if something changes to so it makes one more loop
     while (f_changed) {
+      f_changed = false;
       for (var citizen_id in citizens_dict) {
         if (citizens_dict[citizen_id].employer) {  // if employed, look for better job
-          
+          var best_employer = job_search(citizen_id);
+          if (best_employer.employer_id) {
+            add_citizen_to_job(citizen_id, best_employer.employer_id);  // take the job
+            add_citizen_to_home(citizen_id, best_employer.home_id);  // take the housing
+            f_changed = true;  // indicate that a positional change occurred (prompting another loop of job changes)
+          }
         }
       }
     }
-    // repeat until nobody changes jobs for a full cycle
-    // on job change call helper func to quit job (open position) and other to add job
-        // job_search(citizen_dict, region) per region
-        // if_success in a region check housing
-        // keep highest salary w/ housing available
-        // stay unemployed if nothing
-    
+
     // cycle once through unemployed citizens to find jobs
-    // call helper func to add job
+    for (var citizen_id of unemployed_citizens_list) {
+      var best_employer = job_search(citizen_id);
+      if (best_employer.employer_id) {
+        add_citizen_to_job(citizen_id, best_employer.employer_id);  // take the job
+        add_citizen_to_home(citizen_id, best_employer.home_id);  // take the housing
+      }
+    }
     
     // fill open positions with out-of-town people if criteria met
-    // call helper func to create a citizen and then helper to add job
+    for (var position of open_positions) {  // loop through each position once
+      if (position.wage >= 300) {  // check for minimum wage of hiring out of town
+        var best_home_id = home_search(position.region, position.wage);  // check for affordable housing
+        if (best_home_id) {  // if housing, create the citizen, take the job, take the housing
+          try { var citizen = await(Citizens.create({})); }  // create a new citizen in database
+          catch(err) { return RespService.e(res, "Citizen creation error: " + err); }
+          citizens_dict[citizen.id] = citizen;
+          add_citizen_to_job(citizen.id, position.employer);  // take the job
+          add_citizen_to_home(citizen.id, best_home_id);  // take the housing
+        }
+      }
+    }
+    
+    // update the employers, citizens, and homes databases with all of this info
+    for (var employer_id in employers_dict) {
+      try { await(Employers.update(employer_id, { worker_count: employers_dict[employer_id].worker_count })); }  // only worker_count changed
+      catch(err) { return RespService.e(res, "Employee qty update db fail at id " + employer_id + ": " + err); }
+    }
+    for (var citizen_id in citizens_dict) {
+      try { await(Citizens.update(citizen_id, { employer: citizens_dict[citizen_id].employer, home: citizens_dict[citizen_id].home })); }  // only home/employer changed
+      catch(err) { return RespService.e(res, "Citizen update db fail at id " + citizen_id + ": " + err); }
+    }
+    for (var home_id in homes_dict) {
+      try { await(Homes.update(home_id, { res_count: homes_dict[home_id].res_count })); }  // only res_count changed
+      catch(err) { return RespService.e(res, "Homes update db fail at id " + home_id + ": " + err); }
+    }
     
     // bill employers for all filled jobs
-    
-    
-    
-    try { await(Employers.update({}, {worker_count: 0})); }
-    catch(err) { throw new Error('Employee qty update db fail: ' + err); }
-    
-    
+    for (var employer_id in employers_dict) {
+      var emp = employers_dict[employer_id];  // convenience
+      var salary = emp.worker_count * emp.wage;
+      var notes = "Salary paid $" + emp.wage + "/week for " + emp.worker_count + " employees at " + emp.business_type + " at " + emp.hex;
+      try { await(internal_money_transfer(emp.account, 0, salary, notes)); }
+      catch(err) { return RespService.e(res, "Payment failed from employer_id " + employer_id + ": " + err); }
+    }
     
     // pay housing providers for all filled spots
-    
+    for (var home_id in homes_dict) {
+      var home = homes_dict[home_id];  // convenience
+      var income = home.res_count * home.rent;
+      var notes = "Rent earned $" + home.rent + "/person/week for " + home.res_count + " of " + home.capacity + " possible renters at " + home.hex;
+      try { await(internal_money_transfer(0, home.account, income, notes)); }
+      catch(err) { return RespService.e(res, "Rent income failed from home_id " + home_id + ": " + err); }
+    }
     
     // return full report of what just happened to admin console to be emailed to class
     

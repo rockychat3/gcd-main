@@ -100,7 +100,6 @@ module.exports = {
   //  /market/add_product/
   //  adds product to market
   //    token auth required (admin token)
-  //    requires account_id
   //    requires product_id and item_name
   //    response: item is added to market
   add_product: asyncHandler(function (req, res) {

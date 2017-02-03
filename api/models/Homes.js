@@ -17,5 +17,25 @@ module.exports = {
       type: 'integer',
       defaultsTo: 0,
     },
+    account: {
+      model: 'accounts',
+      notNull: true,
+    },
+    rent: {
+      type: 'integer',
+      defaultsTo: 1,
+      notNull: true,
+      positive: true,
+    },
+    upgraded: {
+      type: 'boolean',
+      defaultsTo: false,
+    }
+  },
+  
+  types: {
+    positive: function(value) {
+      return (value > 0);
+    }
   }
 };

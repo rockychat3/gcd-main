@@ -18,6 +18,7 @@ module.exports = {
       type: 'integer',
       defaultsTo: 0,
       notNull: true,
+      positive: true,
     },
     worker_count: {  // number of workers currently at this job
       type: 'integer',
@@ -27,5 +28,15 @@ module.exports = {
       collection: 'citizens',
       via: 'employer',
     },
+    account: {
+      model: 'accounts',
+      notNull: true,
+    }
+  },
+  
+  types: {
+    positive: function(value) {
+      return (value > 0);
+    }
   }
 };
