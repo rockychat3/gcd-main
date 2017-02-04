@@ -48,4 +48,8 @@ module.exports.routes = {
   'GET /board/sell_hex': 'BoardController.sell_hex',
   'GET /board/lookup_hex': 'BoardController.lookup_hex',
   
+  'GET /markets/update_product': 'MarketsController.update_product',
+  
+  
+  'GET /citizens/weekly_citizen_action_routine': 'CitizensController.weekly_citizen_action_routine',
 };

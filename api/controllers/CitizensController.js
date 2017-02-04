@@ -25,6 +25,7 @@ module.exports = {
   
   // check if there are enough funds to pay hired works (and auto-adjust if f_execute=true)
   internal_employer_funds_check: function(f_execute) {
+    
     // store all employers from db in local list
     try { var employers_list = await(Employers.find({})); }
     catch(err) { throw new Error('Employer search db fail: ' + err); }
@@ -39,15 +40,16 @@ module.exports = {
     }
     
     // loop through each employer
-    for (var employer in employers_list) {
+    for (var employer of employers_list) {
       // check if insufficient funds and adapt (only if this is the actual weekly routine)
       if (f_execute) {
         var f_positions_changed = false;
-        while (accounts_dict[employer.account] < employer.positions * employer.wage) {
+        while (accounts_dict[employer.account] < (employer.positions * employer.wage)) {
           employer.positions -= 1;
           f_positions_changed = true;
         }
         if (f_positions_changed) {
+          
           try { await(Employers.update(employer.id, {positions: employer.positions})); }
           catch(err) { throw new Error('Employee qty update db fail: ' + err); }
         }
@@ -103,7 +105,7 @@ module.exports = {
       for (var home_id of home_ids_by_region_status[region]["upgraded"] ) {  // start searching upgraded homes in the citizen's work region
         best = check_single_home(best, home_id, wage);  // check for better price w/ helper and resave "best"
       }
-      if (best_home_id) return best_home_id;  // if an upgraded home meets the qualifications, take it
+      if (best.home_id) return best.home_id;  // if an upgraded home meets the qualifications, take it
         
       for (var home_id of home_ids_by_region_status[region]["regular"] ) {
         best = check_single_home(best, home_id, wage);
@@ -114,9 +116,10 @@ module.exports = {
     // search for a job in a given region
     function job_search(min_wage) {  // set prior wage to 0 when searching from unemployed or prior wage + 50 for improved job, make region=false if searching all
       var best = { wage: min_wage, employer_id: false, home_id: false };  // begin w/ wage to beat and no best job
-      for (var position of open_positions ) {  // iterate through each position available in that region
+      for (var position of open_positions ) {  // iterate through each position available
         if (position.wage > best.wage) {
           var temp_home = home_search(position.region, position.wage);  // check that housing is available
+          //console.log(position, best, temp_home);
           if (temp_home) {  // if a job exists and affordable housing exists in that region, make this the "best job"
             best.employer_id = position.employer;  // save the employer as best
             best.wage = position.wage;  // and the new wage to beat
@@ -127,15 +130,17 @@ module.exports = {
       return best;  // return all details of the best employer option
     }
     
-    function add_citizen_to_job(citizen_id, employer_id) {
+    function add_citizen_to_job(citizen_id, employer_id, f_remove_open) {
       employers_dict[employer_id].worker_count += 1;  // increase the worker_count by 1 after hiring
       citizens_dict[citizen_id].employer = employer_id;  // add employer reference to citizen
       unemployed_citizens_list.splice(unemployed_citizens_list.indexOf(citizen_id), 1);  // remove the citizen_id from unemployed_citizens_list
       // remove the position from available
-      for (var i=0; i<open_positions.length; i++) {  // loop thru all until found, then remove and exit
-        if (open_positions[i].employer == employer_id) {
-          open_positions.splice(i, 1);  // remove the position from open_positions
-          return;  // stop after first find (there may be multiple positions of one employer...don't want to remove all)
+      if (f_remove_open) {  // a flag to make sure we don't delete elements from the array while it is looped through at the end or you skip half the positions
+        for (var i=0; i<open_positions.length; i++) {  // loop thru all until found, then remove and exit
+          if (open_positions[i].employer == employer_id) {
+            open_positions.splice(i, 1);  // remove the position from open_positions
+            return;  // stop after first find (there may be multiple positions of one employer...don't want to remove all)
+          }
         }
       }
     }
@@ -154,11 +159,12 @@ module.exports = {
     catch(err) { return RespService.e(res, "internal_employer_funds_check error:" + err); };
 
     // lookup all homes
-    try { var homes_list_unprocessed = await(Homes.find({}).populate('hex')); }  // find all homes and include the location full data
+    try { var homes_list_unprocessed = await(Homes.find({}).populate(['hex','renters'])); }  // find all homes and include the location full data
     catch(err) { return RespService.e(res, "Homes list db fail: " + err); }
     var homes_dict = {};  // function-wide variable with all home info indexed as obj[id] = home
     var home_ids_by_region_status = {};  // function-wide variable with just the ids stored in lists indexed by obj[region][upgraded/not]
     for (var home of homes_list_unprocessed) {
+      home['res_count'] = home.renters.length;
       homes_dict[home.id] = home;
       if (!home_ids_by_region_status[home.hex.region]) home_ids_by_region_status[home.hex.region] = { upgraded: [], regular: [] };  // create arrays for two statuses within each region in object if needed
       var type = home.upgraded ? "upgraded" : "regular";  // set home type as a string for use in object indexing
@@ -176,10 +182,12 @@ module.exports = {
     } 
     
     // lookup all employers and check to see if there were any positions cut
-    try { var unprocessed_employers_list = await(Employers.find({}).populate('workers','hex')); }
+    try { var unprocessed_employers_list = await(Employers.find({}).populate(['workers','hex'])); }
     catch(err) { return RespService.e(res, "Employer search db fail: " + err); }
+    //console.log(unprocessed_employers_list);
     var employers_dict = {};  // function-wide variable w/ employers indexed as obj[id]
     for (var employer of unprocessed_employers_list) {
+      employer['worker_count'] = employer.workers.length;
       employers_dict[employer.id] = employer;  // add employer to the organized dictionary
     }
     
@@ -196,6 +204,7 @@ module.exports = {
     
     // go through each employed person to verify that they can still afford housing (and quit job if not)
     for (var citizen_id in citizens_dict) {
+      if (!citizens_dict[citizen_id].employer) continue;  // skip if a person is not already employed
       var wage = employers_dict[citizens_dict[citizen_id].employer].wage;  // store wage locally for convenience
       if ((wage / 2) < (citizens_dict[citizen_id].home.rent)) {  // check if half wage is enough to cover updated rent
         remove_citizen_from_home(citizen_id);  // abandon home
@@ -215,6 +224,7 @@ module.exports = {
         }
       }
     }
+    //console.log(open_positions);
     
     // cycle through employed citizens for opportunity to upgrade to a better paying job if pay > +50 AND housing available
     var f_changed = true;  // flag if something changes to so it makes one more loop
@@ -222,9 +232,10 @@ module.exports = {
       f_changed = false;
       for (var citizen_id in citizens_dict) {
         if (citizens_dict[citizen_id].employer) {  // if employed, look for better job
-          var best_employer = job_search(citizen_id);
+          var current_wage = employers_dict[citizens_dict[citizen_id].employer].wage;
+          var best_employer = job_search(current_wage+50);
           if (best_employer.employer_id) {
-            add_citizen_to_job(citizen_id, best_employer.employer_id);  // take the job
+            add_citizen_to_job(citizen_id, best_employer.employer_id, true);  // take the job
             add_citizen_to_home(citizen_id, best_employer.home_id);  // take the housing
             f_changed = true;  // indicate that a positional change occurred (prompting another loop of job changes)
           }
@@ -234,9 +245,9 @@ module.exports = {
 
     // cycle once through unemployed citizens to find jobs
     for (var citizen_id of unemployed_citizens_list) {
-      var best_employer = job_search(citizen_id);
+      var best_employer = job_search(0);
       if (best_employer.employer_id) {
-        add_citizen_to_job(citizen_id, best_employer.employer_id);  // take the job
+        add_citizen_to_job(citizen_id, best_employer.employer_id, true);  // take the job
         add_citizen_to_home(citizen_id, best_employer.home_id);  // take the housing
       }
     }
@@ -249,32 +260,29 @@ module.exports = {
           try { var citizen = await(Citizens.create({})); }  // create a new citizen in database
           catch(err) { return RespService.e(res, "Citizen creation error: " + err); }
           citizens_dict[citizen.id] = citizen;
-          add_citizen_to_job(citizen.id, position.employer);  // take the job
+          add_citizen_to_job(citizen.id, position.employer, false);  // take the job
           add_citizen_to_home(citizen.id, best_home_id);  // take the housing
         }
       }
     }
-    
-    // update the employers, citizens, and homes databases with all of this info
-    for (var employer_id in employers_dict) {
-      try { await(Employers.update(employer_id, { worker_count: employers_dict[employer_id].worker_count })); }  // only worker_count changed
-      catch(err) { return RespService.e(res, "Employee qty update db fail at id " + employer_id + ": " + err); }
-    }
+
+    // update the citizens database with home/employer changes
     for (var citizen_id in citizens_dict) {
       try { await(Citizens.update(citizen_id, { employer: citizens_dict[citizen_id].employer, home: citizens_dict[citizen_id].home })); }  // only home/employer changed
       catch(err) { return RespService.e(res, "Citizen update db fail at id " + citizen_id + ": " + err); }
     }
-    for (var home_id in homes_dict) {
-      try { await(Homes.update(home_id, { res_count: homes_dict[home_id].res_count })); }  // only res_count changed
-      catch(err) { return RespService.e(res, "Homes update db fail at id " + home_id + ": " + err); }
-    }
+    
+    var log_notes = [];
     
     // bill employers for all filled jobs
     for (var employer_id in employers_dict) {
       var emp = employers_dict[employer_id];  // convenience
       var salary = emp.worker_count * emp.wage;
-      var notes = "Salary paid $" + emp.wage + "/week for " + emp.worker_count + " employees at " + emp.business_type + " at " + emp.hex;
-      try { await(internal_money_transfer(emp.account, 0, salary, notes)); }
+      if (!salary) continue;  // skip payment if there are no workers
+      var notes = "Salary paid $" + emp.wage + "/week for " + emp.worker_count + " employees at " + emp.business_type + " at " + emp.hex.name + " from account " + emp.account;
+      console.log(notes);
+      log_notes.push(notes);
+      try { await(sails.controllers.finances.internal_money_transfer(emp.account, 0, salary, notes)); }
       catch(err) { return RespService.e(res, "Payment failed from employer_id " + employer_id + ": " + err); }
     }
     
@@ -282,12 +290,15 @@ module.exports = {
     for (var home_id in homes_dict) {
       var home = homes_dict[home_id];  // convenience
       var income = home.res_count * home.rent;
-      var notes = "Rent earned $" + home.rent + "/person/week for " + home.res_count + " of " + home.capacity + " possible renters at " + home.hex;
-      try { await(internal_money_transfer(0, home.account, income, notes)); }
+      if (!income) continue;  // skip payment if there are no renters
+      var notes = "Rent earned $" + home.rent + "/person/week for " + home.res_count + " of " + home.capacity + " possible renters at " + home.hex.name + " to account " + home.account;
+      log_notes.push(notes);
+      try { await(sails.controllers.finances.internal_money_transfer(0, home.account, income, notes)); }
       catch(err) { return RespService.e(res, "Rent income failed from home_id " + home_id + ": " + err); }
     }
     
     // return full report of what just happened to admin console to be emailed to class
+    RespService.s(res, log_notes);
     
   }),
   

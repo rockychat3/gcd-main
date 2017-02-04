@@ -13,10 +13,10 @@ module.exports = {
       defaultsTo: 1,
       notNull: true,
     },
-    res_count: {
+    /*res_count: {
       type: 'integer',
       defaultsTo: 0,
-    },
+    },*/
     account: {
       model: 'accounts',
       notNull: true,
@@ -30,7 +30,11 @@ module.exports = {
     upgraded: {
       type: 'boolean',
       defaultsTo: false,
-    }
+    },
+    renters: {  // this automatically creates a has-many join with the citizens model
+      collection: 'citizens',
+      via: 'home',
+    },
   },
   
   types: {
