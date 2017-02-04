@@ -142,6 +142,14 @@ module.exports = {
     });
   },
 
+  //  /players/delete_token/
+  delete_token: function (req, res) {
+    Tokens.destroy({ token: req.param('token') }).exec(function (err, token) {
+      if (err) return RespService.e(res, 'Database fail: ' + err);
+      return RespService.s(res, token);  // respond success w/ all tokens
+    });
+  },
+
   //  /players/list_tokens/
   //  list all of a given user's tokens
   //    password auth required (self only)
