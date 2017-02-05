@@ -10,7 +10,7 @@ module.exports = {
   //    required inputs: hex_name
   //    response: confirmation of new farm
   establish_farm: asyncHandler(function (req, res) {
-    try { var user_id = await(AuthService.authenticate_async(req, "farm")); }  // verify permission to use finances app
+    try { var user_id = await(AuthService.authenticate_async(req, false)); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
     
     // call internal employer creation

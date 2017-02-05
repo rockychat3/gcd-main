@@ -11,7 +11,7 @@ module.exports = {
   //    optional inputs: user_id
   //    response: account object
   create_account: asyncHandler(function (req, res) {
-    try { var user_id = await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
+    try { var user_id = await(AuthService.authenticate_async(req, false)); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
     
     // in case an admin wants to lookup another user
@@ -37,7 +37,7 @@ module.exports = {
   //    required input: account_id (to be updated), new_name (for the account)
   //    response: account object
   update_account: asyncHandler(function (req, res) {
-    try { var user_id = await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
+    try { var user_id = await(AuthService.authenticate_async(req, false)); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
     try { await(AuthService.account_authenticate_async(req, user_id)); }  // verify that the user is the account owner (or admin)
     catch(err) { return RespService.e(res, "Account authentication error:" + err); };
@@ -74,7 +74,7 @@ module.exports = {
   //    optional inputs: user_id
   //    response: account object with amounts
   check_balances: asyncHandler(function (req, res) {
-    try { var user_id = await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
+    try { var user_id = await(AuthService.authenticate_async(req, false)); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
     
     // in case an admin wants to lookup another user
@@ -93,7 +93,7 @@ module.exports = {
   //    required input: account_id, transaction_id
   //    response: account and transactions object
   reverse_transaction: asyncHandler(function (req, res) {
-    try { var user_id = await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
+    try { var user_id = await(AuthService.authenticate_async(req, false)); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
     try { await(AuthService.account_authenticate_async(req, user_id)); }  // verify that the user is the account owner (or admin)
     catch(err) { return RespService.e(res, "Account authentication error:" + err); };
@@ -119,7 +119,7 @@ module.exports = {
   //    required input: account_id, recipient_id, amount, notes
   //    response: account and transactions object
   send_money: asyncHandler( function (req, res) {
-    try { var user_id = await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
+    try { var user_id = await(AuthService.authenticate_async(req, false)); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
     try { await(AuthService.account_authenticate_async(req, user_id)); }  // verify that the user is the account owner (or admin)
     catch(err) { return RespService.e(res, "Account authentication error:" + err); };
@@ -144,7 +144,7 @@ module.exports = {
   //    required input: account_id
   //    response: transactions list from account holder
   view_transactions: asyncHandler( function (req, res) {
-    try { var user_id = await(AuthService.authenticate_async(req, "finances")); }  // verify permission to use finances app
+    try { var user_id = await(AuthService.authenticate_async(req, false)); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
     try { await(AuthService.account_authenticate_async(req, user_id)); }  // verify that the user is the account owner (or admin)
     catch(err) { return RespService.e(res, "Account authentication error:" + err); };
@@ -165,7 +165,7 @@ module.exports = {
   //    optional input: amount (to be set at), spend_amount (amount to be added)
   //    response: account and transactions object
   remove_money: asyncHandler(function (req, res) {
-    try { await(AuthService.authenticate_async(req, "admin")); }  // verify permission to use finances app
+    try { await(AuthService.authenticate_async(req, true)); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
     
     // check for all required user input
@@ -189,7 +189,7 @@ module.exports = {
   //    optional input: notes
   //    response: account and transactions object
   add_money: asyncHandler(function (req, res) {
-    try { await(AuthService.authenticate_async(req, "admin")); }  // verify permission to use finances app
+    try { await(AuthService.authenticate_async(req, true)); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
     
     // check for all required user input

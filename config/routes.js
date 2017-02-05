@@ -16,6 +16,7 @@ module.exports.routes = {
   'GET /players/list_users': 'UsersController.list_users',
   'GET /players/list_user': 'UsersController.list_user',
   'GET /players/create_token': 'UsersController.create_token',
+  'GET /players/delete_token': 'UsersController.delete_token',
   'GET /players/list_tokens': 'UsersController.list_tokens',
   // Admin
   'GET /players/create_user': 'UsersController.create_user',

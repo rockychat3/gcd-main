@@ -6,12 +6,12 @@ module.exports = {
   // When authentication is needed, verify user permission and return default status object
   // required inputs: request object, permission string ("admin" for admin users, or a microservice name such as "players"),
   // returns the user's id (for admin, returns -1)
-  authenticate_async: function (req, permission_required) {
+  authenticate_async: function (req, f_admin_required) {
     if (!req.param('token')) throw new Error('Missing token');
     
     // lookup token and connected permissions and user info 
     try { var token = await(Tokens.findOne({token: req.param('token')}).populate(['permissions','user'])); } 
-    catch(err) { throw new Error('Database lookup problem. Check input data. ' + err); }
+    catch(err) { throw new Error('Token lookup problem. Check input data. ' + err); }
     
     if (!token) throw new Error('Token not found in database');
 
@@ -19,18 +19,11 @@ module.exports = {
     // @TODO
       
     // check if admin is required
-    if (permission_required == "admin") {
+    if (f_admin_required) {
       if (token.user.usertype != "admin") throw new Error('Only admins can use this function');
-      else return -1;  // if authorized, allow the requesting action to proceed
+      return -1;  // if authorized, allow the requesting action to proceed
     }
 
-    // next, check if the token is a supertoken
-    if (!token.supertoken) {
-      // if not, check if it is the right permission type
-      if (!token.permission) throw new Error('Something is really broken');
-      if (token.permission.name != permission_required) throw new Error('This token\'s powerlevel isn\'t high enough');
-    }
-    
     // admin user_id overwrite
     var user_id = token.user.id;
     if ((req.param('admin'))&&(token.user.usertype == "admin")) user_id = -1;
@@ -91,76 +84,7 @@ module.exports = {
   
   
   
-  
-  
-  
   ////// CODE BELOW IS ONLY FOR TRANSITION PERIOD -- IT IS ALL DEPRICATED ///////
-  
-  
-  
-  
-  
-  // When authentication is needed, verify user permission and return default status object
-  // required inputs: request object, response object, permission string ("admin" for admin users, or a microservice name such as "players"),
-  //   function to be executed upon successful completion
-  // response: callback function is executed
-  authenticate: function (req, res, permission_required, callback) {
-    if (!req.param('token')) return RespService.e(res, 'Missing token');  // check if token is present
-    
-    // database lookup by user_id
-    Tokens.findOne({
-      token: req.param('token')  // lookup the token in the database based on user input
-    }).populate(['permissions','user']).exec(function (err, token) {
-      if (err) return RespService.e(res, 'Database lookup problem. Check input data. ' + err);
-      if (!token) return RespService.e(res, 'Token not found in database');
-
-      // check if token is expired
-      // @TODO
-      
-      // check if admin is required
-      if (permission_required == "admin") {
-        if (token.user.usertype != "admin") return RespService.e(res, 'Only admins can use this function');
-        else return callback(req, res);  // if authorized, run the requested action (passed as a callback function)
-      }
-      
-      if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');  // for non-admin, check if user_id is present
-      
-      // first check if the requesting user is the token owner
-      if (token.user.id != parseInt(req.param('user_id'))) {
-        // if not, check if the token's owner is an admin
-        if (token.user.usertype != "admin") return RespService.e(res, 'This user does not have permission with this token');
-      }
-      
-      // next, check if the token is a supertoken
-      if (!token.supertoken) {
-        // if not, check if it is the right permission type
-        if (!token.permission) return RespService.e(res, 'Something is really broken');
-        if (token.permission.name != permission_required) return RespService.e(res, 'Wrong permission type for this token');
-      }
-      
-      return callback(req, res);  // if authorized, run the requested action (passed as a callback function)
-    });
-  },
-  
-  
-  account_authenticate: function (req, res, callback) {
-    if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');  // check if user_id is present
-    if (!req.param('account_id')) return RespService.e(res, 'Missing account_id');  // check if account_id is present
-    
-    // database lookup by user_id
-    Accounts.findOne({
-      id: req.param('account_id')  // lookup the token in the database based on user input
-    }).exec(function (err, accounts_object) {
-      if (err) return RespService.e(res, 'Database lookup problem. Check input data. ' + err);
-      if (!accounts_object) return RespService.e(res, 'account not found in database');
-      
-      // check if the requesting user is the account owner
-      if (accounts_object.user_id != req.param('user_id')) return RespService.e(res, 'This isn\'t your account, you don\'t have permission');
-      
-      return callback(req, res);
-    });
-  },
-  
   
   password_authenticate: function (req, res, if_admin, callback) {
     if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');  // check if user_id is present

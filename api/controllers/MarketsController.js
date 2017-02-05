@@ -35,7 +35,7 @@ module.exports = {
   //    required input: account_id, product_id, quantity
   //    response: transaction object
   buy_product: asyncHandler(function (req, res) {
-    try { var user_id = await(AuthService.authenticate_async(req, "markets")); }  // verify permission to use finances app
+    try { var user_id = await(AuthService.authenticate_async(req, false)); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
     try { await(AuthService.account_authenticate_async(req, user_id)); }  // verify that the user is the account owner (or admin)
     catch(err) { return RespService.e(res, "Account authentication error:" + err); };
@@ -67,7 +67,7 @@ module.exports = {
   //    required input: account_id, product_id, quantity
   //    response: transaction object
   sell_product: asyncHandler(function (req, res) {
-    try { var user_id = await(AuthService.authenticate_async(req, "markets")); }  // verify permission to use finances app
+    try { var user_id = await(AuthService.authenticate_async(req, false)); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
     try { await(AuthService.account_authenticate_async(req, user_id)); }  // verify that the user is the account owner (or admin)
     catch(err) { return RespService.e(res, "Account authentication error:" + err); };
@@ -103,7 +103,7 @@ module.exports = {
   //    requires product_id and item_name
   //    response: item is added to market
   add_product: asyncHandler(function (req, res) {
-    try { await(AuthService.authenticate_async(req, "admin")); }  // verify permission to use finances app
+    try { await(AuthService.authenticate_async(req, true)); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
 
     if (!req.param('product_name')) return RespService.e(res, 'Missing product_name'); 
@@ -125,7 +125,7 @@ module.exports = {
   
   
   remove_product: asyncHandler(function (req, res) {
-    try { await(AuthService.authenticate_async(req, "admin")); }  // verify permission to use finances app
+    try { await(AuthService.authenticate_async(req, true)); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
 
     // check for all required user input
@@ -143,7 +143,7 @@ module.exports = {
   
   
   update_product: asyncHandler(function (req, res) {
-    try { await(AuthService.authenticate_async(req, "admin")); }  // verify permission to use finances app
+    try { await(AuthService.authenticate_async(req, true)); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
 
     // creates array "to_update" and adds product_name, product_cost, and in_stock variables if they're provided in the API call

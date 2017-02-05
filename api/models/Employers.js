@@ -20,10 +20,6 @@ module.exports = {
       notNull: true,
       positive: true,
     },
-    /*worker_count: {  // number of workers currently at this job
-      type: 'integer',
-      defaultsTo: 0,
-    },*/
     workers: {  // this automatically creates a has-many join with the citizens model
       collection: 'citizens',
       via: 'employer',

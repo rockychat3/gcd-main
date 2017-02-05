@@ -75,7 +75,9 @@ module.exports = {
   
   // admin function to assign jobs, housing, and all other cycled actions for virtual citizens once/week
   weekly_citizen_action_routine: asyncHandler(function (req, res) {
-    
+    try { var user_id = await(AuthService.authenticate_async(req, true)); }  // verify admin permission
+    catch(err) { return RespService.e(res, "User authentication error:" + err); };
+
     // define internal functions that have access to main function variables:
     
     // formally adds a person to a home
@@ -121,7 +123,6 @@ module.exports = {
       for (var position of open_positions ) {  // iterate through each position available
         if (position.wage > best.wage) {
           var temp_home = home_search(position.region, position.wage);  // check that housing is available
-          //console.log(position, best, temp_home);
           if (temp_home) {  // if a job exists and affordable housing exists in that region, make this the "best job"
             best.employer_id = position.employer;  // save the employer as best
             best.wage = position.wage;  // and the new wage to beat
@@ -186,7 +187,6 @@ module.exports = {
     // lookup all employers and check to see if there were any positions cut
     try { var unprocessed_employers_list = await(Employers.find({}).populate(['workers','hex'])); }
     catch(err) { return RespService.e(res, "Employer search db fail: " + err); }
-    console.log(unprocessed_employers_list);
     var employers_dict = {};  // function-wide variable w/ employers indexed as obj[id]
     for (var employer of unprocessed_employers_list) {
       employer['worker_count'] = employer.workers.length;
@@ -227,8 +227,7 @@ module.exports = {
         }
       }
     }
-    //console.log(open_positions);
-    
+
     // cycle through employed citizens for opportunity to upgrade to a better paying job if pay > +50 AND housing available
     var f_changed = true;  // flag if something changes to so it makes one more loop
     while (f_changed) {
@@ -283,7 +282,6 @@ module.exports = {
       var salary = emp.worker_count * emp.wage;
       if (!salary) continue;  // skip payment if there are no workers
       var notes = "Salary paid $" + emp.wage + "/week for " + emp.worker_count + " employees at " + emp.business_type + " at " + emp.hex.name + " from account " + emp.account;
-      console.log(notes);
       log_notes.push(notes);
       try { await(sails.controllers.finances.internal_money_transfer(emp.account, 0, salary, notes)); }
       catch(err) { return RespService.e(res, "Payment failed from employer_id " + employer_id + ": " + err); }

@@ -49,24 +49,22 @@ module.exports = {
   //    required input: user_id (of player to update)
   //    optional inputs: name (of player), email (of player), password (of player)
   //    response: user object
-  update_user: function (req, res) {
-    AuthService.authenticate(req, res, "players", function (req, res) { 
+  update_user: asyncHandler( function (req, res) {
+    try { await(AuthService.authenticate_async(req, false)); }
+    catch(err) { return RespService.e(res, "User auth error: " + err); };
 
-      if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');
-      
-      // creates array "to_update" and adds name, email, and password variables if they're provided in the API call
-      var to_update = {};
-      if (req.param('name')) to_update.name = req.param('name');
-      if (req.param('email')) to_update.email = req.param('email');
-      if (req.param('password')) to_update.password = req.param('password');
+    // creates array "to_update" and adds name, email, and password variables if they're provided in the API call
+    var to_update = {};
+    if (req.param('name')) to_update.name = req.param('name');
+    if (req.param('email')) to_update.email = req.param('email');
+    if (req.param('password')) to_update.password = req.param('password');
 
-      // updates the user of the provided id with the array ("to_update") containing the update information
-      Users.update(req.param('user_id'), to_update).exec(function afterwards(err, updated){
-        if (err) return RespService.e(res, 'Database fail: ' + err);
-        return RespService.s(res, updated);  // respond success with user data
-      });
-    });
-  },
+    // updates the user of the provided id with the array ("to_update") containing the update information
+    try { var updated = await(Users.update(req.param('user_id'), to_update)); }
+    catch(err) { return RespService.e(res, 'Database fail: ' + err); }
+    
+    return RespService.s(res, updated);  // respond success with user data
+  }),
   
   //  /players/list_users.
   //  admin action to list all users

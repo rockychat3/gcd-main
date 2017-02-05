@@ -13,10 +13,6 @@ module.exports = {
       defaultsTo: 1,
       notNull: true,
     },
-    /*res_count: {
-      type: 'integer',
-      defaultsTo: 0,
-    },*/
     account: {
       model: 'accounts',
       notNull: true,
