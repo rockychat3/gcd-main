@@ -49,16 +49,14 @@ module.exports = {
           f_positions_changed = true;
         }
         if (f_positions_changed) {
-          
           try { await(Employers.update(employer.id, {positions: employer.positions})); }
           catch(err) { throw new Error('Employee qty update db fail: ' + err); }
         }
       }
-      // subtract: account total = account total - employees*wage
-      accounts_dict[employer.account] -= employer.positions * employer.wage;
+      accounts_dict[employer.account] -= employer.positions * employer.wage;  // account total = old total - wages paid
     }
     
-    if (!f_execute) {
+    if (!f_execute) {  // only execute to gather feedback data for a user check of being able to pay
       var fail_accounts = {};
       for (var account in accounts_dict) {
         if (accounts_dict[account] < 0) fail_accounts[account] = accounts_dict[account];
@@ -70,6 +68,10 @@ module.exports = {
   },
   
   
+  weekly_routine_employer_funds_test: asyncHandler(function (req, res) {
+    try { return RespService.s(res, await(this.internal_employer_funds_check(false))); }
+    catch(err) { return RespService.e(res, "Check failed: " + err); }
+  }),
   
   // admin function to assign jobs, housing, and all other cycled actions for virtual citizens once/week
   weekly_citizen_action_routine: asyncHandler(function (req, res) {
@@ -184,7 +186,7 @@ module.exports = {
     // lookup all employers and check to see if there were any positions cut
     try { var unprocessed_employers_list = await(Employers.find({}).populate(['workers','hex'])); }
     catch(err) { return RespService.e(res, "Employer search db fail: " + err); }
-    //console.log(unprocessed_employers_list);
+    console.log(unprocessed_employers_list);
     var employers_dict = {};  // function-wide variable w/ employers indexed as obj[id]
     for (var employer of unprocessed_employers_list) {
       employer['worker_count'] = employer.workers.length;
@@ -194,8 +196,9 @@ module.exports = {
     // scan all employers for extra employees to be cut
     for (var employer_id in employers_dict) {
       var employer = employers_dict[employer_id];  // store employer for convenience
-      if (employer.positions < employer.worker_count) {  // check if there are too many workers given new position numbers
-        for (var i=0; i<(employer.worker_count-employer.positions); i++) {  // fire each extra employee
+      var workers_minus_positions = employer.worker_count-employer.positions;  // how many extra workers need to be fired
+      if (workers_minus_positions > 0) {  // check if there are too many workers given new position numbers
+        for (var i=0; i<workers_minus_positions; i++) {  // fire each extra employee
           remove_citizen_from_home(employer.workers[i].id);  // make citizen homeless
           remove_citizen_from_job(employer.workers[i].id); // make citizen unemployed
         }

@@ -52,4 +52,5 @@ module.exports.routes = {
   
   
   'GET /citizens/weekly_citizen_action_routine': 'CitizensController.weekly_citizen_action_routine',
+  'GET /citizens/weekly_routine_employer_funds_test': 'CitizensController.weekly_routine_employer_funds_test',
 };
