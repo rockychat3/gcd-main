@@ -20,8 +20,18 @@ module.exports = {
     // check for all required user input
     if (!req.param('account_name')) return RespService.e(res, 'Missing account_name');
     
+    // search for available account ID. If user=73, then check 1073, 2073, 3073, etc.
+    var found = false;
+    var acct_id = user_id;
+    while (!found) {
+      acct_id += 1000;
+      try { var account_object = await(Accounts.findOne(acct_id)); }
+      catch(err) { return RespService.e(res, 'Account number search error: ' + err); }
+      if (!account_object) found = true;  // if not existing, open account_id is found!
+    }
+    
     // creates object "new_account" with the provided account name and user id
-    var new_account = {account_name: req.param('account_name'), user: req.param('user_id')};
+    var new_account = { id: acct_id, account_name: req.param('account_name'), user: user_id };
       
     // creates the new account in the database with the new_account object
     try { var account_object = await(Accounts.create(new_account)); }

@@ -10,7 +10,7 @@ module.exports = {
     if (!req.param('token')) throw new Error('Missing token');
     
     // lookup token and connected permissions and user info 
-    try { var token = await(Tokens.findOne({token: req.param('token')}).populate(['permissions','user'])); } 
+    try { var token = await(Tokens.findOne({token: req.param('token')}).populate('user')); } 
     catch(err) { throw new Error('Token lookup problem. Check input data. ' + err); }
     
     if (!token) throw new Error('Token not found in database');
