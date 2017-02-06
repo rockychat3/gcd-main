@@ -1,7 +1,7 @@
 {
   "name": "gcd",
-  "version": "0.1.0",
-  "description": "a Sails application",
+  "version": "0.3.0",
+  "description": "The Grand Challenge Design Simulation Game",
   "keywords": [],
   "engines": {
     "node": "~ 0.12.4",
@@ -41,6 +41,6 @@
     "type": "git",
     "url": "git://github.com/anonymous node/sails user/gcd.git"
   },
-  "author": "Evan Richardson, Andy Pethan, and students of the Grand Challenge Design course",
+  "author": "Evan Richardson, Andy Pethan, Callum Hauber, Isaac Faulkner, Andy Hershberger, and additional students of the Grand Challenge Design course",
   "license": "MIT"
 }

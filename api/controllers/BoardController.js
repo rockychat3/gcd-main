@@ -7,24 +7,33 @@ module.exports = {
   //  /board/buy_hex/
   //  allows players to buy land from a town government (does NOT handle the money transfer)
   //    required auth: token
-  //    required inputs: hex_name
+  //    required inputs: hex_name, recipient_id
   //    response: confirmation of purchase
-  buy_hex: asyncHandler(function (req, res) {
+  government_sell_hex: asyncHandler(function (req, res) {
     try { var user_id = await(AuthService.authenticate_async(req, false)); }  // verify permission to use finances app
     catch(err) { return RespService.e(res, "User authentication error:" + err); };
     
     // check for all required user input
     if (!req.param('hex_name')) return RespService.e(res, 'Missing hex_name');
-    
+    if (!req.param('recipient_id')) return RespService.e(res, 'Missing recipient_id');
+
     // lookup the hex and check for ownership
-    try { var hex_object = await(Hexes.findOne(req.param('hex_name'))); }
+    try { var hex_object = await(Hexes.findOne(req.param('hex_name')).populate('town')); }
     catch(err) { return RespService.e(res, 'Hex lookup error: ' + err); }
     if (!hex_object) return RespService.e(res, 'Hex not found');
     if (hex_object.owner) return RespService.e(res, 'Hex is already owned -- the owner must use sell_hex to transfer');
     
+    // verify that this is the government account authorized to sell the land (or admin)
+    if ((hex_object.town.user != user_id) && (user_id > 0)) RespService.e(res, 'Only towns have the right to sell a hex.');;
+    
+    // lookup the new user
+    try { var recipient_object = await(Users.findOne(req.param('recipient_id'))); }
+    catch(err) { return RespService.e(res, 'User lookup error: ' + err); }
+    if (!recipient_object) return RespService.e(res, 'Recipient not found');
+    
     // set new owner and update db
-    try { var updated = await(Hexes.update(req.param('hex_name'), {owner: user_id})); }
-    catch(err) { return RespService.e(res, 'Database fail: ' + err); }
+    try { var updated = await(Hexes.update(req.param('hex_name'), {owner: req.param('recipient_id')})); }
+    catch(err) { return RespService.e(res, 'Database fail on set owner: ' + err); }
     
     return RespService.s(res, updated);  // respond success with account data
   }),
@@ -88,12 +97,23 @@ module.exports = {
   }),
         
   
-  
+  //  /board/set_region/
+  //  admin function to add hex to a region
+  //    required auth: token (admin)
+  //    required inputs: hex_name, new_region
+  //    response: hex object
   set_region: asyncHandler(function(req,res) {
-    try { var user_object = await(AuthService.authenticate_async(req, true)); }
+    try { var user_object = await(AuthService.authenticate_async(req, true)); }  // admin required
     catch (err) { return RespService.e(res, 'Sorry ol chap but ya power level isnt high enough') }
     
+    if (!req.param('new_region')) return RespService.e(res, 'Missing new_region');
+    
+    try { var updated = await(Hexes.update(req.param('hex_name'), { region: req.param('new_region') })); }
+    catch (err) { return RespService.e(res, 'Hex db update fail: ' + err) }
+    
+    return RespService.s(res, updated);// respond success with new data
   }),
+  
   
   //  /board/merge_regions/
   //  admin function to merge one region into another
@@ -107,17 +127,28 @@ module.exports = {
     if (!req.param('old_region')) return RespService.e(res, 'Missing old_region');
     if (!req.param('new_region')) return RespService.e(res, 'Missing new_region');
     
-    var to_update = { region: req.param('new_region') };
-
     try { var updated = await(Hexes.update({ region: req.param('old_region') }, { region: req.param('new_region') })); }
     catch (err) { return RespService.e(res, 'Hex db update fail: ' + err) }
     
     return RespService.s(res, updated);// respond success with new data
   }),
   
+  
+  //  /board/set_town/
+  //  admin function to add hex to a town
+  //    required auth: token (admin)
+  //    required inputs: hex_name, new_town
+  //    response: hex object
   set_town: asyncHandler(function(req,res) {
-     try { var user_object = await(AuthService.authenticate_async(req, true)) }
-     catch (err) { return RespService.e(res, 'Sorry ol chap but ya power level isnt high enough')}
+    try { var user_object = await(AuthService.authenticate_async(req, true)); }  // admin required
+    catch (err) { return RespService.e(res, 'your power levels need to be OVER 9000 to access this functionality') }
+    
+    if (!req.param('new_town')) return RespService.e(res, 'Missing new_town');
+    
+    try { var updated = await(Hexes.update(req.param('hex_name'), { town: req.param('new_town') })); }
+    catch (err) { return RespService.e(res, 'Hex db update fail: ' + err) }
+    
+    return RespService.s(res, updated);// respond success with new data
   }),
   
   

@@ -27,7 +27,7 @@ module.exports = {
       acct_id += 1000;
       try { var account_object = await(Accounts.findOne(acct_id)); }
       catch(err) { return RespService.e(res, 'Account number search error: ' + err); }
-      if (!account_object) found = true;  // if not existing, open account_id is found!
+      if (!account_object) found = true;  // if not existing, we have an open account_id to use
     }
     
     // creates object "new_account" with the provided account name and user id

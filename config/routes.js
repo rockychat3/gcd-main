@@ -38,20 +38,22 @@ module.exports.routes = {
   'GET /markets/list_product': 'MarketsController.list_product',
   'GET /markets/buy_product': 'MarketsController.buy_product',
   'GET /markets/sell_product': 'MarketsController.sell_product',
-  
   // Admin
   'GET /markets/add_product': 'MarketsController.add_product',
   'GET /markets/remove_product': 'MarketsController.remove_product',
   'GET /markets/update_product': 'MarketsController.update_product',
   
   // Board Microapp
-  'GET /board/buy_hex': 'BoardController.buy_hex',
+  'GET /board/government_sell_hex': 'BoardController.government_sell_hex',
   'GET /board/sell_hex': 'BoardController.sell_hex',
   'GET /board/lookup_hex': 'BoardController.lookup_hex',
+  'GET /board/set_residency': 'BoardController.set_residency',
+  // Admin
+  'GET /board/set_region': 'BoardController.set_region',
+  'GET /board/set_town': 'BoardController.set_town',
+  'GET /board/merge_regions': 'BoardController.merge_regions',
   
-  'GET /markets/update_product': 'MarketsController.update_product',
-  
-  
+
   'GET /citizens/weekly_citizen_action_routine': 'CitizensController.weekly_citizen_action_routine',
   'GET /citizens/weekly_routine_employer_funds_test': 'CitizensController.weekly_routine_employer_funds_test',
 };

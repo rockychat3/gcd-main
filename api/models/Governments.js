@@ -12,10 +12,10 @@ module.exports = {
       enum: ['town', 'county'],
       defaultsTo: 'town',
     },
-    user: {  // player who owns the hex
+    user: {  // the user account linked to the government
       model: 'users',
     },
-    primary_account: {  // interconnected region that connects to the hex
+    primary_account: {  // where the money goes for government operations
       model: 'accounts',
     },
   },
