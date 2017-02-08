@@ -93,7 +93,7 @@ module.exports = {
     try { var updated = Users.update(user_id, { residence: req.param('hex_name') }); }
     catch(err) { return RespService.e(res, 'Residence reset error: ' + err); }
     
-    return RespService.s(res, updated);  // respond success with user data
+    return RespService.s(res, "updated");  // respond success with user data
   }),
         
   
