@@ -129,6 +129,7 @@ module.exports = {
     if (!req.param('earliest_transaction_id')) return RespService.e(res, 'Missing earliest_transaction_id');
     if (!req.param('latest_transaction_id')) return RespService.e(res, 'Missing latest_transaction_id');
     
+    // loop through all transactions in the range (inclusive), start at the end, and count back by ones
     for (var trans_id=req.param('latest_transaction_id'); trans_id>=req.param('earliest_transaction_id'); trans_id--) {
       try { var transactions_object = await(Transactions.findOne({ id: trans_id })); }
       catch(err) { return RespService.e(res, 'Database fail: ' + err); }

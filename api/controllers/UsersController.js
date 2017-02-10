@@ -115,7 +115,7 @@ module.exports = {
     // create array "new_token" with the generated token string and user id
     var new_token = { token: token_string, user: req.param('user_id') };
 
-    try { var token_result = Tokens.create(new_token); }
+    try { var token_result = await(Tokens.create(new_token)); }
     catch(err) { return RespService.e(res, 'Token creation error: ' + err); }
 
     return RespService.s(res, token_result);  // respond success w/ token data
