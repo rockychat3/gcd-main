@@ -97,48 +97,29 @@ module.exports = {
 
   //  /players/create_token/
   //  create a new token with a user provided permission level
-  //    password auth required (self only)
-  //    required inputs: user_id, permission (the microapp being authorized, use "supertoken" for all apps)
+  //    user_id/password auth required
+  //    no required inputs
   //    optional input: expiration (datetime when token stops working, defaults "false"),
   //    response: token object
-  create_token: function (req, res) {
-    AuthService.password_authenticate(req, res, false, function (req, res) { 
-
-      // check for all required user input
-      if (!req.param('user_id')) return RespService.e(res, 'Missing user_id');
-      if (!req.param('permission')) return RespService.e(res, 'Missing permission');
+  create_token: asyncHandler( function (req, res) {
+    try { await(AuthService.password_authenticate_async(req, false)); }
+    catch(err) { return RespService.e(res, err); };
       
-      // create the token string
-      var token_string = Date.now().toString();
-      for (var i=0;i<30;i++) {
-        var start = Math.random() < 0.5 ? 65 : 97;
-        token_string += String.fromCharCode(start+Math.floor(Math.random()*26));
-      }
-      
-      // create array "new_token" with the generated token string and user id
-      var new_token = { token: token_string, user: req.param('user_id') };
+    // create the token string
+    var token_string = Date.now().toString();
+    for (var i=0;i<30;i++) {
+      var start = Math.random() < 0.5 ? 65 : 97;
+      token_string += String.fromCharCode(start+Math.floor(Math.random()*26));
+    }
+    
+    // create array "new_token" with the generated token string and user id
+    var new_token = { token: token_string, user: req.param('user_id') };
 
-      if (req.param('permission') == "supertoken") {  // if creating a supertoken, set params and ignore permission
-        new_token.supertoken = true;
-        Tokens.create(new_token).exec(function (err, token_result){
-          if (err) return RespService.e(res, 'Token creation error: ' + err);
-          return RespService.s(res, token_result);  // respond success w/ token data
-        });
-      }
-      else {  // if creating a normal token, set the permission id
-        Permissions.findOne({ name: req.param('permission') }).exec(function (err, permission) {
-          if (err) return RespService.e(res, 'Database fail: ' + err);
-          if (!permission) return RespService.e(res, 'Permission not found in database');
-          
-          new_token.permission = permission.id;  // use the permission id from the database lookup
-          Tokens.create(new_token).exec(function (err, token_result){
-            if (err) return RespService.e(res, 'Token creation error: ' + err);
-            return RespService.s(res, token_result);  // respond success w/ token data
-          });
-        });
-      }
-    });
-  },
+    try { var token_result = Tokens.create(new_token); }
+    catch(err) { return RespService.e(res, 'Token creation error: ' + err); }
+
+    return RespService.s(res, token_result);  // respond success w/ token data
+  }),
 
   //  /players/delete_token/
   delete_token: function (req, res) {
