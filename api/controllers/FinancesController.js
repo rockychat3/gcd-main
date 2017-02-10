@@ -122,6 +122,26 @@ module.exports = {
     return RespService.s(res, results);
   }),
   
+  batch_reverse: asyncHandler(function (req, res) {
+    try { var user_id = await(AuthService.authenticate_async(req, true)); }  // verify permission admin
+    catch(err) { return RespService.e(res, "Admin authentication error:" + err); };
+    
+    if (!req.param('earliest_transaction_id')) return RespService.e(res, 'Missing earliest_transaction_id');
+    if (!req.param('latest_transaction_id')) return RespService.e(res, 'Missing latest_transaction_id');
+    
+    for (var trans_id=req.param('latest_transaction_id'); trans_id>=req.param('earliest_transaction_id'); trans_id--) {
+      try { var transactions_object = await(Transactions.findOne({ id: trans_id })); }
+      catch(err) { return RespService.e(res, 'Database fail: ' + err); }
+      if (!transactions_object) return RespService.e(res, 'Transaction not found');
+      
+      // simply create a reverse transaction of the original rather than deleting records
+      try { var results = await(this.internal_money_transfer(transactions_object.to, transactions_object.from, transactions_object.amount, "REVERSED:" + transactions_object.notes)); }
+      catch(err) { return RespService.e(res, 'Money transfer issue:' + err); }
+    }
+    
+    // respond with the transaction confirmation and new amounts
+    return RespService.s(res, "all transactions reversed");
+  }),
   
   //  /finances/send_money/
   //  send money to another account

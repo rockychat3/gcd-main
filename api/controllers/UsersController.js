@@ -47,17 +47,17 @@ module.exports = {
   //  allows players to update their name, email, or password
   //    token auth required (players)
   //    required input: user_id (of player to update)
-  //    optional inputs: name (of player), email (of player), password (of player)
+  //    optional inputs: name (of player), email (of player), new_password (of player)
   //    response: user object
   update_user: asyncHandler( function (req, res) {
-    try { await(AuthService.authenticate_async(req, false)); }
-    catch(err) { return RespService.e(res, "User auth error: " + err); };
+    try { await(AuthService.password_authenticate_async(req, false)); }
+    catch(err) { return RespService.e(res, err); };
 
     // creates array "to_update" and adds name, email, and password variables if they're provided in the API call
     var to_update = {};
     if (req.param('name')) to_update.name = req.param('name');
     if (req.param('email')) to_update.email = req.param('email');
-    if (req.param('password')) to_update.password = req.param('password');
+    if (req.param('new_password')) to_update.password = req.param('new_password');
 
     // updates the user of the provided id with the array ("to_update") containing the update information
     try { var updated = await(Users.update(req.param('user_id'), to_update)); }

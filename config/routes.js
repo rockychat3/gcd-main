@@ -32,6 +32,8 @@ module.exports.routes = {
   // Admin
   'GET /finances/add_money': 'FinancesController.add_money',
   'GET /finances/remove_money/': 'FinancesController.remove_money',
+  'GET /finances/batch_reverse/': 'FinancesController.batch_reverse',
+  
    
   // Market Microapp
   'GET /markets/list_products': 'MarketsController.list_products',
